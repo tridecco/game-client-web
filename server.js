@@ -13,6 +13,9 @@ const app = express();
 // Load the renderer (EJS)
 app.set("view engine", "ejs");
 
+// Load the static files
+app.use(express.static("public"));
+
 // Load the routes
 const routes = require(config.codePath + "/routes/index");
 app.use("/", routes);
