@@ -8,6 +8,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
 ### Language
 
@@ -26,3 +27,30 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 ### Environment Requirements
 
 - Node.js
+
+### Setting Up the Server
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/tridecco/game-client-web.git
+cd game-client-web
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Compile Tailwind CSS and PostCSS:
+
+```bash
+npm run build:css
+```
+
+4. Start the server:
+
+```bash
+node server
+```
