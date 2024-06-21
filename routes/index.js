@@ -8,6 +8,11 @@ const router = require("express").Router();
 
 // Load the routes
 
+// Load the home route
+router.get("/", (req, res) => {
+  res.render("home");
+});
+
 // Load the default route (404 Not Found)
 router.use("*", (req, res) => {
   res.render("404");
