@@ -13,6 +13,9 @@ router.get("/", (req, res) => {
   res.render("home");
 });
 
+// Load the auth routes
+router.use("/", require("./auth"));
+
 // Load the default route (404 Not Found)
 router.use("*", (req, res) => {
   res.render("404");
