@@ -3,7 +3,19 @@
 
 <head>
     <%- include("./components/head") %>
+    <script src="/js/app.js"></script>
+    <script src="/js/auth.js"></script>
     <title>Tridecco</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = '/two-factor-authentication';
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = '/login';
+            }
+        })();
+    </script>
 </head>
 
 <body class="h-full">

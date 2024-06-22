@@ -10,7 +10,35 @@ class App {
    */
   constructor(serverUrl) {
     this.serverUrl = serverUrl;
+    this.session.serverUrl = serverUrl;
   }
+
+  /**
+   * Session object.
+   * @type {object} session
+   */
+  session = {
+    /**
+     * Check the current session.
+     * @returns {Promise<object>} The session data.
+     */
+    async check() {
+      const response = await fetch(`${this.serverUrl}/sessions/current`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        return data.data;
+      } else {
+        return null;
+      }
+    },
+  };
 
   /**
    * Display a notification message in an element.
