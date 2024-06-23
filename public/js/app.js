@@ -23,19 +23,32 @@ class App {
      * @returns {Promise<object>} The session data.
      */
     async check() {
-      const response = await fetch(`${this.serverUrl}/sessions/current`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      try {
+        const response = await fetch(`${this.serverUrl}/sessions/current`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.status === "success") {
-        return data.data;
-      } else {
-        return null;
+        if (data.status === "success") {
+          return data.data;
+        } else {
+          return {
+            authenticated: false,
+            twoFactorAuthenticated: false,
+            userId: null,
+          };
+        }
+      } catch (error) {
+        console.error("Cannot connect to the server:", error);
+        return {
+          authenticated: false,
+          twoFactorAuthenticated: false,
+          userId: null,
+        };
       }
     },
   };
