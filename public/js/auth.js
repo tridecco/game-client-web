@@ -8,13 +8,7 @@ class Auth {
    * Create a new Auth object.
    */
   constructor() {
-    this.authenticated = false;
-    if (
-      localStorage.getItem("userId") &&
-      localStorage.getItem("2FA-verified")
-    ) {
-      this.authenticated = true;
-    }
+    this.authenticated = null;
   }
 
   /**
@@ -80,17 +74,13 @@ class Auth {
     const userData = data.data;
 
     if (data.status === "success") {
-      localStorage.setItem("userId", userData._id);
-
       if (data.message === "User logged in successfully. 2FA required.") {
-        localStorage.setItem("2FA-verified", false);
         localStorage.setItem("userEmail", userData.email);
 
         setTimeout(() => {
           window.location.href = "/two-factor-authentication";
         }, 2000);
       } else {
-        localStorage.setItem("2FA-verified", true);
         this.authenticated = true;
 
         setTimeout(() => {
@@ -134,8 +124,6 @@ class Auth {
     const data = await response.json();
 
     if (data.status === "success") {
-      localStorage.setItem("2FA-verified", true);
-
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
@@ -150,7 +138,6 @@ class Auth {
       );
     } else {
       if (data.error.code === "NOT_LOGGED_IN") {
-        localStorage.clear();
         window.location.href = "/login";
       }
 
@@ -187,9 +174,6 @@ class Auth {
     const userData = data.data;
 
     if (data.status === "success") {
-      localStorage.setItem("userId", userData._id);
-      localStorage.setItem("2FA-verified", true);
-
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
