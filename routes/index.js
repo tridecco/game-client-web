@@ -16,6 +16,9 @@ router.get("/", (req, res) => {
 // Load the auth routes
 router.use("/", require("./auth"));
 
+// Load the my routes
+router.use("/my", require("./my"));
+
 // Load the default route (404 Not Found)
 router.use("*", (req, res) => {
   res.render("404");
