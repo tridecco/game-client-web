@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <%- include("./components/head") %>
+    <script src="/js/my.js"></script>
+    <title>My Profile</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = '/two-factor-authentication';
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = '/login';
+            }
+        })();
+    </script>
+</head>
+
+<body class="h-full bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 h-full flex items-center justify-center">
+        <div class="flex flex-col md:flex-row w-full min-h-screen space-y-4 md:space-y-0 md:space-x-4">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
+                <a href="/" class="flex items-center text-gray-500 mb-4">
+                    ← Return to Home
+                </a>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">My Account</h2>
+                <ul>
+                    <li class="mb-4">
+                        <a class="text-indigo-600 font-semibold">User Profile</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="text-gray-600 hover:text-indigo-600">User Settings</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="text-gray-600 hover:text-indigo-600">User Game Records</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="text-gray-600 hover:text-indigo-600">User Security Records</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="w-full md:w-3/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
+                <div class="max-w-2xl mx-auto">
+                    <form id="edit-profile-form" class="space-y-6">
+                        <div class="flex items-center mb-6">
+                            <img id="user-avatar" class="w-24 h-24 rounded-full" src="/img/default-avatar.png"
+                                alt="User Avatar">
+                            <div class="ml-4">
+                                <label class="mt-1 block text-sm font-medium text-gray-700">Username</label>
+                                <p id="username" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    Username</p>
+                                <label class="mt-1 block text-sm font-medium text-gray-700">Email</label>
+                                <p id="user-email" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    email@example.com</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                <input id="first-name" type="text"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <input id="last-name" type="text"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Location</label>
+                                <input id="location" type="text"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Birthday</label>
+                                <input id="birthday" type="date"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <div class="mt-2 space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
+                                            value="male">
+                                        <span class="ml-2">Male</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
+                                            value="female">
+                                        <span class="ml-2">Female</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
+                                            value="other">
+                                        <span class="ml-2">Other</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Custom URLs</label>
+                                <textarea id="custom-urls"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Bio</label>
+                                <textarea id="bio"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex items-center justify-between">
+                            <button type="button"
+                                class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-500">Save
+                                Changes</button>
+                            <span id="last-updated" class="text-sm text-gray-500">Last updated: /</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
