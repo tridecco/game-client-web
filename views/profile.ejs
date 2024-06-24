@@ -152,12 +152,12 @@
             if (userData.profile.birthday) {
                 document.getElementById('birthday').textContent = new Date(userData.profile.birthday).toLocaleDateString();
             }
-            if (userData.profile.customUrls) {
-                const customUrls = document.getElementById('custom-urls');
-                userData.profile.customUrls.forEach(url => {
+            if (userData.profile.customizeUrls) {
+                const customizeUrls = document.getElementById('custom-urls');
+                userData.profile.customizeUrls.forEach(url => {
                     const p = document.createElement('p');
                     p.textContent = url;
-                    customUrls.appendChild(p);
+                    customizeUrls.appendChild(p);
                 });
             }
             if (userData.profile.bio) {
