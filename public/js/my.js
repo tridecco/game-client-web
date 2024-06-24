@@ -31,4 +31,26 @@ class My {
       return null;
     }
   }
+
+  /**
+   * Update user profile.
+   * @param {object} data - The user data.
+   * @returns {object} The response data.
+   */
+  async updateProfile(data) {
+    const response = await fetch(
+      `${app.serverUrl}/users/${this.userId}/profile`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
 }

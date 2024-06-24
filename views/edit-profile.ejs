@@ -44,18 +44,22 @@
 
             <!-- Main Content -->
             <div class="w-full md:w-3/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
-                <div class="max-w-2xl mx-auto">
-                    <form id="edit-profile-form" class="space-y-6">
+                <div id="profile-box" class="max-w-2xl mx-auto">
+                    <form class="space-y-6">
                         <div class="flex items-center mb-6">
-                            <img id="user-avatar" class="w-24 h-24 rounded-full" src="/img/default-avatar.png"
-                                alt="User Avatar">
+                            <button type="button" onclick="handleAvatarClick()" class="focus:outline-none">
+                                <img id="user-avatar" class="w-24 h-24 rounded-full cursor-pointer"
+                                    src="/img/default-avatar.png" alt="User Avatar">
+                            </button>
+                            <input id="avatar-input" type="file" accept="image/*" class="hidden"
+                                onchange="handleAvatarChange(event)">
                             <div class="ml-4">
                                 <label class="mt-1 block text-sm font-medium text-gray-700">Username</label>
-                                <p id="username" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                    Username</p>
+                                <p id="username" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">/
+                                </p>
                                 <label class="mt-1 block text-sm font-medium text-gray-700">Email</label>
                                 <p id="user-email" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                    email@example.com</p>
+                                    /</p>
                             </div>
                         </div>
 
@@ -84,18 +88,18 @@
                                 <label class="block text-sm font-medium text-gray-700">Gender</label>
                                 <div class="mt-2 space-x-4">
                                     <label class="inline-flex items-center">
-                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
-                                            value="male">
+                                        <input id="gender-male" type="radio" class="form-radio text-indigo-600"
+                                            name="gender" value="male">
                                         <span class="ml-2">Male</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
-                                            value="female">
+                                        <input id="gender-female" type="radio" class="form-radio text-indigo-600"
+                                            name="gender" value="female">
                                         <span class="ml-2">Female</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input type="radio" class="form-radio text-indigo-600" name="gender"
-                                            value="other">
+                                        <input id="gender-other" type="radio" class="form-radio text-indigo-600"
+                                            name="gender" value="other">
                                         <span class="ml-2">Other</span>
                                     </label>
                                 </div>
@@ -113,7 +117,7 @@
                         </div>
 
                         <div class="mt-6 flex items-center justify-between">
-                            <button type="button"
+                            <button onclick="updateProfile()" type="button"
                                 class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-500">Save
                                 Changes</button>
                             <span id="last-updated" class="text-sm text-gray-500">Last updated: /</span>
@@ -123,6 +127,144 @@
             </div>
         </div>
     </div>
+    <script>
+        let my;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const userId = (await app.session.check()).userId;
+
+            my = new My(userId);
+
+            const userData = await my.getUserData();
+
+            if (userData.profile.avatar) {
+                document.getElementById('user-avatar').src = userData.profile.avatar;
+            }
+            document.getElementById('username').textContent = userData.username;
+            document.getElementById('user-email').textContent = userData.email;
+            if (userData.profile.gender !== null) {
+                if (userData.profile.gender === true) {
+                    document.getElementById("gender-male").setAttribute("checked", "checked");
+                } else if (userData.profile.gender === false) {
+                    document.getElementById("gender-female").setAttribute("checked", "checked");
+                } else {
+                    document.getElementById("gender-other").setAttribute("checked", "checked");
+                }
+            }
+            if (userData.profile.firstName) {
+                document.getElementById('first-name').value = userData.profile.firstName;
+            }
+            if (userData.profile.lastName) {
+                document.getElementById('last-name').value = userData.profile.lastName;
+            }
+            if (userData.profile.location) {
+                document.getElementById('location').value = userData.profile.location;
+            }
+            if (userData.profile.birthday) {
+                document.getElementById('birthday').value = new Date(userData.profile.birthday).toISOString().split('T')[0];
+            }
+            if (userData.profile.customizeUrls) {
+                const customizeUrls = document.getElementById('custom-urls');
+                userData.profile.customizeUrls.forEach(url => {
+                    customizeUrls.value += `${url}\n`;
+                });
+            }
+            if (userData.profile.bio) {
+                document.getElementById('bio').value = userData.profile.bio;
+            }
+            document.getElementById('last-updated').textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`;
+        });
+
+        function handleAvatarClick() {
+            document.getElementById('avatar-input').click();
+        }
+
+        function handleAvatarChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function (e) {
+                    const data = await my.updateProfile({ avatar: e.target.result });
+                    if (data.status === "success") {
+                        const updatedUser = data.data;
+                        document.getElementById('user-avatar').src = updatedUser.profile.avatar;
+                        document.getElementById('last-updated').textContent = `Last updated: ${new Date(updatedUser.updatedAt).toLocaleDateString()}`;
+                        app.notification(
+                            "alert",
+                            data.message,
+                            "success",
+                            document.getElementById("profile-box")
+                        );
+                    } else {
+                        app.notification(
+                            "alert",
+                            data.message,
+                            "error",
+                            document.getElementById("profile-box")
+                        );
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function updateProfile() {
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const location = document.getElementById('location').value;
+            const birthday = document.getElementById('birthday').value;
+            let gender;
+            if (document.getElementById("gender-male").checked === true) {
+                gender = true;
+            } else if (document.getElementById("gender-female").checked === true) {
+                gender = false;
+            } else {
+                gender = null;
+            }
+            const customizeUrls = document.getElementById('custom-urls').value.split('\n');
+            const bio = document.getElementById('bio').value;
+
+            let updatedData = {
+                firstName,
+                lastName,
+                location,
+                birthday,
+                gender,
+                customizeUrls,
+                bio,
+            };
+            updatedData.customizeUrls = updatedData.customizeUrls.filter(url => url !== "" && url !== "\n");
+
+            for (const key in updatedData) {
+                if (updatedData[key] === "") {
+                    delete updatedData[key];
+                }
+            }
+
+            const data = await my.updateProfile(updatedData);
+            if (data.status === "success") {
+                const updatedUser = data.data;
+                document.getElementById('last-updated').textContent = `Last updated: ${new Date(updatedUser.updatedAt).toLocaleDateString()}`;
+                app.notification(
+                    "alert",
+                    data.message,
+                    "success",
+                    document.getElementById("profile-box")
+                );
+
+                setTimeout(() => {
+                    window.location.href = '/my';
+                }, 2000);
+            } else {
+                app.notification(
+                    "alert",
+                    data.message,
+                    "error",
+                    document.getElementById("profile-box")
+                );
+            }
+        }
+    </script>
 </body>
 
 </html>
