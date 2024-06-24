@@ -4,6 +4,7 @@
 <head>
     <%- include("./components/head") %>
     <script src="/js/my.js"></script>
+    <script src="/js/auth.js"></script>
     <title>User Settings</title>
     <script>
         (async () => {
@@ -48,7 +49,7 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Settings</h2>
 
                     <!-- Update Username -->
-                    <div class="mb-6">
+                    <div id="username-group" class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
                         <div class="flex flex-col space-y-4">
                             <input type="text" id="username" name="username"
@@ -61,7 +62,7 @@
                     </div>
 
                     <!-- Update Email -->
-                    <div class="mb-6">
+                    <div id="email-group" class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <div class="flex items-center space-x-4 mb-2">
                             <input type="email" id="email" name="email"
@@ -80,7 +81,7 @@
                     </div>
 
                     <!-- Update Password -->
-                    <div class="mb-6">
+                    <div id="password-group" class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Change Password</label>
                         <input type="password" id="old-password" name="old-password"
                             class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-4"
@@ -99,6 +100,117 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = (await app.session.check()).userId;
+
+            const my = new My(userId);
+            const auth = new Auth();
+
+            const userData = await my.getUserData();
+
+            document.getElementById('username').value = userData.username;
+            document.getElementById('email').value = userData.email;
+
+            document.getElementById('update-username').addEventListener('click', async () => {
+                const username = document.getElementById('username').value;
+
+                const response = await my.updateUsername(username);
+                if (response.status === 'success') {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "success",
+                        document.getElementById("username-group")
+                    );
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("username-group")
+                    );
+                }
+            });
+
+            document.getElementById('get-verification-code').addEventListener('click', async () => {
+                const email = document.getElementById('email').value;
+
+                const response = await auth.getEmailVerificationCode(email);
+                if (response.status === 'success') {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "success",
+                        document.getElementById("email-group")
+                    );
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("email-group")
+                    );
+                }
+            });
+
+            document.getElementById('update-email').addEventListener('click', async () => {
+                const email = document.getElementById('email').value;
+                const verificationCode = document.getElementById('verification-code').value;
+
+                const response = await my.updateEmail(email, verificationCode);
+                if (response.status === 'success') {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "success",
+                        document.getElementById("email-group")
+                    );
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("email-group")
+                    );
+                }
+            });
+
+            document.getElementById('update-password').addEventListener('click', async () => {
+                const oldPassword = document.getElementById('old-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (newPassword !== confirmPassword) {
+                    app.notification(
+                        "alert",
+                        "Passwords do not match",
+                        "error",
+                        document.getElementById("password-group")
+                    );
+                    return;
+                }
+
+                const response = await my.updatePassword(oldPassword, newPassword);
+
+                if (response.status === 'success') {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "success",
+                        document.getElementById("password-group")
+                    );
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("password-group")
+                    );
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

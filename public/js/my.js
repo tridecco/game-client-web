@@ -53,4 +53,74 @@ class My {
 
     return responseData;
   }
+
+  /**
+   * Update user username.
+   * @param {string} username - The username.
+   * @returns {object} The response data.
+   */
+  async updateUsername(username) {
+    const response = await fetch(
+      `${app.serverUrl}/users/${this.userId}/username`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username }),
+      }
+    );
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
+
+  /**
+   * Update user email.
+   * @param {string} email - The email.
+   * @param {string} code - Email verification code.
+   * @returns {object} The response data.
+   */
+  async updateEmail(email, code) {
+    code = parseInt(code);
+
+    const response = await fetch(
+      `${app.serverUrl}/users/${this.userId}/email`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code }),
+      }
+    );
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
+
+  /**
+   * Update user password.
+   * @param {string} password - The password.
+   * @param {string} newPassword - The new password.
+   * @returns {object} The response data.
+   */
+  async updatePassword(currentPassword, newPassword) {
+    const response = await fetch(
+      `${app.serverUrl}/users/${this.userId}/password`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }
+    );
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
 }
