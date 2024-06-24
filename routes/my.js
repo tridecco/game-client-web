@@ -16,4 +16,9 @@ router.get("/edit", (req, res) => {
   res.render("edit-profile");
 });
 
+// Load the settings route
+router.get("/settings", (req, res) => {
+  res.render("settings");
+});
+
 module.exports = router;
