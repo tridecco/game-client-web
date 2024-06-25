@@ -81,21 +81,97 @@
         </div>
     </div>
     <script>
+        // New auth instance
         const auth = new Auth();
 
-        const getCodeButton = document.querySelector('#get-code-button');
+        // Get code button
+        const getCodeButton = document.getElementById('get-code-button');
+
+        // Add event listener to get code button
         getCodeButton.addEventListener('click', async () => {
-            const email = document.querySelector('#email').value;
-            await auth.getEmailVerificationCode(email);
+            // Get email
+            const email = document.getElementById('email').value;
+
+            // Get verification code
+            const response = await auth.getEmailVerificationCode(email);
+
+            // Disable the get code button
+            getCodeButton.disabled = true;
+
+            // Set the time left to 60
+            let timeLeft = 60;
+            const interval = setInterval(() => {
+                timeLeft--;
+                getCodeButton.textContent = `Get Code (${timeLeft})`;
+
+                if (timeLeft === 0) {
+                    clearInterval(interval);
+                    getCodeButton.textContent = 'Get Code';
+                    getCodeButton.disabled = false;
+                }
+            }, 1000);
+
+            // Display notification
+            if (response.status === "success") {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
 
-        const registerButton = document.querySelector('#register-button');
+        // Register button
+        const registerButton = document.getElementById('register-button');
+
+        // Add event listener to register button
         registerButton.addEventListener('click', async () => {
-            const username = document.querySelector('#username').value;
-            const email = document.querySelector('#email').value;
-            const verificationCode = document.querySelector('#verification-code').value;
-            const password = document.querySelector('#password').value;
-            await auth.register(username, email, verificationCode, password);
+            // Get username
+            const username = document.getElementById('username').value;
+
+            // Get email
+            const email = document.getElementById('email').value;
+
+            // Get verification code
+            const verificationCode = document.getElementById('verification-code').value;
+
+            // Get password
+            const password = document.getElementById('password').value;
+
+            // Register
+            const response = await auth.register(username, email, verificationCode, password);
+
+            // Display notification
+            if (response.status === "success") {
+                // Redirect to home page after 2 seconds
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
+
+                // Show success notification
+                this.lastNotification = app.notification(
+                    "alert",
+                    response.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                // Show error notification
+                this.lastNotification = app.notification(
+                    "alert",
+                    response.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
     </script>
 </body>

@@ -61,28 +61,138 @@
         </div>
     </div>
     <script>
+        // New auth instance
         const auth = new Auth();
 
+        // Get the email from local storage (set in the login page)
         const email = localStorage.getItem("userEmail");
 
-        const getCodeButton = document.querySelector('#get-code-button');
+        // Get code button
+        const getCodeButton = document.getElementById('get-code-button');
+
+        // Add event listener to get code button
         getCodeButton.addEventListener('click', async () => {
+            // Disable the get code button
             getCodeButton.disabled = true;
-            await auth.getEmailVerificationCode(email);
-            getCodeButton.disabled = false;
+
+            // Set the time left to 60
+            let timeLeft = 60;
+            const interval = setInterval(() => {
+                timeLeft--;
+                getCodeButton.textContent = `Get Code (${timeLeft})`;
+
+                if (timeLeft === 0) {
+                    clearInterval(interval);
+                    getCodeButton.textContent = 'Get Code';
+                    getCodeButton.disabled = false;
+                }
+            }, 1000);
+
+            // Get email verification code
+            const response = await await auth.getEmailVerificationCode(email);
+
+            // Display notification
+            if (response.status === "success") {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
 
-        const submitButton = document.querySelector('#submit-button');
+        // Submit button
+        const submitButton = document.getElementById('submit-button');
+
+        // Add event listener to submit button
         submitButton.addEventListener('click', async () => {
-            const verificationCode = document.querySelector('#verification-code').value;
-            await auth.twoFactorAuthentication(verificationCode);
+            // Get verification code
+            const verificationCode = document.getElementById('verification-code').value;
+
+            // Submit verification code for 2FA
+            const response = await auth.twoFactorAuthentication(verificationCode);
+
+            // Display notification
+            if (data.status === "success") {
+                // Redirect to home page after 2 seconds
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
+
+                // Remove user email from local storage
+                localStorage.removeItem("userEmail");
+
+                // Show success notification
+                this.lastNotification = app.notification(
+                    "alert",
+                    data.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                // Show error notification
+                if (data.error.code === "NOT_LOGGED_IN") {
+                    window.location.href = "/login";
+                }
+
+                // Show error notification
+                this.lastNotification = app.notification(
+                    "alert",
+                    data.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
 
-        const resendCodeButton = document.querySelector('#resend-code-button');
+        // Resend code button
+        const resendCodeButton = document.getElementById('resend-code-button');
+
+        // Add event listener to resend code button
         resendCodeButton.addEventListener('click', async () => {
+            // Disable the resend code button
             resendCodeButton.disabled = true;
-            await auth.getEmailVerificationCode(email);
-            resendCodeButton.disabled = false;
+
+            // Set the time left to 60
+            let timeLeft = 60;
+            const interval = setInterval(() => {
+                timeLeft--;
+                resendCodeButton.textContent = `Get Code (${timeLeft})`;
+
+                if (timeLeft === 0) {
+                    clearInterval(interval);
+                    resendCodeButton.textContent = 'Get Code';
+                    resendCodeButton.disabled = false;
+                }
+            }, 1000);
+
+            // Get email verification code
+            const response = await auth.getEmailVerificationCode(email);
+
+            // Display notification
+            if (response.status === "success") {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                app.notification(
+                    "alert",
+                    response.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
     </script>
 </body>

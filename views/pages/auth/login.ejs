@@ -70,13 +70,60 @@
         </div>
     </div>
     <script>
+        // New auth instance
         const auth = new Auth();
 
-        const loginButton = document.querySelector('#login-button');
+        // Login button
+        const loginButton = document.getElementById('login-button');
+
+        // Add event listener to login button
         loginButton.addEventListener('click', async () => {
-            const email = document.querySelector('#email').value;
-            const password = document.querySelector('#password').value;
-            await auth.login(email, password);
+            // Get email
+            const email = document.getElementById('email').value;
+
+            // Get password
+            const password = document.getElementById('password').value;
+
+            // Login
+            const response = await auth.login(email, password);
+
+            // Get user data from response
+            const userData = response.data;
+
+            // Check if user is authenticated
+            if (response.status === "success") {
+                // Check if 2FA is required
+                if (response.message === "User logged in successfully. 2FA required.") {
+                    // Set user email in local storage
+                    localStorage.setItem("userEmail", userData.email);
+
+                    // Redirect to 2FA page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = "/two-factor-authentication";
+                    }, 2000);
+                } else {
+                    // Redirect to home page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 2000);
+                }
+
+                // Show success notification
+                app.notification(
+                    "alert",
+                    response.message,
+                    "success",
+                    document.getElementById("auth-form")
+                );
+            } else {
+                // Show error notification
+                app.notification(
+                    "alert",
+                    response.message,
+                    "error",
+                    document.getElementById("auth-form")
+                );
+            }
         });
     </script>
 </body>

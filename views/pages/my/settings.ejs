@@ -101,21 +101,31 @@
         </div>
     </div>
     <script>
+        // Add event listener to window load
         document.addEventListener('DOMContentLoaded', async () => {
+            // Get user ID from session
             const userId = (await app.session.check()).userId;
 
+            // Create new instances of My and Auth classes
             const my = new My(userId);
             const auth = new Auth();
 
+            // Get user data
             const userData = await my.getUserData();
 
+            // Set user data to input fields
             document.getElementById('username').value = userData.username;
             document.getElementById('email').value = userData.email;
 
+            // Add event listeners to buttons to update username
             document.getElementById('update-username').addEventListener('click', async () => {
+                // Get username from input field
                 const username = document.getElementById('username').value;
 
+                // Update username
                 const response = await my.updateUsername(username);
+
+                // Display notification
                 if (response.status === 'success') {
                     app.notification(
                         "alert",
@@ -133,10 +143,15 @@
                 }
             });
 
+            // Add event listeners to buttons to get verification code
             document.getElementById('get-verification-code').addEventListener('click', async () => {
+                // Get email from input field
                 const email = document.getElementById('email').value;
 
+                // Get email verification code
                 const response = await auth.getEmailVerificationCode(email);
+
+                // Display notification
                 if (response.status === 'success') {
                     app.notification(
                         "alert",
@@ -154,11 +169,16 @@
                 }
             });
 
+            // Add event listeners to buttons to update email
             document.getElementById('update-email').addEventListener('click', async () => {
+                // Get email and verification code from input fields
                 const email = document.getElementById('email').value;
                 const verificationCode = document.getElementById('verification-code').value;
 
+                // Update email
                 const response = await my.updateEmail(email, verificationCode);
+
+                // Display notification
                 if (response.status === 'success') {
                     app.notification(
                         "alert",
@@ -176,11 +196,14 @@
                 }
             });
 
+            // Add event listeners to buttons to update password
             document.getElementById('update-password').addEventListener('click', async () => {
+                // Get old password, new password, and confirm password from input fields
                 const oldPassword = document.getElementById('old-password').value;
                 const newPassword = document.getElementById('new-password').value;
                 const confirmPassword = document.getElementById('confirm-password').value;
 
+                // Check if new password and confirm password match
                 if (newPassword !== confirmPassword) {
                     app.notification(
                         "alert",
@@ -191,8 +214,10 @@
                     return;
                 }
 
+                // Update password
                 const response = await my.updatePassword(oldPassword, newPassword);
 
+                // Display notification
                 if (response.status === 'success') {
                     app.notification(
                         "alert",

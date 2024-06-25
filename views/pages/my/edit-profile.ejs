@@ -128,67 +128,87 @@
         </div>
     </div>
     <script>
+        // New my instance
         let my;
 
+        // Add event listener to window load
         window.addEventListener('DOMContentLoaded', async () => {
+            // Get user ID from session
             const userId = (await app.session.check()).userId;
 
+            // Create new my instance
             my = new My(userId);
 
+            // Get user data
             const userData = await my.getUserData();
 
+            // Set user data to the form
             if (userData.profile.avatar) {
-                document.getElementById('user-avatar').src = userData.profile.avatar;
+                document.getElementById('user-avatar').src = userData.profile.avatar; // Set user avatar if exists
             }
-            document.getElementById('username').textContent = userData.username;
-            document.getElementById('user-email').textContent = userData.email;
+            document.getElementById('username').textContent = userData.username; // Set username
+            document.getElementById('user-email').textContent = userData.email; // Set email
             if (userData.profile.gender !== null) {
                 if (userData.profile.gender === true) {
-                    document.getElementById("gender-male").setAttribute("checked", "checked");
+                    document.getElementById("gender-male").setAttribute("checked", "checked"); // Set gender if exists (male)
                 } else if (userData.profile.gender === false) {
-                    document.getElementById("gender-female").setAttribute("checked", "checked");
+                    document.getElementById("gender-female").setAttribute("checked", "checked"); // Set gender if exists (female)
                 } else {
-                    document.getElementById("gender-other").setAttribute("checked", "checked");
+                    document.getElementById("gender-other").setAttribute("checked", "checked"); // Set gender if not exists (other)
                 }
             }
             if (userData.profile.firstName) {
-                document.getElementById('first-name').value = userData.profile.firstName;
+                document.getElementById('first-name').value = userData.profile.firstName; // Set first name if exists
             }
             if (userData.profile.lastName) {
-                document.getElementById('last-name').value = userData.profile.lastName;
+                document.getElementById('last-name').value = userData.profile.lastName; // Set last name if exists
             }
             if (userData.profile.location) {
-                document.getElementById('location').value = userData.profile.location;
+                document.getElementById('location').value = userData.profile.location; // Set location if exists
             }
             if (userData.profile.birthday) {
-                document.getElementById('birthday').value = new Date(userData.profile.birthday).toISOString().split('T')[0];
+                document.getElementById('birthday').value = new Date(userData.profile.birthday).toLocaleDateString(); // Set birthday if exists (format: locale date string)
             }
             if (userData.profile.customizeUrls) {
-                const customizeUrls = document.getElementById('custom-urls');
+                const customizeUrls = document.getElementById('custom-urls'); // Set customize URLs if exists
                 userData.profile.customizeUrls.forEach(url => {
-                    customizeUrls.value += `${url}\n`;
+                    customizeUrls.value += `${url}\n`; // Add each URL to the textarea (new line separated)
                 });
             }
             if (userData.profile.bio) {
-                document.getElementById('bio').value = userData.profile.bio;
+                document.getElementById('bio').value = userData.profile.bio; // Set bio if exists
             }
-            document.getElementById('last-updated').textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`;
+            document.getElementById('last-updated').textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`; // Set last updated date (format: locale date string)
         });
 
+        // Handle avatar click event (open file dialog)
         function handleAvatarClick() {
             document.getElementById('avatar-input').click();
         }
 
+        // Handle avatar change event (upload avatar)
         function handleAvatarChange(event) {
+            // Get file
             const file = event.target.files[0];
+
+            // Check if file exists
             if (file) {
+                // Create new FileReader instance
                 const reader = new FileReader();
+
+                // Read file as data URL
                 reader.onload = async function (e) {
+                    // Update profile with avatar
                     const data = await my.updateProfile({ avatar: e.target.result });
+
+                    // Display notification
                     if (data.status === "success") {
+                        // Update user avatar and last updated date
                         const updatedUser = data.data;
                         document.getElementById('user-avatar').src = updatedUser.profile.avatar;
                         document.getElementById('last-updated').textContent = `Last updated: ${new Date(updatedUser.updatedAt).toLocaleDateString()}`;
+
+                        // Display success notification
                         app.notification(
                             "alert",
                             data.message,
@@ -196,6 +216,7 @@
                             document.getElementById("profile-box")
                         );
                     } else {
+                        // Display error notification
                         app.notification(
                             "alert",
                             data.message,
@@ -204,26 +225,28 @@
                         );
                     }
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file); // Read file as data URL
             }
         }
 
+        // Update profile
         async function updateProfile() {
-            const firstName = document.getElementById('first-name').value;
-            const lastName = document.getElementById('last-name').value;
-            const location = document.getElementById('location').value;
-            const birthday = document.getElementById('birthday').value;
+            const firstName = document.getElementById('first-name').value; // Get first name
+            const lastName = document.getElementById('last-name').value; // Get last name
+            const location = document.getElementById('location').value; // Get location
+            const birthday = document.getElementById('birthday').value; // Get birthday
             let gender;
             if (document.getElementById("gender-male").checked === true) {
-                gender = true;
+                gender = true; // Get the gender (male)
             } else if (document.getElementById("gender-female").checked === true) {
-                gender = false;
+                gender = false; // Get the gender (female)
             } else {
-                gender = null;
+                gender = null; // Get the gender (other)
             }
-            const customizeUrls = document.getElementById('custom-urls').value.split('\n');
-            const bio = document.getElementById('bio').value;
+            const customizeUrls = document.getElementById('custom-urls').value.split('\n'); // Get customize URLs
+            const bio = document.getElementById('bio').value; // Get bio
 
+            // Update profile
             let updatedData = {
                 firstName,
                 lastName,
@@ -233,32 +256,43 @@
                 customizeUrls,
                 bio,
             };
+
+            // Filter empty URLs
             updatedData.customizeUrls = updatedData.customizeUrls.filter(url => url !== "" && url !== "\n");
 
+            // Filter empty data
             for (const key in updatedData) {
                 if (updatedData[key] === "") {
                     delete updatedData[key];
                 }
             }
 
-            const data = await my.updateProfile(updatedData);
-            if (data.status === "success") {
-                const updatedUser = data.data;
+            // Update profile
+            const response = await my.updateProfile(updatedData);
+
+            // Display notification
+            if (response.status === "success") {
+                // Update last updated date
+                const updatedUser = response.data;
                 document.getElementById('last-updated').textContent = `Last updated: ${new Date(updatedUser.updatedAt).toLocaleDateString()}`;
+
+                // Display success notification
                 app.notification(
                     "alert",
-                    data.message,
+                    response.message,
                     "success",
                     document.getElementById("profile-box")
                 );
 
+                // Redirect to my page after 2 seconds
                 setTimeout(() => {
                     window.location.href = '/my';
                 }, 2000);
             } else {
+                // Display error notification
                 app.notification(
                     "alert",
-                    data.message,
+                    response.message,
                     "error",
                     document.getElementById("profile-box")
                 );
