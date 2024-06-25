@@ -10,7 +10,7 @@ const router = require("express").Router();
 
 // Load the home route
 router.get("/", (req, res) => {
-  res.render("home");
+  res.render("pages/home");
 });
 
 // Load the auth routes
@@ -21,7 +21,7 @@ router.use("/my", require("./my"));
 
 // Load the default route (404 Not Found)
 router.use("*", (req, res) => {
-  res.render("404");
+  res.render("pages/404");
 });
 
 module.exports = router;
