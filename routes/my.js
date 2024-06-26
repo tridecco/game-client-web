@@ -21,4 +21,9 @@ router.get("/settings", (req, res) => {
   res.render("pages/my/settings");
 });
 
+// Load the security records route
+router.get("/security-records", (req, res) => {
+  res.render("pages/my/security-records");
+});
+
 module.exports = router;
