@@ -26,4 +26,9 @@ router.get("/security-records", (req, res) => {
   res.render("pages/my/security-records");
 });
 
+// Load the sessions route
+router.get("/sessions", (req, res) => {
+  res.render("pages/my/sessions");
+});
+
 module.exports = router;
