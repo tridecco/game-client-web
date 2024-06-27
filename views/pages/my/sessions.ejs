@@ -56,46 +56,101 @@
                             Remove All Other Sessions
                         </button>
                     </div>
-                    <div id="sessions" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Example session items -->
-                        <div class="session-item bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-                            <div>
-                                <p><strong>Created At:</strong> 2024-06-27 12:34:56</p>
-                                <p><strong>IP Address:</strong> 192.168.1.1</p>
-                                <p><strong>Device:</strong> Windows 10 - Chrome</p>
-                            </div>
-                            <button
-                                class="remove-session bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-lg ml-4">
-                                Remove
-                            </button>
-                        </div>
-                        <div class="session-item bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-                            <div>
-                                <p><strong>Created At:</strong> 2024-06-26 11:22:33</p>
-                                <p><strong>IP Address:</strong> 192.168.1.2</p>
-                                <p><strong>Device:</strong> macOS - Safari</p>
-                            </div>
-                            <button
-                                class="remove-session bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-lg ml-4">
-                                Remove
-                            </button>
-                        </div>
-                        <div class="session-item bg-gray-100 rounded-lg p-4 flex items-center justify-between">
-                            <div>
-                                <p><strong>Created At:</strong> 2024-06-25 10:11:22</p>
-                                <p><strong>IP Address:</strong> 192.168.1.3</p>
-                                <p><strong>Device:</strong> Android - Firefox</p>
-                            </div>
-                            <button
-                                class="remove-session bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-lg ml-4">
-                                Remove
-                            </button>
-                        </div>
+                    <div id="sessions" class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        // Add event listener to window load
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Get user ID from session
+            const userId = (await app.session.check()).userId;
+
+            // New my instance
+            const my = new My(userId);
+
+            // Function to add 1 session to the list
+            function addSession(session) {
+                // Get sessions element
+                const sessions = document.getElementById('sessions');
+
+                // Create session item
+                const sessionItem = document.createElement('div');
+
+                // Add classes and inner HTML
+                sessionItem.classList.add('session-item', 'bg-gray-100', 'rounded-lg', 'border-8', 'border-transparent', 'border-opacity-0', 'flex', 'items-center',
+                    'justify-between');
+                sessionItem.innerHTML += `
+                    <div>
+                        ${session.require2FA ? '<p class="text-orange-500"><strong>Still not passed 2FA</strong></p>' : ''}
+                        <p><strong>Created At:</strong> ${new Date(session.createdAt).toLocaleString()}</p>
+                        <p><strong>IP Address:</strong> ${session.ip}</p>
+                        <p><strong>Device:</strong> ${session.userAgent}</p>
+                    </div>
+                `;
+
+                // Create remove button
+                const removeButton = document.createElement('button');
+                removeButton.classList.add('remove-session', 'bg-red-600', 'hover:bg-red-700', 'text-white',
+                    'font-semibold', 'py-1', 'px-3', 'rounded-lg');
+                removeButton.textContent = 'Remove';
+
+                // Add event listener to remove button
+                removeButton.addEventListener('click', async () => {
+                    const response = await my.removeSession(session.id);
+                    if (response.status === 'success') {
+                        // Remove session item
+                        sessionItem.remove();
+                    } else {
+                        // Show error notification
+                        app.notification(
+                            "alert",
+                            response.message,
+                            "error",
+                            document.getElementById("sessions")
+                        );
+                    }
+                });
+
+                // Append remove button to session item
+                sessionItem.appendChild(removeButton);
+
+                // Append session item to sessions
+                sessions.appendChild(sessionItem);
+            }
+
+            // Function to get sessions and add to list
+            async function getSessions() {
+                const sessions = await my.getSessions();
+                sessions.forEach(session => {
+                    addSession({ id: session._id, require2FA: session.session.require2FA, ...session.session.clientInfo });
+                });
+            }
+
+            // Get sessions
+            getSessions();
+
+            // Add event listener to remove all sessions button
+            document.getElementById('remove-all-sessions').addEventListener('click', async () => {
+                // Remove all sessions
+                const response = await my.removeAllSessions();
+
+                // Display notification
+                if (response.status === 'success') {
+                    window.location.reload();
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("sessions")
+                    );
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

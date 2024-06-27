@@ -149,4 +149,66 @@ class My {
       return null;
     }
   }
+
+  /**
+   * Get user sessions list.
+   * @returns {object} The user sessions list.
+   */
+  async getSessions() {
+    const response = await fetch(
+      `${app.serverUrl}/sessions/user/${this.userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      return data.data;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Remove a session.
+   * @param {string} sessionId - The session ID.
+   * @returns {object} The response data.
+   */
+  async removeSession(sessionId) {
+    const response = await fetch(`${app.serverUrl}/sessions/${sessionId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
+
+  /**
+   * Remove all sessions. (Except the current session)
+   * @returns {object} The response data.
+   */
+  async removeAllSessions() {
+    const response = await fetch(
+      `${app.serverUrl}/sessions/user/${this.userId}/exclude-current`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const responseData = await response.json();
+
+    return responseData;
+  }
 }
