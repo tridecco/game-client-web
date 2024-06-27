@@ -121,7 +121,7 @@
             const response = await auth.twoFactorAuthentication(verificationCode);
 
             // Display notification
-            if (data.status === "success") {
+            if (response.status === "success") {
                 // Redirect to home page after 2 seconds
                 setTimeout(() => {
                     window.location.href = "/";
@@ -133,20 +133,20 @@
                 // Show success notification
                 this.lastNotification = app.notification(
                     "alert",
-                    data.message,
+                    response.message,
                     "success",
                     document.getElementById("auth-form")
                 );
             } else {
                 // Show error notification
-                if (data.error.code === "NOT_LOGGED_IN") {
+                if (response.error.code === "NOT_LOGGED_IN") {
                     window.location.href = "/login";
                 }
 
                 // Show error notification
                 this.lastNotification = app.notification(
                     "alert",
-                    data.message,
+                    response.message,
                     "error",
                     document.getElementById("auth-form")
                 );
