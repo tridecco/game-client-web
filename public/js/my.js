@@ -123,4 +123,30 @@ class My {
 
     return responseData;
   }
+
+  /**
+   * Get user security records.
+   * @param {number} startIndex - The start index of the records.
+   * @param {number} limit - The number of records to fetch.
+   * @returns {object} The user security records.
+   */
+  async getSecurityRecords(startIndex, limit) {
+    const response = await fetch(
+      `${app.serverUrl}/users/safety-records/${this.userId}?startIndex=${startIndex}&limit=${limit}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      return data.data;
+    } else {
+      return null;
+    }
+  }
 }

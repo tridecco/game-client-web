@@ -51,40 +51,80 @@
                             <thead>
                                 <tr>
                                     <th
-                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider">
+                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">
                                         Record Time</th>
                                     <th
-                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider">
+                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">
                                         Record Type</th>
                                     <th
-                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider">
+                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">
                                         IP Address</th>
                                     <th
-                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider">
+                                        class="py-2 px-4 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">
                                         Device Type</th>
                                 </tr>
                             </thead>
-                            <tbody id="security-records">
-                                <tr>
-                                    <td class="py-2 px-4 border-b border-gray-200">2024-06-26 12:34</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">Login</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">192.168.1.1</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">Desktop</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 px-4 border-b border-gray-200">2024-06-25 08:22</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">Password Change</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">192.168.1.2</td>
-                                    <td class="py-2 px-4 border-b border-gray-200">Mobile</td>
-                                </tr>
-                                <!-- Add more records as needed -->
-                            </tbody>
+                            <tbody id="security-records"></tbody>
                         </table>
+                    </div>
+
+                    <div id="more-security-records" class="flex items-center justify-center mt-4">
+                        <button id="get-more"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg">Get
+                            More</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        // Add event listener to window load
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Get user ID from session
+            const userId = (await app.session.check()).userId;
+
+            // New my instance
+            const my = new My(userId);
+
+            // Function to add 1 security record to the table
+            function addSecurityRecord(record) {
+                const securityRecords = document.getElementById('security-records');
+                const recordElement = document.createElement('tr');
+                recordElement.innerHTML = `
+                <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${new Date(record.operationTime).toLocaleString()}</td>
+                <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${record.type}</td>
+                <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${record.ipAddress}</td>
+                <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${record.device}</td>
+            `;
+                securityRecords.appendChild(recordElement);
+            }
+
+            // Variable to store start index of security records (for pagination)
+            let startIndex = 0;
+
+            // Function to get security records and add to table (10 each time)
+            async function getSecurityRecords() {
+                const securityRecords = await my.getSecurityRecords(startIndex, 10);
+                securityRecords.forEach(record => {
+                    addSecurityRecord(record);
+                });
+                startIndex = securityRecords.length;
+
+                // Hide get more button if no more records
+                if (securityRecords.length < 10) {
+                    document.getElementById('more-security-records').style.display = 'none';
+                }
+            }
+
+            document.getElementById('get-more').addEventListener('click', () => {
+                // Get more security records
+                getSecurityRecords();
+            });
+
+            // Get security records
+            getSecurityRecords();
+        });
+    </script>
 </body>
 
 </html>
