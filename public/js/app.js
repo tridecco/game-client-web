@@ -15,7 +15,7 @@ class App {
 
   /**
    * Session object.
-   * @type {object} session
+   * @type {Object} session
    */
   session = {
     /**

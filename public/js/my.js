@@ -13,7 +13,7 @@ class My {
 
   /**
    * Get user data.
-   * @returns {object} The user data.
+   * @returns {Object} The user data.
    */
   async getUserData() {
     const response = await fetch(`${app.serverUrl}/users/id/${this.userId}`, {
@@ -34,8 +34,8 @@ class My {
 
   /**
    * Update user profile.
-   * @param {object} data - The user data.
-   * @returns {object} The response data.
+   * @param {Object} data - The user data.
+   * @returns {Object} The response data.
    */
   async updateProfile(data) {
     const response = await fetch(
@@ -57,7 +57,7 @@ class My {
   /**
    * Update user username.
    * @param {string} username - The username.
-   * @returns {object} The response data.
+   * @returns {Object} The response data.
    */
   async updateUsername(username) {
     const response = await fetch(
@@ -80,7 +80,7 @@ class My {
    * Update user email.
    * @param {string} email - The email.
    * @param {string} code - Email verification code.
-   * @returns {object} The response data.
+   * @returns {Object} The response data.
    */
   async updateEmail(email, code) {
     code = parseInt(code);
@@ -105,7 +105,7 @@ class My {
    * Update user password.
    * @param {string} password - The password.
    * @param {string} newPassword - The new password.
-   * @returns {object} The response data.
+   * @returns {Object} The response data.
    */
   async updatePassword(currentPassword, newPassword) {
     const response = await fetch(
@@ -128,7 +128,7 @@ class My {
    * Get user security records.
    * @param {number} startIndex - The start index of the records.
    * @param {number} limit - The number of records to fetch.
-   * @returns {object} The user security records.
+   * @returns {Object} The user security records.
    */
   async getSecurityRecords(startIndex, limit) {
     const response = await fetch(
@@ -152,7 +152,7 @@ class My {
 
   /**
    * Get user sessions list.
-   * @returns {object} The user sessions list.
+   * @returns {Object} The user sessions list.
    */
   async getSessions() {
     const response = await fetch(
@@ -177,7 +177,7 @@ class My {
   /**
    * Remove a session.
    * @param {string} sessionId - The session ID.
-   * @returns {object} The response data.
+   * @returns {Object} The response data.
    */
   async removeSession(sessionId) {
     const response = await fetch(`${app.serverUrl}/sessions/${sessionId}`, {
@@ -194,7 +194,7 @@ class My {
 
   /**
    * Remove all sessions. (Except the current session)
-   * @returns {object} The response data.
+   * @returns {Object} The response data.
    */
   async removeAllSessions() {
     const response = await fetch(
