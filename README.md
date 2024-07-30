@@ -52,5 +52,5 @@ npm run build:css
 4. Start the server:
 
 ```bash
-node server
+npm start
 ```
