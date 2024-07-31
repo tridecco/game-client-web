@@ -50,6 +50,20 @@
             </div>
         </div>
     </main>
+    <script>
+        // Handle Join Room
+        document.getElementById('join-room').addEventListener('click', () => {
+            const roomId = document.getElementById('room-id').value;
+            window.location.href = `/game/custom/${roomId}`;
+        });
+
+        // Handle Create Room
+        document.getElementById('create-room').addEventListener('click', () => {
+            const gameMode = document.getElementById('game-mode').value;
+            const playerCount = document.getElementById('player-count').value;
+            window.location.href = `/game/custom/${gameMode}/${playerCount}`;
+        });
+    </script>
 </body>
 
 </html>
