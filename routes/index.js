@@ -13,6 +13,11 @@ router.get("/", (req, res) => {
   res.render("pages/home");
 });
 
+// Load the rooms route
+router.use("/", (req, res) => {
+  res.render("pages/rooms");
+});
+
 // Load the auth routes
 router.use("/", require("./auth"));
 

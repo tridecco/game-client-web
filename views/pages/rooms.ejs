@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include("../components/head") %>
+    <script src="/js/auth.js"></script>
+    <title>Invite/Join Room</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = '/two-factor-authentication';
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = '/login';
+            }
+        })();
+    </script>
+</head>
+
+<body class="min-h-screen">
+    <%- include("../components/main-header", { currentPage: 'rooms' }) %>
+    <main>
+        <div class="container mx-auto p-4">
+            <div class="space-y-4">
+                <!-- Join Room Block -->
+                <div class="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                    <h1 class="text-2xl font-bold mb-4">Join Custom Room</h1>
+                    <input type="text" id="room-id" placeholder="Enter Room ID" class="w-full p-2 border border-gray-300 rounded mb-4" />
+                    <button id="join-room" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
+                        Join Room
+                    </button>
+                </div>
+
+                <!-- Create Room Block -->
+                <div class="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                    <h1 class="text-2xl font-bold mb-4">Create Room</h1>
+                    <div class="space-y-4">
+                        <select id="game-mode" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="classic">Classic</option>
+                        </select>
+                        <select id="player-count" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="3p">3-Player</option>
+                            <option value="4p">4-Player</option>
+                        </select>
+                        <button id="create-room" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
+                            Create Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
