@@ -14,7 +14,7 @@ router.get("/", (req, res) => {
 });
 
 // Load the rooms route
-router.use("/", (req, res) => {
+router.use("/rooms", (req, res) => {
   res.render("pages/rooms");
 });
 
