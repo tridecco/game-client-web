@@ -42,7 +42,13 @@
         // Handle Start Game Classic
         document.getElementById('start-game-classic').addEventListener('click', () => {
             const playerCount = document.getElementById('player-count').value;
-            window.location.href = `/game/classic/${playerCount}`;
+            let gameMode;
+            if (playerCount === '3p') {
+                gameMode = 'classic-3p';
+            } else if (playerCount === '4p') {
+                gameMode = 'classic-4p';
+            }
+            window.location.href = `/game?type=queue&gameMode=${gameMode}`;
         });
     </script>
 </body>

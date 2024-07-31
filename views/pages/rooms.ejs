@@ -54,14 +54,22 @@
         // Handle Join Room
         document.getElementById('join-room').addEventListener('click', () => {
             const roomId = document.getElementById('room-id').value;
-            window.location.href = `/game/custom/${roomId}`;
+            window.location.href = `/game?type=join&roomId=${roomId}`;
         });
 
         // Handle Create Room
         document.getElementById('create-room').addEventListener('click', () => {
-            const gameMode = document.getElementById('game-mode').value;
+            const selectedGameMode = document.getElementById('game-mode').value;
             const playerCount = document.getElementById('player-count').value;
-            window.location.href = `/game/custom/${gameMode}/${playerCount}`;
+            let gameMode;
+            if (selectedGameMode === "classic") {
+                if (playerCount === "3p") {
+                    gameMode = "classic-3p";
+                } else if (playerCount === "4p") {
+                    gameMode = "classic-4p";
+                }
+            }
+            window.location.href = `/game?type=create&gameMode=${gameMode}`;
         });
     </script>
 </body>
