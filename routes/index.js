@@ -18,6 +18,11 @@ router.use("/rooms", (req, res) => {
   res.render("pages/rooms");
 });
 
+// Load the game route
+router.use("/game", (req, res) => {
+  res.render("pages/game");
+});
+
 // Load the auth routes
 router.use("/", require("./auth"));
 

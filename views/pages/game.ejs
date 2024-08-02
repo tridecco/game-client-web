@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <%- include("../components/head") %>
+    <script src="/js/game.js"></script>
+    <meta name="description" content="An online multiplayer board game using unique 13-sided pieces, inspired by Einstein's 2023 discovery. Players aim to dispose of all their pieces, forming hexagons of the same color with two-color Einstein shapes to earn extra turns, while preventing opponents from doing the same.">
+    <title>Tridecco | Game</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = '/two-factor-authentication';
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = '/login';
+            }
+        })();
+    </script>
+</head>
+
+<body class="h-full">
+    <main class="h-full">
+        <div id="queue" class="h-full hidden">
+            <%- include("../components/game/queue") %>
+        </div>
+        <div id="room" class="h-full hidden">
+            <%- include("../components/game/room") %>
+        </div>
+        <div id="game" class="h-full hidden">
+            <%- include("../components/game/game") %>
+        </div>
+    </main>
+</body>
+
+</html>
