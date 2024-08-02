@@ -53,7 +53,7 @@
     <script>
         // Handle Join Room
         document.getElementById('join-room').addEventListener('click', () => {
-            const roomId = document.getElementById('room-id').value;
+            const roomId = encodeURIComponent(document.getElementById('room-id').value);
             window.location.href = `/game?type=join&roomId=${roomId}`;
         });
 
