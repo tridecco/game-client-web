@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === true) {
-                window.location.href = '/';
+                window.location.href = "/";
             } else if (sessionStatus.authenticated === true) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             }
         })();
     </script>
@@ -86,12 +86,12 @@
         const auth = new Auth();
 
         // Get code button
-        const getCodeButton = document.getElementById('get-code-button');
+        const getCodeButton = document.getElementById("get-code-button");
 
         // Add event listener to get code button
-        getCodeButton.addEventListener('click', async () => {
+        getCodeButton.addEventListener("click", async () => {
             // Get email
-            const email = document.getElementById('email').value;
+            const email = document.getElementById("email").value;
 
             // Get verification code
             const response = await auth.getEmailVerificationCode(email);
@@ -107,7 +107,7 @@
 
                 if (timeLeft === 0) {
                     clearInterval(interval);
-                    getCodeButton.textContent = 'Get Code';
+                    getCodeButton.textContent = "Get Code";
                     getCodeButton.disabled = false;
                 }
             }, 1000);
@@ -131,21 +131,21 @@
         });
 
         // Register button
-        const registerButton = document.getElementById('register-button');
+        const registerButton = document.getElementById("register-button");
 
         // Add event listener to register button
-        registerButton.addEventListener('click', async () => {
+        registerButton.addEventListener("click", async () => {
             // Get username
-            const username = document.getElementById('username').value;
+            const username = document.getElementById("username").value;
 
             // Get email
-            const email = document.getElementById('email').value;
+            const email = document.getElementById("email").value;
 
             // Get verification code
-            const verificationCode = document.getElementById('verification-code').value;
+            const verificationCode = document.getElementById("verification-code").value;
 
             // Get password
-            const password = document.getElementById('password').value;
+            const password = document.getElementById("password").value;
 
             // Register
             const response = await auth.register(username, email, verificationCode, password);

@@ -11,9 +11,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             } else if (sessionStatus.authenticated === false) {
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
         })();
     </script>
@@ -47,9 +47,9 @@
 
         // Get the game parameters
         gameParameters = getGameParameters();
-        const gameStartType = gameParameters.get('type');
-        const gameMode = gameParameters.get('gameMode') || null;
-        const roomId = gameParameters.get('roomId') || null;
+        const gameStartType = gameParameters.get("type");
+        const gameMode = gameParameters.get("gameMode") || null;
+        const roomId = gameParameters.get("roomId") || null;
 
         // Create a new game ui instance
         const gameUI = new GameUI();
@@ -64,22 +64,22 @@
             } catch (error) {
                 if (error.message === "User can only have one active session") {
                     gameUI.showError("Already in a game", "You can only have one active game session at a time. Please close the other game session to start a new one.", null, () => {
-                        window.location.href = '/';
+                        window.location.href = "/";
                     }, "Back to Home");
                     return;
                 }
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
 
             // Show the correct game component
-            if (gameStartType === 'queue') {
+            if (gameStartType === "queue") {
                 gameUI.showQueue(gameMode);
-            } else if (gameStartType === 'join') {
+            } else if (gameStartType === "join") {
                 gameUI.showRoom();
-            } else if (gameStartType === 'create') {
+            } else if (gameStartType === "create") {
                 gameUI.showRoom();
             } else {
-                window.location.href = '/';
+                window.location.href = "/";
             }
         })();
     </script>

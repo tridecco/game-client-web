@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             } else if (sessionStatus.authenticated === false) {
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
         })();
     </script>
@@ -101,7 +101,7 @@
     </div>
     <script>
         // Add event listener to window load
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener("DOMContentLoaded", async () => {
             // Get user ID from session
             const userId = (await app.session.check()).userId;
 
@@ -113,10 +113,10 @@
 
             // Display user data
             if (userData.profile.avatar) {
-                document.getElementById('user-avatar').src = userData.profile.avatar; // Display user avatar if available
+                document.getElementById("user-avatar").src = userData.profile.avatar; // Display user avatar if available
             }
-            document.getElementById('username').textContent = userData.username; // Display username
-            document.getElementById('user-email').textContent = userData.email; // Display user email
+            document.getElementById("username").textContent = userData.username; // Display username
+            document.getElementById("user-email").textContent = userData.email; // Display user email
             // Display user gender (SVG icons)
             if (userData.profile.gender !== null) {
                 if (userData.profile.gender === true) {
@@ -151,31 +151,31 @@
                 }
             }
             if (userData.profile.firstName) {
-                document.getElementById('first-name').textContent = userData.profile.firstName; // Display first name if available
+                document.getElementById("first-name").textContent = userData.profile.firstName; // Display first name if available
             }
             if (userData.profile.lastName) {
-                document.getElementById('last-name').textContent = userData.profile.lastName; // Display last name if available
+                document.getElementById("last-name").textContent = userData.profile.lastName; // Display last name if available
             }
             if (userData.profile.location) {
-                document.getElementById('location').textContent = userData.profile.location; // Display location if available
+                document.getElementById("location").textContent = userData.profile.location; // Display location if available
             }
             if (userData.profile.birthday) {
-                document.getElementById('birthday').textContent = new Date(userData.profile.birthday).toLocaleDateString(); // Display birthday if available
+                document.getElementById("birthday").textContent = new Date(userData.profile.birthday).toLocaleDateString(); // Display birthday if available
             }
             // Display custom URLs if available
             if (userData.profile.customizeUrls) {
-                const customizeUrls = document.getElementById('custom-urls');
+                const customizeUrls = document.getElementById("custom-urls");
                 userData.profile.customizeUrls.forEach(url => {
-                    const p = document.createElement('p');
+                    const p = document.createElement("p");
                     p.textContent = url;
                     p.onclick = () => window.location.href = url; // Redirect to URL on click
                     customizeUrls.appendChild(p);
                 });
             }
             if (userData.profile.bio) {
-                document.getElementById('bio').textContent = userData.profile.bio; // Display bio if available
+                document.getElementById("bio").textContent = userData.profile.bio; // Display bio if available
             }
-            document.getElementById('last-updated').textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`; // Display last updated date
+            document.getElementById("last-updated").textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`; // Display last updated date
         });
     </script>
 </body>

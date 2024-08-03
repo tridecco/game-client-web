@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === true) {
-                window.location.href = '/';
+                window.location.href = "/";
             } else if (sessionStatus.authenticated === true) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             }
         })();
     </script>
@@ -75,15 +75,15 @@
         const auth = new Auth();
 
         // Login button
-        const loginButton = document.getElementById('login-button');
+        const loginButton = document.getElementById("login-button");
 
         // Add event listener to login button
-        loginButton.addEventListener('click', async () => {
+        loginButton.addEventListener("click", async () => {
             // Get email
-            const email = document.getElementById('email').value;
+            const email = document.getElementById("email").value;
 
             // Get password
-            const password = document.getElementById('password').value;
+            const password = document.getElementById("password").value;
 
             // Login
             const response = await auth.login(email, password);

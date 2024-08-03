@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             } else if (sessionStatus.authenticated === false) {
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
         })();
     </script>
@@ -65,7 +65,7 @@
     </div>
     <script>
         // Add event listener to window load
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener("DOMContentLoaded", async () => {
             // Get user ID from session
             const userId = (await app.session.check()).userId;
 
@@ -75,17 +75,17 @@
             // Function to add 1 session to the list
             function addSession(session) {
                 // Get sessions element
-                const sessions = document.getElementById('sessions');
+                const sessions = document.getElementById("sessions");
 
                 // Create session item
-                const sessionItem = document.createElement('div');
+                const sessionItem = document.createElement("div");
 
                 // Add classes and inner HTML
-                sessionItem.classList.add('session-item', 'bg-gray-100', 'rounded-lg', 'border-8', 'border-transparent', 'border-opacity-0', 'flex', 'items-center',
-                    'justify-between');
+                sessionItem.classList.add("session-item", "bg-gray-100", "rounded-lg", "border-8", "border-transparent", "border-opacity-0", "flex", "items-center",
+                    "justify-between");
                 sessionItem.innerHTML += `
                     <div>
-                        ${session.require2FA ? '<p class="text-orange-500"><strong>Still not passed 2FA</strong></p>' : ''}
+                        ${session.require2FA ? '<p class="text-orange-500"><strong>Still not passed 2FA</strong></p>' : ""}
                         <p><strong>Created At:</strong> ${new Date(session.createdAt).toLocaleString()}</p>
                         <p><strong>IP Address:</strong> ${session.ip}</p>
                         <p><strong>Device:</strong> ${session.userAgent}</p>
@@ -93,15 +93,15 @@
                 `;
 
                 // Create remove button
-                const removeButton = document.createElement('button');
-                removeButton.classList.add('remove-session', 'bg-red-600', 'hover:bg-red-700', 'text-white',
-                    'font-semibold', 'py-1', 'px-3', 'rounded-lg');
-                removeButton.textContent = 'Remove';
+                const removeButton = document.createElement("button");
+                removeButton.classList.add("remove-session", "bg-red-600", "hover:bg-red-700", "text-white",
+                    "font-semibold", "py-1", "px-3", "rounded-lg");
+                removeButton.textContent = "Remove";
 
                 // Add event listener to remove button
-                removeButton.addEventListener('click', async () => {
+                removeButton.addEventListener("click", async () => {
                     const response = await my.removeSession(session.id);
-                    if (response.status === 'success') {
+                    if (response.status === "success") {
                         // Remove session item
                         sessionItem.remove();
                     } else {
@@ -134,12 +134,12 @@
             getSessions();
 
             // Add event listener to remove all sessions button
-            document.getElementById('remove-all-sessions').addEventListener('click', async () => {
+            document.getElementById("remove-all-sessions").addEventListener("click", async () => {
                 // Remove all sessions
                 const response = await my.removeAllSessions();
 
                 // Display notification
-                if (response.status === 'success') {
+                if (response.status === "success") {
                     window.location.reload();
                 } else {
                     app.notification(

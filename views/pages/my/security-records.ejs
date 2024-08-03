@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
-                window.location.href = '/two-factor-authentication';
+                window.location.href = "/two-factor-authentication";
             } else if (sessionStatus.authenticated === false) {
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
         })();
     </script>
@@ -83,7 +83,7 @@
     </div>
     <script>
         // Add event listener to window load
-        window.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener("DOMContentLoaded", async () => {
             // Get user ID from session
             const userId = (await app.session.check()).userId;
 
@@ -92,8 +92,8 @@
 
             // Function to add 1 security record to the table
             function addSecurityRecord(record) {
-                const securityRecords = document.getElementById('security-records');
-                const recordElement = document.createElement('tr');
+                const securityRecords = document.getElementById("security-records");
+                const recordElement = document.createElement("tr");
                 recordElement.innerHTML = `
                 <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${new Date(record.operationTime).toLocaleString()}</td>
                 <td class="py-2 px-4 border-b border-gray-200 whitespace-nowrap">${record.type}</td>
@@ -116,11 +116,11 @@
 
                 // Hide get more button if no more records
                 if (securityRecords.length < 10) {
-                    document.getElementById('more-security-records').style.display = 'none';
+                    document.getElementById("more-security-records").style.display = "none";
                 }
             }
 
-            document.getElementById('get-more').addEventListener('click', () => {
+            document.getElementById("get-more").addEventListener("click", () => {
                 // Get more security records
                 getSecurityRecords();
             });

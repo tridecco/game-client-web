@@ -10,9 +10,9 @@
         (async () => {
             const sessionStatus = await app.session.check();
             if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === true) {
-                window.location.href = '/';
+                window.location.href = "/";
             } else if (sessionStatus.authenticated === false) {
-                window.location.href = '/login';
+                window.location.href = "/login";
             }
         })();
     </script>
@@ -69,10 +69,10 @@
         const email = localStorage.getItem("userEmail");
 
         // Get code button
-        const getCodeButton = document.getElementById('get-code-button');
+        const getCodeButton = document.getElementById("get-code-button");
 
         // Add event listener to get code button
-        getCodeButton.addEventListener('click', async () => {
+        getCodeButton.addEventListener("click", async () => {
             // Disable the get code button
             getCodeButton.disabled = true;
 
@@ -84,7 +84,7 @@
 
                 if (timeLeft === 0) {
                     clearInterval(interval);
-                    getCodeButton.textContent = 'Get Code';
+                    getCodeButton.textContent = "Get Code";
                     getCodeButton.disabled = false;
                 }
             }, 1000);
@@ -111,12 +111,12 @@
         });
 
         // Submit button
-        const submitButton = document.getElementById('submit-button');
+        const submitButton = document.getElementById("submit-button");
 
         // Add event listener to submit button
-        submitButton.addEventListener('click', async () => {
+        submitButton.addEventListener("click", async () => {
             // Get verification code
-            const verificationCode = document.getElementById('verification-code').value;
+            const verificationCode = document.getElementById("verification-code").value;
 
             // Submit verification code for 2FA
             const response = await auth.twoFactorAuthentication(verificationCode);
@@ -155,10 +155,10 @@
         });
 
         // Resend code button
-        const resendCodeButton = document.getElementById('resend-code-button');
+        const resendCodeButton = document.getElementById("resend-code-button");
 
         // Add event listener to resend code button
-        resendCodeButton.addEventListener('click', async () => {
+        resendCodeButton.addEventListener("click", async () => {
             // Disable the resend code button
             resendCodeButton.disabled = true;
 
@@ -170,7 +170,7 @@
 
                 if (timeLeft === 0) {
                     clearInterval(interval);
-                    resendCodeButton.textContent = 'Get Code';
+                    resendCodeButton.textContent = "Get Code";
                     resendCodeButton.disabled = false;
                 }
             }, 1000);
