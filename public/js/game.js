@@ -81,4 +81,25 @@ class GameUI {
   showRoom() {
     this.showSection("room");
   }
+
+  /**
+   * Start the queue waiting time.
+   * @returns {Object} The timer object.
+   * @property {Function} stop - Stop the timer.
+   */
+  startQueueWaitingTime() {
+    const queueTime = document.getElementById("waiting-time");
+
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      const elapsedTime = Date.now() - startTime;
+      const minutes = Math.floor(elapsedTime / 60000);
+      const seconds = Math.floor((elapsedTime % 60000) / 1000);
+      queueTime.innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    }, 1000);
+
+    return {
+      stop: () => clearInterval(timer),
+    };
+  }
 }
