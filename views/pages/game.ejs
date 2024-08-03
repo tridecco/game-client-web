@@ -55,7 +55,7 @@
         const gameUI = new GameUI();
 
         // Create a new game network instance
-        const gameNetwork = new GameNetwork("localhost:3000");
+        const gameNetwork = new GameNetwork(app.serverUrl);
 
         (async () => {
             // Authenticate the user
