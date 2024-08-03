@@ -56,8 +56,22 @@ class GameUI {
 
   /**
    * Show the queue.
+   * @param {string} gameMode - The game mode.
    */
-  showQueue() {
+  showQueue(gameMode) {
+    let displayGameMode;
+    switch (gameMode) {
+      case "classic-3p":
+        displayGameMode = "Classic (3 players)";
+        break;
+      case "classic-4p":
+        displayGameMode = "Classic (4 players)";
+        break;
+      default:
+        displayGameMode = gameMode;
+    }
+    document.getElementById("queue-mode").innerText = displayGameMode;
+
     this.showSection("queue");
   }
 

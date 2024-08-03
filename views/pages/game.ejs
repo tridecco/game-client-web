@@ -42,16 +42,17 @@
         }
 
         // Get the game parameters
-        const gameStartType = getGameParameters().get('type');
-        const gameMode = getGameParameters().get('gameMode') || null;
-        const roomId = getGameParameters().get('roomId') || null;
+        gameParameters = getGameParameters();
+        const gameStartType = gameParameters.get('type');
+        const gameMode = gameParameters.get('gameMode') || null;
+        const roomId = gameParameters.get('roomId') || null;
 
         // Create a new game ui instance
         const gameUI = new GameUI();
 
         // Show the correct game component
         if (gameStartType === 'queue') {
-            gameUI.showQueue();
+            gameUI.showQueue(gameMode);
         } else if (gameStartType === 'join') {
             gameUI.showRoom();
         } else if (gameStartType === 'create') {
