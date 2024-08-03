@@ -3,6 +3,11 @@
  */
 
 /**
+ * Game network class.
+ * @module js/game/network
+ */
+
+/**
  * Game UI class.
  * @module js/game/ui
  */
