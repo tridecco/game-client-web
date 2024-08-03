@@ -6,6 +6,15 @@
  * Game network class.
  * @module js/game/network
  */
+class GameNetwork {
+  /**
+   * Create a game network.
+   * @param {string} serverUrl - The server URL.
+   */
+  constructor(serverUrl) {
+    this.socket = io(serverUrl);
+  }
+}
 
 /**
  * Game UI class.
