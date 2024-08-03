@@ -30,6 +30,34 @@
             <%- include("../components/game/game") %>
         </div>
     </main>
+    <script>
+        // Get the game parameters from the url, and remove them from the url
+        function getGameParameters() {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            return params;
+        }
+
+        // Get the game parameters
+        const gameStartType = getGameParameters().get('type');
+        const gameMode = getGameParameters().get('gameMode') || null;
+        const roomId = getGameParameters().get('roomId') || null;
+
+        // Create a new game ui instance
+        const gameUI = new GameUI();
+
+        // Show the correct game component
+        if (gameStartType === 'queue') {
+            gameUI.showQueue();
+        } else if (gameStartType === 'join') {
+            gameUI.showRoom();
+        } else if (gameStartType === 'create') {
+            gameUI.showRoom();
+        }
+    </script>
 </body>
 
 </html>
