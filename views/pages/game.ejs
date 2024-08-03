@@ -62,7 +62,7 @@
             try {
                 await gameNetwork.authenticate((await app.session.check()).sessionId);
             } catch (error) {
-                if (error === "User can only have one active session") {
+                if (error.message === "User can only have one active session") {
                     gameUI.showError("Already in a game", "You can only have one active game session at a time. Please close the other game session to start a new one.", null, () => {
                         window.location.href = '/';
                     }, "Back to Home");
