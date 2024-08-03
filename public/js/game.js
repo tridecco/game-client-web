@@ -47,7 +47,8 @@ class GameUI {
     if (
       sectionName !== "queue" &&
       sectionName !== "room" &&
-      sectionName !== "game"
+      sectionName !== "game" &&
+      sectionName !== "error"
     ) {
       throw new Error("Invalid section name");
     }
@@ -75,7 +76,7 @@ class GameUI {
    * @param {string} section - The section name.
    */
   showSection(section) {
-    const sections = ["queue", "room", "game"];
+    const sections = ["queue", "room", "game", "error"];
     sections.forEach((s) => {
       if (s === section) {
         this._showSection(s);
@@ -111,6 +112,58 @@ class GameUI {
    */
   showRoom() {
     this.showSection("room");
+  }
+
+  /**
+   * Show the error.
+   * @param {string} title - The error title. (Optional, if null, hide the title)
+   * @param {string} message - The error message. (Optional, if null, hide the message)
+   * @param {string} inputPlaceholder - The input placeholder. (Optional, if null, hide the input)
+   * @param {Function} clickHandler - The click handler. (Optional, if null, hide the button)
+   * @param {string} buttonText - The button text. (Optional, if null, hide the button)
+   */
+  showError(
+    title = null,
+    message = null,
+    inputPlaceholder = null,
+    clickHandler = null,
+    buttonText = null
+  ) {
+    const errorTitle = document.getElementById("error-title");
+    const errorMessage = document.getElementById("error-content");
+    const errorInput = document.getElementById("error-input");
+    const errorButton = document.getElementById("error-button");
+
+    if (title) {
+      errorTitle.style.display = "block";
+      errorTitle.innerText = title;
+    } else {
+      errorTitle.style.display = "none";
+    }
+
+    if (message) {
+      errorMessage.style.display = "block";
+      errorMessage.innerText = message;
+    } else {
+      errorMessage.style.display = "none";
+    }
+
+    if (inputPlaceholder) {
+      errorInput.style.display = "block";
+      errorInput.placeholder = inputPlaceholder;
+    } else {
+      errorInput.style.display = "none";
+    }
+
+    if (clickHandler) {
+      errorButton.style.display = "block";
+      errorButton.onclick = clickHandler;
+      errorButton.innerText = buttonText;
+    } else {
+      errorButton.style.display = "none";
+    }
+
+    this.showSection("error");
   }
 
   /**
