@@ -54,14 +54,23 @@
         // Create a new game network instance
         const gameNetwork = new GameNetwork("localhost:3000");
 
-        // Show the correct game component
-        if (gameStartType === 'queue') {
-            gameUI.showQueue(gameMode);
-        } else if (gameStartType === 'join') {
-            gameUI.showRoom();
-        } else if (gameStartType === 'create') {
-            gameUI.showRoom();
-        }
+        (async () => {
+            // Authenticate the user
+            try {
+                await gameNetwork.authenticate((await app.session.check()).sessionId);
+            } catch (error) {
+                window.location.href = '/login';
+            }
+
+            // Show the correct game component
+            if (gameStartType === 'queue') {
+                gameUI.showQueue(gameMode);
+            } else if (gameStartType === 'join') {
+                gameUI.showRoom();
+            } else if (gameStartType === 'create') {
+                gameUI.showRoom();
+            }
+        })();
     </script>
 </body>
 

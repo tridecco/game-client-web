@@ -14,6 +14,23 @@ class GameNetwork {
   constructor(serverUrl) {
     this.socket = io(serverUrl);
   }
+
+  /**
+   * Authenticate the player.
+   * @param {string} sessionId - The session ID.
+   * @returns {Promise} The promise object.
+   */
+  authenticate(sessionId) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("authenticate", { sessionId }, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
 }
 
 /**
