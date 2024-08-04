@@ -50,6 +50,22 @@ class GameNetwork {
       });
     });
   }
+
+  /**
+   * Leave the queue.
+   * @returns {Promise} The promise object.
+   */
+  leaveQueue() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("unqueue", {}, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
 }
 
 /**
