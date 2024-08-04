@@ -29,6 +29,7 @@ class App {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         });
 
         const data = await response.json();
@@ -120,4 +121,4 @@ class App {
 }
 
 // Create a new App object (global variable)
-const app = new App("http://127.0.0.1:3000");
+const app = new App("https://127.0.0.1");

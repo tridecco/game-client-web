@@ -20,17 +20,12 @@
 
 const config = {
   host: "127.0.0.1",
-  port: 80,
+  port: 8080,
   codePath: __dirname,
   https: {
     enabled: false,
     key: __dirname + "/ssl/" + "tridecco.key",
     cert: __dirname + "/ssl/" + "tridecco.pem",
-  },
-  backend: {
-    https: false,
-    host: "127.0.0.1",
-    port: 3000,
   },
 };
 

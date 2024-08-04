@@ -21,6 +21,7 @@ class My {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -46,6 +47,7 @@ class My {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        credentials: "include",
       }
     );
 
@@ -68,6 +70,7 @@ class My {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username }),
+        credentials: "include",
       }
     );
 
@@ -93,6 +96,7 @@ class My {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, code }),
+        credentials: "include",
       }
     );
 
@@ -116,6 +120,7 @@ class My {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ currentPassword, newPassword }),
+        credentials: "include",
       }
     );
 
@@ -138,6 +143,7 @@ class My {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       }
     );
 
@@ -162,6 +168,7 @@ class My {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       }
     );
 
@@ -185,6 +192,7 @@ class My {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     const responseData = await response.json();
@@ -204,6 +212,7 @@ class My {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       }
     );
 

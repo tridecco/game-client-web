@@ -15,6 +15,7 @@ class Auth {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -34,6 +35,7 @@ class Auth {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ identifier, password }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -54,6 +56,7 @@ class Auth {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ code }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -77,6 +80,7 @@ class Auth {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, email, code, password }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -101,6 +105,7 @@ class Auth {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, code, password }),
+        credentials: "include",
       }
     );
 
