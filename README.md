@@ -49,7 +49,16 @@ npm install
 npm run build:css
 ```
 
-4. Start the server:
+4. Configure the backend server URL in the `app.js` file:
+
+```javascript
+// ......
+
+// Create a new App object (global variable)
+const app = new App("https://127.0.0.1"); // Change this to the backend server URL
+```
+
+5. Start the server:
 
 ```bash
 npm start
