@@ -31,6 +31,23 @@ class GameNetwork {
       });
     });
   }
+
+  /**
+   * Join the queue.
+   * @param {string} queueName - The queue name. (game mode)
+   * @returns {Promise} The promise object.
+   */
+  joinQueue(queueName) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("queue", { queueName }, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
 }
 
 /**

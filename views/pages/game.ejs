@@ -73,7 +73,20 @@
 
             // Show the correct game component
             if (gameStartType === "queue") {
+                // Show the queue component
                 gameUI.showQueue(gameMode);
+
+                // Join the queue
+                try {
+                    await gameNetwork.joinQueue(gameMode);
+                } catch (error) {
+                    gameUI.showError("Error Joining Queue", error.message, null, () => {
+                        window.location.reload();
+                    }, "Retry");
+                }
+
+                // Start the queue timer
+                const queueTimer = gameUI.startQueueWaitingTime();
             } else if (gameStartType === "join") {
                 gameUI.showRoom();
             } else if (gameStartType === "create") {
