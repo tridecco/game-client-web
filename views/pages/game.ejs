@@ -136,7 +136,8 @@
                     return {
                         id: player.userId,
                         name: player.user.username,
-                        avatar: player.user.profile.avatar
+                        avatar: player.user.profile.avatar,
+                        isCurrentPlayer: player.userId === room.players[room.players.length - 1].userId
                     };
                 });
 
@@ -175,7 +176,8 @@
                     return {
                         id: player.userId,
                         name: player.user.username,
-                        avatar: player.user.profile.avatar
+                        avatar: player.user.profile.avatar,
+                        isCurrentPlayer: player.userId === room.players[room.players.length - 1].userId
                     };
                 });
 
