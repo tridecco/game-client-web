@@ -160,6 +160,38 @@ class GameUI {
   }
 
   /**
+   * Get display game mode. (Private)
+   * @param {string} gameMode - The game mode.
+   * @returns {string} The display game mode.
+   */
+  _getDisplayGameMode(gameMode) {
+    switch (gameMode) {
+      case "classic-3p":
+        return "Classic (3 players)";
+      case "classic-4p":
+        return "Classic (4 players)";
+      default:
+        return gameMode;
+    }
+  }
+
+  /**
+   * Get game mode player count. (Private)
+   * @param {string} gameMode - The game mode.
+   * @returns {number} The player count.
+   */
+  _getGameModePlayerCount(gameMode) {
+    switch (gameMode) {
+      case "classic-3p":
+        return 3;
+      case "classic-4p":
+        return 4;
+      default:
+        return 0;
+    }
+  }
+
+  /**
    * Show a section. (Private)
    * @param {string} section - The section name.
    */
@@ -195,27 +227,56 @@ class GameUI {
    * @param {string} gameMode - The game mode.
    */
   showQueue(gameMode) {
-    let displayGameMode;
-    switch (gameMode) {
-      case "classic-3p":
-        displayGameMode = "Classic (3 players)";
-        break;
-      case "classic-4p":
-        displayGameMode = "Classic (4 players)";
-        break;
-      default:
-        displayGameMode = gameMode;
-    }
-    document.getElementById("queue-mode").innerText = displayGameMode;
+    document.getElementById("queue-mode").innerText =
+      this._getDisplayGameMode(gameMode);
 
     this.showSection("queue");
   }
 
   /**
    * Show the room.
+   * @param {string} roomId - The room ID.
+   * @param {string} gameMode - The game mode.
+   * @param {Object[]} players - The players in the room.
+   * @param {isHost} isHost - The player is the host.
+   * @param {Function} startGameHandler - The start game handler.
    */
-  showRoom() {
+  showRoom(roomId, gameMode, players, isHost, startGameHandler) {
     this.showSection("room");
+
+    this.currentRoomPlayersMax = this._getGameModePlayerCount(gameMode);
+    this.currentRoomPlayersCount = players.length;
+
+    const roomIdElement = document.getElementById("room-id");
+    roomIdElement.value = roomId;
+
+    const gameModeElement = document.getElementById("room-mode");
+    gameModeElement.innerText = this._getDisplayGameMode(gameMode);
+
+    const roomStatusElement = document.getElementById("room-status");
+    roomStatusElement.innerText = `Waiting for players (${players.length}/${this.currentRoomPlayersMax})`;
+
+    let playersElement = document.getElementById("room-players");
+    playersElement.innerHTML = "";
+    players.forEach((player) => {
+      player.avatar = player.avatar || "/img/default-avatar.png";
+      const playerElement = `
+        <div id="room-player-${player.id}" class="flex flex-col items-center mb-4">
+          <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
+          <span class="mt-2 text-sm">${player.name}</span>
+        </div>
+      `;
+      playersElement.innerHTML += playerElement;
+    });
+
+    if (isHost) {
+      this.currentRoomIsHost = true;
+
+      const startButton = document.getElementById("room-start-game");
+      startButton.addEventListener("click", () => {
+        startGameHandler();
+      });
+    }
   }
 
   /**
@@ -320,6 +381,61 @@ class GameUI {
     return {
       stop: () => clearInterval(timer),
     };
+  }
+
+  /**
+   * Player joined the room.
+   * @param {Object} player - The player.
+   */
+  playerJoinedRoom(player) {
+    this.currentRoomPlayersCount++;
+
+    const playersElement = document.getElementById("room-players");
+    const playerElement = `
+      <div id="room-player-${player.id}" class="flex flex-col items-center mb-4">
+        <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
+        <span class="mt-2 text-sm">${player.name}</span>
+      </div>
+    `;
+    playersElement.innerHTML += playerElement;
+
+    const roomStatusElement = document.getElementById("room-status");
+    if (this.currentRoomPlayersCount === this.currentRoomPlayersMax) {
+      roomStatusElement.innerText = "Waiting for host to start the game";
+
+      if (this.currentRoomIsHost) {
+        const startButton = document.getElementById("room-start-game");
+        startButton.style.display = "block";
+        startButton.addEventListener("click", () => {
+          startButton.disabled = true;
+          startButton.classList.add("cursor-not-allowed");
+          startButton.innerText = "Starting...";
+
+          startGameHandler();
+        });
+      }
+    } else {
+      roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayersCount}/${this.currentRoomPlayersMax})`;
+    }
+  }
+
+  /**
+   * Player left the room.
+   * @param {number} playerId - The player
+   */
+  playerLeftRoom(playerId) {
+    this.currentRoomPlayersCount--;
+
+    const playerElement = document.getElementById(`room-player-${playerId}`);
+    playerElement.remove();
+
+    const roomStatusElement = document.getElementById("room-status");
+    roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayersCount}/${this.currentRoomPlayersMax})`;
+
+    if (this.currentRoomIsHost) {
+      const startButton = document.getElementById("room-start-game");
+      startButton.style.display = "none";
+    }
   }
 
   /**
