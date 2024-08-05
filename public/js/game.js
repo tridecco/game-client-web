@@ -77,6 +77,15 @@ class GameNetwork {
   }
 
   /**
+   * Add listener once.
+   * @param {string} event - The event name.
+   * @param {Function} listener - The listener function.
+   */
+  addListenerOnce(event, listener) {
+    this.socket.once(event, listener);
+  }
+
+  /**
    * Remove listener.
    * @param {string} event - The event name.
    * @param {Function} listener - The listener function.
@@ -184,7 +193,7 @@ class GameUI {
           <span class="mt-2 text-sm">${player.name}</span>
         </div>
       `;
-    players.appendChild(playerElement);
+      players.appendChild(playerElement);
     });
 
     const startButton = document.getElementById("ready-start-game");
