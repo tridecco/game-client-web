@@ -204,7 +204,13 @@ class GameUI {
     });
 
     const startButton = document.getElementById("ready-start-game");
-    startButton.onclick = clickHandler;
+    startButton.addEventListener("click", () => {
+      startButton.disabled = true;
+      startButton.classList.add("cursor-not-allowed");
+      startButton.innerText = "Ready...";
+
+      clickHandler();
+    });
 
     this.showSection("ready");
   }
