@@ -142,7 +142,10 @@
                 });
 
                 // Show the room component
-                gameUI.showRoom(room.roomId, room.gameMode, players, false, null);
+                gameUI.showRoom(room.roomId, room.gameMode, players, false, () => {
+                    // Start game button clicked
+                    console.log("Start game button clicked");
+                });
 
                 // Add player joined event listener
                 gameNetwork.addListener("userJoined", (data) => {
@@ -182,7 +185,10 @@
                 });
 
                 // Show the room component
-                gameUI.showRoom(room.roomId, gameMode, players, true, room.id);
+                gameUI.showRoom(room.roomId, gameMode, players, true, () => {
+                    // Start game button clicked
+                    console.log("Start game button clicked");
+                });
 
                 // Add player joined event listener
                 gameNetwork.addListener("userJoined", (data) => {

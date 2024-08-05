@@ -102,6 +102,22 @@ class GameNetwork {
   }
 
   /**
+   * Start the room game.
+   * @returns {Promise} The promise object.
+   */
+  startRoom() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("startCustomRoom", {}, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+
+  /**
    * Leave the room.
    * @returns {Promise} The promise object.
    */
