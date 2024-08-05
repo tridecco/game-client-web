@@ -98,6 +98,27 @@
 
                 // Start the queue timer
                 const queueTimer = gameUI.startQueueWaitingTime();
+
+                // Add game ready event listener (once the game is ready)
+                gameNetwork.addListenerOnce("gameReady", () => {
+                    // Stop the queue timer
+                    clearInterval(queueTimer);
+
+                    // Add game players event listener
+                    gameNetwork.addListenerOnce("game:players", (data) => {
+                        // Show the game ready component
+                        gameUI.showGameReady(data.players, () => {
+                            // Send the player ready event
+                            gameNetwork.playerReady();
+                        });
+
+                        // Add player ready event listener
+                        gameNetwork.addListener("game-client:ready", (data) => {
+                            // Update the player ready status
+                            gameUI.playerReady(data.player);
+                        }); 
+                    });
+                });
             } else if (gameStartType === "join") {
                 gameUI.showRoom();
             } else if (gameStartType === "create") {
