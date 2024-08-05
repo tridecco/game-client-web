@@ -273,7 +273,12 @@ class GameUI {
       this.currentRoomIsHost = true;
 
       const startButton = document.getElementById("room-start-game");
+      startButton.style.display = "block";
       startButton.addEventListener("click", () => {
+        startButton.disabled = true;
+        startButton.classList.add("cursor-not-allowed");
+        startButton.innerText = "Starting...";
+
         startGameHandler();
       });
     }
@@ -391,6 +396,7 @@ class GameUI {
     this.currentRoomPlayersCount++;
 
     const playersElement = document.getElementById("room-players");
+    player.avatar = player.avatar || "/img/default-avatar.png";
     const playerElement = `
       <div id="room-player-${player.id}" class="flex flex-col items-center mb-4">
         <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
@@ -405,14 +411,10 @@ class GameUI {
 
       if (this.currentRoomIsHost) {
         const startButton = document.getElementById("room-start-game");
-        startButton.style.display = "block";
-        startButton.addEventListener("click", () => {
-          startButton.disabled = true;
-          startButton.classList.add("cursor-not-allowed");
-          startButton.innerText = "Starting...";
-
-          startGameHandler();
-        });
+        startButton.disabled = false;
+        startButton.classList.remove("cursor-not-allowed");
+        startButton.classList.remove("bg-gray-400");
+        startButton.classList.add("bg-blue-500", "hover:bg-blue-700");
       }
     } else {
       roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayersCount}/${this.currentRoomPlayersMax})`;
@@ -434,7 +436,10 @@ class GameUI {
 
     if (this.currentRoomIsHost) {
       const startButton = document.getElementById("room-start-game");
-      startButton.style.display = "none";
+      startButton.disabled = true;
+      startButton.classList.add("cursor-not-allowed");
+      startButton.classList.add("bg-gray-400");
+      startButton.classList.remove("bg-blue-500", "hover:bg-blue-700");
     }
   }
 
