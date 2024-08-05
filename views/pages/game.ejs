@@ -116,13 +116,87 @@
                         gameNetwork.addListener("game-client:ready", (data) => {
                             // Update the player ready status
                             gameUI.playerReady(data.player);
-                        }); 
+                        });
                     });
                 });
             } else if (gameStartType === "join") {
-                gameUI.showRoom();
+                // Join the room
+                let room;
+                try {
+                    room = await gameNetwork.joinRoom(roomId);
+                } catch (error) {
+                    gameUI.showError("Error Joining Room", error.message, null, () => {
+                        window.location.href = "/";
+                    }, "Back to Home");
+                    return;
+                }
+
+                // Get the players
+                const players = room.players.map(player => {
+                    return {
+                        id: player.userId,
+                        name: player.user.username,
+                        avatar: player.user.profile.avatar
+                    };
+                });
+
+                // Show the room component
+                gameUI.showRoom(room.roomId, room.gameMode, players, false, null);
+
+                // Add player joined event listener
+                gameNetwork.addListener("userJoined", (data) => {
+                    // Add the player to the room
+                    gameUI.playerJoinedRoom({
+                        id: data.userId,
+                        name: data.user.username,
+                        avatar: data.user.profile.avatar
+                    });
+                });
+
+                // Add player left event listener
+                gameNetwork.addListener("userLeft", (data) => {
+                    // Remove the player from the room
+                    gameUI.playerLeftRoom(data.userId);
+                });
             } else if (gameStartType === "create") {
-                gameUI.showRoom();
+                // Create the room
+                let room;
+                try {
+                    room = await gameNetwork.createRoom(gameMode);
+                } catch (error) {
+                    gameUI.showError("Error Creating Room", error.message, null, () => {
+                        window.location.href = "/";
+                    }, "Back to Home");
+                    return;
+                }
+
+                // Get the players
+                const players = room.players.map(player => {
+                    return {
+                        id: player.userId,
+                        name: player.user.username,
+                        avatar: player.user.profile.avatar
+                    };
+                });
+
+                // Show the room component
+                gameUI.showRoom(room.roomId, gameMode, players, true, room.id);
+
+                // Add player joined event listener
+                gameNetwork.addListener("userJoined", (data) => {
+                    // Add the player to the room
+                    gameUI.playerJoinedRoom({
+                        id: data.userId,
+                        name: data.user.username,
+                        avatar: data.user.profile.avatar
+                    });
+                });
+
+                // Add player left event listener
+                gameNetwork.addListener("userLeft", (data) => {
+                    // Remove the player from the room
+                    gameUI.playerLeftRoom(data.userId);
+                });
             } else {
                 window.location.href = "/";
             }
