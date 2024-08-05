@@ -66,6 +66,24 @@ class GameNetwork {
       });
     });
   }
+
+  /**
+   * Add listener.
+   * @param {string} event - The event name.
+   * @param {Function} listener - The listener function.
+   */
+  addListener(event, listener) {
+    this.socket.on(event, listener);
+  }
+
+  /**
+   * Remove listener.
+   * @param {string} event - The event name.
+   * @param {Function} listener - The listener function.
+   */
+  removeListener(event, listener) {
+    this.socket.off(event, listener);
+  }
 }
 
 /**
