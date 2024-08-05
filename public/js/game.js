@@ -261,7 +261,7 @@ class GameUI {
     this.showSection("room");
 
     this.currentRoomPlayersMax = this._getGameModePlayerCount(gameMode);
-    this.currentRoomPlayersCount = players.length;
+    this.currentRoomPlayers = players;
 
     const roomIdElement = document.getElementById("room-id");
     roomIdElement.value = roomId;
@@ -409,7 +409,7 @@ class GameUI {
    * @param {Object} player - The player.
    */
   playerJoinedRoom(player) {
-    this.currentRoomPlayersCount++;
+    this.currentRoomPlayers.push(player);
 
     const playersElement = document.getElementById("room-players");
     player.avatar = player.avatar || "/img/default-avatar.png";
@@ -422,7 +422,7 @@ class GameUI {
     playersElement.innerHTML += playerElement;
 
     const roomStatusElement = document.getElementById("room-status");
-    if (this.currentRoomPlayersCount === this.currentRoomPlayersMax) {
+    if (this.currentRoomPlayers.length === this.currentRoomPlayersMax) {
       roomStatusElement.innerText = "Waiting for host to start the game";
 
       if (this.currentRoomIsHost) {
@@ -433,7 +433,7 @@ class GameUI {
         startButton.classList.add("bg-blue-500", "hover:bg-blue-700");
       }
     } else {
-      roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayersCount}/${this.currentRoomPlayersMax})`;
+      roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayers.length}/${this.currentRoomPlayersMax})`;
     }
   }
 
@@ -442,13 +442,15 @@ class GameUI {
    * @param {number} playerId - The player
    */
   playerLeftRoom(playerId) {
-    this.currentRoomPlayersCount--;
+    this.currentRoomPlayers = this.currentRoomPlayers.filter(
+      (player) => player.id !== playerId
+    );
 
     const playerElement = document.getElementById(`room-player-${playerId}`);
     playerElement.remove();
 
     const roomStatusElement = document.getElementById("room-status");
-    roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayersCount}/${this.currentRoomPlayersMax})`;
+    roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayers.length}/${this.currentRoomPlayersMax})`;
 
     if (this.currentRoomIsHost) {
       const startButton = document.getElementById("room-start-game");
