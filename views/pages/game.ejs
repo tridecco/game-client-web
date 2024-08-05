@@ -57,6 +57,14 @@
         // Create a new game network instance
         const gameNetwork = new GameNetwork(app.serverUrl);
 
+        // Add disconnect event listener
+        const disconnectListener = () => {
+            gameUI.showError("Disconnected", "You have been disconnected from the server. Please check your internet connection and try again.", null, () => {
+                window.location.href = "/";
+            }, "Back to Home");
+        };
+        gameNetwork.addListener("disconnect", disconnectListener);
+
         (async () => {
             // Authenticate the user
             try {
