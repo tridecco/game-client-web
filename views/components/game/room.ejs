@@ -1,0 +1,30 @@
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <div class="mx-auto w-full max-w-md p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50 relative">
+        <button id="exit-room" class="absolute top-4 left-4 text-red-600">Leave</button>
+        <h2 class="text-center text-2xl font-bold mb-4">Game Mode: <span id="room-mode" class="font-semibold"></span></h2>
+        <p id="room-status" class="text-center text-lg mb-6">Waiting for Players...</p>
+        <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-between shadow-sm">
+            <input type="text" id="room-number" class="w-full max-w-xs border border-gray-300 rounded-lg p-2 text-center bg-white" value="123456" readonly>
+            <button id="copy-room-number" class="ml-4 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Copy</button>
+        </div>
+        <div class="flex flex-wrap justify-center space-x-4 mb-6">
+            <div class="flex flex-col items-center mb-4">
+                <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="/img/default-avatar.png" alt="Player 1">
+                <span class="mt-2 text-sm">Player 1</span>
+            </div>
+            <div class="flex flex-col items-center mb-4">
+                <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="/img/default-avatar.png" alt="Player 2">
+                <span class="mt-2 text-sm">Player 2</span>
+            </div>
+            <div class="flex flex-col items-center mb-4">
+                <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="/img/default-avatar.png" alt="Player 3">
+                <span class="mt-2 text-sm">Player 3</span>
+            </div>
+            <div class="flex flex-col items-center mb-4">
+                <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="/img/default-avatar.png" alt="Player 4">
+                <span class="mt-2 text-sm">Player 4</span>
+            </div>
+        </div>
+        <button class="w-full py-2 px-4 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed" disabled>Start Game</button>
+    </div>
+</div>
