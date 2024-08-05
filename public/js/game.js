@@ -285,18 +285,20 @@ class GameUI {
       playersElement.innerHTML += playerElement;
     });
 
+    const startButton = document.getElementById("room-start-game");
+
+    startButton.addEventListener("click", () => {
+      startButton.disabled = true;
+      startButton.classList.add("cursor-not-allowed");
+      startButton.innerText = "Starting...";
+
+      startGameHandler();
+    });
+
     if (isHost) {
       this.currentRoomIsHost = true;
 
-      const startButton = document.getElementById("room-start-game");
       startButton.style.display = "block";
-      startButton.addEventListener("click", () => {
-        startButton.disabled = true;
-        startButton.classList.add("cursor-not-allowed");
-        startButton.innerText = "Starting...";
-
-        startGameHandler();
-      });
     }
   }
 
@@ -458,6 +460,11 @@ class GameUI {
       startButton.classList.add("cursor-not-allowed");
       startButton.classList.add("bg-gray-400");
       startButton.classList.remove("bg-blue-500", "hover:bg-blue-700");
+    } else if (this.currentRoomPlayers[0].isCurrentPlayer) {
+      this.currentRoomIsHost = true;
+
+      const startButton = document.getElementById("room-start-game");
+      startButton.style.display = "block";
     }
   }
 
