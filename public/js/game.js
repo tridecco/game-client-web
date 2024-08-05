@@ -68,6 +68,13 @@ class GameNetwork {
   }
 
   /**
+   * Set the player ready.
+   */
+  playerReady() {
+    this.socket.emit("game-client:ready", {});
+  }
+
+  /**
    * Add listener.
    * @param {string} event - The event name.
    * @param {Function} listener - The listener function.
@@ -273,5 +280,15 @@ class GameUI {
     return {
       stop: () => clearInterval(timer),
     };
+  }
+
+  /**
+   * Set the player ready.
+   * @param {number} playerId - The player
+   */
+  playerReady(playerId) {
+    const playerElement = document.getElementById(`ready-player-${playerId}`);
+    const playerAvatar = playerElement.querySelector("img");
+    playerAvatar.classList.add("border-green-500");
   }
 }
