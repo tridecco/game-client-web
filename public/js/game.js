@@ -102,6 +102,22 @@ class GameNetwork {
   }
 
   /**
+   * Leave the room.
+   * @returns {Promise} The promise object.
+   */
+  leaveRoom() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("leaveCustomRoom", {}, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+
+  /**
    * Set the player ready.
    */
   playerReady() {
