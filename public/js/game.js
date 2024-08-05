@@ -100,6 +100,7 @@ class GameUI {
     if (
       sectionName !== "queue" &&
       sectionName !== "room" &&
+      sectionName !== "ready" &&
       sectionName !== "game" &&
       sectionName !== "error"
     ) {
@@ -129,7 +130,7 @@ class GameUI {
    * @param {string} section - The section name.
    */
   showSection(section) {
-    const sections = ["queue", "room", "game", "error"];
+    const sections = ["queue", "room", "game", "ready", "error"];
     sections.forEach((s) => {
       if (s === section) {
         this._showSection(s);
@@ -165,6 +166,31 @@ class GameUI {
    */
   showRoom() {
     this.showSection("room");
+  }
+
+  /**
+   * Show the game ready.
+   * @param {Object[]} players - The players in the game.
+   * @param {Function} clickHandler - The click handler.
+   */
+  showGameReady(players, clickHandler) {
+    const players = document.getElementById("ready-players");
+    players.innerHTML = "";
+    players.forEach((player) => {
+      const playerElement = `
+        <div class="flex flex-col items-center mb-4">
+          <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
+            alt="Player 1">
+          <span class="mt-2 text-sm">${player.name}</span>
+        </div>
+      `;
+    players.appendChild(playerElement);
+    });
+
+    const startButton = document.getElementById("ready-start-game");
+    startButton.onclick = clickHandler;
+
+    this.showSection("ready");
   }
 
   /**
