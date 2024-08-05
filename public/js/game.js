@@ -188,7 +188,7 @@ class GameUI {
     players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
       const playerElement = `
-        <div class="flex flex-col items-center mb-4">
+        <div id="ready-player-${player.id}" class="flex flex-col items-center mb-4">
           <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
           <span class="mt-2 text-sm">${player.name}</span>
         </div>
