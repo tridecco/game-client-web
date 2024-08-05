@@ -183,8 +183,8 @@ class GameUI {
    * @param {Function} clickHandler - The click handler.
    */
   showGameReady(players, clickHandler) {
-    const players = document.getElementById("ready-players");
-    players.innerHTML = "";
+    const playersElement = document.getElementById("ready-players");
+    playersElement.innerHTML = "";
     players.forEach((player) => {
       const playerElement = `
         <div class="flex flex-col items-center mb-4">
@@ -193,7 +193,7 @@ class GameUI {
           <span class="mt-2 text-sm">${player.name}</span>
         </div>
       `;
-      players.appendChild(playerElement);
+      playersElement.appendChild(playerElement);
     });
 
     const startButton = document.getElementById("ready-start-game");
