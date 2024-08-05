@@ -68,6 +68,40 @@ class GameNetwork {
   }
 
   /**
+   * Create a room.
+   * @param {string} gameMode - The game mode.
+   * @returns {Promise} The promise object.
+   */
+  createRoom(gameMode) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("createCustomRoom", { gameMode }, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+
+  /**
+   * Join the room.
+   * @param {string} roomId - The room ID.
+   * @returns {Promise} The promise object.
+   */
+  joinRoom(roomId) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit("joinCustomRoom", { roomId }, (response) => {
+        if (!response.success) {
+          reject(new Error(response.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+
+  /**
    * Set the player ready.
    */
   playerReady() {
