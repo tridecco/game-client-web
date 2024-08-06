@@ -142,9 +142,15 @@
                 });
 
                 // Show the room component
-                gameUI.showRoom(room.roomId, room.gameMode, players, false, () => {
-                    // Start game button clicked
-                    console.log("Start game button clicked");
+                gameUI.showRoom(room.roomId, room.gameMode, players, false, async () => {
+                    // Send the start room event
+                    try {
+                        await gameNetwork.startRoom();
+                    } catch (error) {
+                        gameUI.showError("Error Starting Room", error.message, null, () => {
+                            window.location.href = "/";
+                        }, "Back to Home");
+                    }
                 });
 
                 // Add player joined event listener
@@ -161,6 +167,24 @@
                 gameNetwork.addListener("userLeft", (data) => {
                     // Remove the player from the room
                     gameUI.playerLeftRoom(data.userId);
+                });
+
+                // Add game start event listener
+                gameNetwork.addListenerOnce("gameStart", () => {
+                    // Add game players event listener
+                    gameNetwork.addListenerOnce("game:players", (data) => {
+                        // Show the game ready component
+                        gameUI.showGameReady(data.players, () => {
+                            // Send the player ready event
+                            gameNetwork.playerReady();
+                        });
+
+                        // Add player ready event listener
+                        gameNetwork.addListener("game-client:ready", (data) => {
+                            // Update the player ready status
+                            gameUI.playerReady(data.player);
+                        });
+                    });
                 });
             } else if (gameStartType === "create") {
                 // Create the room
@@ -185,9 +209,15 @@
                 });
 
                 // Show the room component
-                gameUI.showRoom(room.roomId, gameMode, players, true, () => {
-                    // Start game button clicked
-                    console.log("Start game button clicked");
+                gameUI.showRoom(room.roomId, gameMode, players, true, async () => {
+                    // Send the start room event
+                    try {
+                        await gameNetwork.startRoom();
+                    } catch (error) {
+                        gameUI.showError("Error Starting Room", error.message, null, () => {
+                            window.location.href = "/";
+                        }, "Back to Home");
+                    }
                 });
 
                 // Add player joined event listener
@@ -204,6 +234,24 @@
                 gameNetwork.addListener("userLeft", (data) => {
                     // Remove the player from the room
                     gameUI.playerLeftRoom(data.userId);
+                });
+
+                // Add game start event listener
+                gameNetwork.addListenerOnce("gameStart", () => {
+                    // Add game players event listener
+                    gameNetwork.addListenerOnce("game:players", (data) => {
+                        // Show the game ready component
+                        gameUI.showGameReady(data.players, () => {
+                            // Send the player ready event
+                            gameNetwork.playerReady();
+                        });
+
+                        // Add player ready event listener
+                        gameNetwork.addListener("game-client:ready", (data) => {
+                            // Update the player ready status
+                            gameUI.playerReady(data.player);
+                        });
+                    });
                 });
             } else {
                 window.location.href = "/";
