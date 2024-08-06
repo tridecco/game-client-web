@@ -102,7 +102,7 @@
                 // Add game ready event listener (once the game is ready)
                 gameNetwork.addListenerOnce("gameReady", () => {
                     // Stop the queue timer
-                    clearInterval(queueTimer);
+                    queueTimer.stop();
 
                     // Add game players event listener
                     gameNetwork.addListenerOnce("game:players", (data) => {
