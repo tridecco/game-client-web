@@ -172,6 +172,7 @@
             }
             if (userData.profile.birthday) {
                 document.getElementById("birthday").value = new Date(userData.profile.birthday).toISOString().split("T")[0]; // Set birthday if exists (format: yyyy-mm-dd)
+                document.getElementById("birthday").setAttribute("max", new Date().toISOString().split("T")[0]); // Set max date to today
             }
             if (userData.profile.customizeUrls) {
                 const customizeUrls = document.getElementById("custom-urls"); // Set customize URLs if exists
