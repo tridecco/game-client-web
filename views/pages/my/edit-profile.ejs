@@ -171,7 +171,7 @@
                 document.getElementById("location").value = userData.profile.location; // Set location if exists
             }
             if (userData.profile.birthday) {
-                document.getElementById("birthday").value = new Date(userData.profile.birthday).toLocaleDateString(); // Set birthday if exists (format: locale date string)
+                document.getElementById("birthday").value = new Date(userData.profile.birthday).toISOString().split("T")[0]; // Set birthday if exists (format: yyyy-mm-dd)
             }
             if (userData.profile.customizeUrls) {
                 const customizeUrls = document.getElementById("custom-urls"); // Set customize URLs if exists
