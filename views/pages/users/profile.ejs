@@ -150,7 +150,7 @@
                 document.getElementById("location").textContent = userData.profile.location; // Display location if available
             }
             if (userData.profile.birthday) {
-                document.getElementById("birthday").textContent = new Date(userData.profile.birthday).toLocaleDateString(); // Display birthday if available
+                document.getElementById("birthday").textContent = new Date(userData.profile.birthday).toLocaleDateString(undefined, { timeZone: "UTC" }); // Display birthday if available (formatted)
             }
             // Display custom URLs if available
             if (userData.profile.customizeUrls) {
