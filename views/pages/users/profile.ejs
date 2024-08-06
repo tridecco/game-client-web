@@ -86,7 +86,7 @@
         // Add event listener to window load
         window.addEventListener("DOMContentLoaded", async () => {
             // Set the username
-            const username = encodeURIComponent("<%- username %>");
+            const username = "<%= JSON.stringify(username) %>";
 
             // New users instance
             const users = new Users(username);
