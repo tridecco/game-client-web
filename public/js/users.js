@@ -17,13 +17,16 @@ class Users {
    * @returns {Object} The user data.
    */
   async getUserData() {
-    const response = await fetch(`${app.serverUrl}/users/${this.username}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${app.serverUrl}/users/username/${this.username}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
 
     const data = await response.json();
 
