@@ -6,6 +6,7 @@
 class My {
   /**
    * Create a new My object.
+   * @param {string} userId - The user ID.
    */
   constructor(userId) {
     this.userId = userId;
