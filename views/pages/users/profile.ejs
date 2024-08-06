@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include("../../components/head") %>
+    <meta name="description" content="Tridecco user profile page">
+    <title>User Profile | Tridecco</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = "/two-factor-authentication";
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = "/login";
+            }
+        })();
+    </script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 flex items-center justify-center">
+        <div class="flex flex-col md:flex-row w-full space-y-4 md:space-y-0 md:space-x-4">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
+                <a href="/" class="flex items-center text-gray-500 mb-4">
+                    ← Return to Home
+                </a>
+                <ul>
+                    <li class="mb-4">
+                        <a class="text-indigo-600 font-semibold">User Profile</a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#" class="text-gray-600 hover:text-indigo-600">User Game Records</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="w-full md:w-3/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex items-center">
+                        <img id="user-avatar" class="w-24 h-24 rounded-full" src="/img/default-avatar.png"
+                            alt="User Avatar">
+                        <div class="ml-4">
+                            <h3 id="username" class="text-xl font-semibold text-gray-900">/</h3>
+                            <p id="user-email" class="text-sm text-gray-500">/</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div id="gender" class="flex items-center mb-4">
+                            <span class="text-sm text-gray-500 mr-4">Gender:</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">First Name</label>
+                                <p id="first-name" class="mt-1 text-gray-900">/</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                                <p id="last-name" class="mt-1 text-gray-900">/</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Location</label>
+                                <p id="location" class="mt-1 text-gray-900">/</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Birthday</label>
+                                <p id="birthday" class="mt-1 text-gray-900">/</p>
+                            </div>
+                            <div class="col-span-2" id="custom-urls">
+                                <label class="block text-sm font-medium text-gray-700">Custom URLs</label>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700">Bio</label>
+                                <p id="bio" class="mt-1 text-gray-900"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

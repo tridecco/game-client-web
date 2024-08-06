@@ -29,6 +29,9 @@ router.use("/", require("./auth"));
 // Load the my routes
 router.use("/my", require("./my"));
 
+// Load the users routes
+router.use("/users", require("./users"));
+
 // Load the default route (404 Not Found)
 router.use("*", (req, res) => {
   res.render("pages/404");
