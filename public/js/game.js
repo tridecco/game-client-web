@@ -350,6 +350,31 @@ class GameUI {
   }
 
   /**
+   * Show the game.
+   * @param {Object[]} players - The players in the game.
+   */
+  showGame(players) {
+    let playersElement = document.getElementById("game-players");
+    playersElement.innerHTML = "";
+
+    let playerIndex = 1;
+    players.forEach((player) => {
+      player.avatar = player.avatar || "/img/default-avatar.png";
+      const playerElement = `
+        <div class="relative">
+          <img src="${player.avatar}" alt="${player.name}" class="w-16 h-16 rounded-full border-4 border-gray-300">
+          <span class="absolute top-0 right-0 bg-gradient-to-r from-${player.color.a}-500 to-${player.color.h}-500 text-white text-xs px-1 rounded-full">P${playerIndex}</span>
+          <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${player.name}</span>
+        </div>
+      `;
+      playersElement.innerHTML += playerElement;
+      playerIndex++;
+    });
+
+    this.showSection("game");
+  }
+
+  /**
    * Show the error.
    * @param {string} title - The error title. (Optional, if null, hide the title)
    * @param {string} message - The error message. (Optional, if null, hide the message)
