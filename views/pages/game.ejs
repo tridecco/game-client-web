@@ -104,20 +104,8 @@
                     // Stop the queue timer
                     queueTimer.stop();
 
-                    // Add game players event listener
-                    gameNetwork.addListenerOnce("game:players", (data) => {
-                        // Show the game ready component
-                        gameUI.showGameReady(data.players, () => {
-                            // Send the player ready event
-                            gameNetwork.playerReady();
-                        });
-
-                        // Add player ready event listener
-                        gameNetwork.addListener("game-client:ready", (data) => {
-                            // Update the player ready status
-                            gameUI.playerReady(data.player);
-                        });
-                    });
+                    // Start the game
+                    new Game(gameNetwork, gameUI);
                 });
             } else if (gameStartType === "join") {
                 // Join the room
@@ -171,20 +159,8 @@
 
                 // Add game start event listener
                 gameNetwork.addListenerOnce("gameStart", () => {
-                    // Add game players event listener
-                    gameNetwork.addListenerOnce("game:players", (data) => {
-                        // Show the game ready component
-                        gameUI.showGameReady(data.players, () => {
-                            // Send the player ready event
-                            gameNetwork.playerReady();
-                        });
-
-                        // Add player ready event listener
-                        gameNetwork.addListener("game-client:ready", (data) => {
-                            // Update the player ready status
-                            gameUI.playerReady(data.player);
-                        });
-                    });
+                    // Start the game
+                    new Game(gameNetwork, gameUI);
                 });
             } else if (gameStartType === "create") {
                 // Create the room
@@ -238,20 +214,8 @@
 
                 // Add game start event listener
                 gameNetwork.addListenerOnce("gameStart", () => {
-                    // Add game players event listener
-                    gameNetwork.addListenerOnce("game:players", (data) => {
-                        // Show the game ready component
-                        gameUI.showGameReady(data.players, () => {
-                            // Send the player ready event
-                            gameNetwork.playerReady();
-                        });
-
-                        // Add player ready event listener
-                        gameNetwork.addListener("game-client:ready", (data) => {
-                            // Update the player ready status
-                            gameUI.playerReady(data.player);
-                        });
-                    });
+                    // Start the game
+                    new Game(gameNetwork, gameUI);
                 });
             } else {
                 window.location.href = "/";

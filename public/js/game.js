@@ -519,3 +519,46 @@ class GameUI {
     playerAvatar.classList.add("border-green-500");
   }
 }
+
+/**
+ * Game class.
+ * @module js/game/game
+ */
+class Game {
+  /**
+   * Create a game.
+   * @param {GameNetwork} network - The game network.
+   * @param {GameUI} ui - The game UI.
+   */
+  constructor(network, ui) {
+    this.network = network;
+    this.ui = ui;
+    this.players = [];
+
+    this._init();
+  }
+
+  /**
+   * Initialize the game. (Private)
+   */
+  _init() {
+    this.network.addListenerOnce("game:players", (data) => {
+      this.players = data.players;
+
+      this.ui.showGameReady(this.players, () => {
+        this.network.playerReady();
+      });
+
+      this.network.addListener("game-client:ready", (data) => {
+        this.ui.playerReady(data.player);
+      });
+    });
+
+    this._addNetworkListeners();
+  }
+
+  /**
+   * Add network listeners. (Private)
+   */
+  _addNetworkListeners() {}
+}
