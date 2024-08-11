@@ -560,5 +560,9 @@ class Game {
   /**
    * Add network listeners. (Private)
    */
-  _addNetworkListeners() {}
+  _addNetworkListeners() {
+    this.network.addListenerOnce("game:start", () => {
+      this.ui.showGame(this.players);
+    });
+  }
 }
