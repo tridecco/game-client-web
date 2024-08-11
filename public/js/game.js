@@ -362,7 +362,7 @@ class GameUI {
       player.avatar = player.avatar || "/img/default-avatar.png";
       // Player colors from Tailwind CSS: from-red-500 from-yellow-500 from-green-500 from-blue-500 to-red-500 to-yellow-500 to-green-500 to-blue-500 (DON'T REMOVE, USED IN CSS BUILD)
       const playerElement = `
-        <div class="relative">
+        <div id="game-player-${player.id}" class="relative">
           <img src="${player.avatar}" alt="${player.name}" class="w-16 h-16 rounded-full border-4 border-gray-300">
           <span class="absolute top-0 right-0 bg-gradient-to-r from-${player.color.a}-500 to-${player.color.h}-500 text-white text-xs px-1 rounded-full">P${playerIndex}</span>
           <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${player.name}</span>
@@ -483,7 +483,7 @@ class GameUI {
 
   /**
    * Player left the room.
-   * @param {number} playerId - The player
+   * @param {string} playerId - The player ID.
    */
   playerLeftRoom(playerId) {
     this.currentRoomPlayers = this.currentRoomPlayers.filter(
@@ -512,12 +512,55 @@ class GameUI {
 
   /**
    * Set the player ready.
-   * @param {number} playerId - The player
+   * @param {string} playerId - The player ID.
    */
   playerReady(playerId) {
     const playerElement = document.getElementById(`ready-player-${playerId}`);
     const playerAvatar = playerElement.querySelector("img");
     playerAvatar.classList.add("border-green-500");
+  }
+
+  /**
+   * Start player turn.
+   * @param {string} playerId - The player ID.
+   * @param {number} timeout - The turn timeout.
+   */
+  startPlayerTurn(playerId, timeout) {
+    const playerElement = document.getElementById(`game-player-${playerId}`);
+    const playerAvatar = playerElement.querySelector("img");
+
+    const updateBorderPercentage = (percentage) => {
+      playerAvatar.style.borderImage = `linear-gradient(to right, blue ${percentage}%, gray ${percentage}%) 1`;
+    };
+
+    const startTime = Date.now();
+    const timer = setInterval(() => {
+      const elapsedTime = Date.now() - startTime;
+      const percentage = (elapsedTime / timeout) * 100;
+      updateBorderPercentage(percentage);
+
+      if (elapsedTime >= timeout) {
+        clearInterval(timer);
+        updateBorderPercentage(100);
+      }
+    }, 100);
+
+    return {
+      stop: () => {
+        clearInterval(timer);
+        updateBorderPercentage(100);
+      },
+    };
+  }
+
+  /**
+   * End player turn.
+   * @param {string} playerId - The player ID.
+   */
+  endPlayerTurn(playerId) {
+    const playerElement = document.getElementById(`game-player-${playerId}`);
+    const playerAvatar = playerElement.querySelector("img");
+    playerAvatar.style.borderImage = "none";
   }
 }
 
@@ -535,6 +578,7 @@ class Game {
     this.network = network;
     this.ui = ui;
     this.players = [];
+    this.pieces = [];
 
     this._init();
   }
@@ -562,6 +606,10 @@ class Game {
    * Add network listeners. (Private)
    */
   _addNetworkListeners() {
+    this.network.addListener("game:pieces", (data) => {
+      this.pieces = data.players;
+    });
+
     this.network.addListenerOnce("game:start", () => {
       this.ui.showGame(this.players);
     });
