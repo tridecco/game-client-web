@@ -360,6 +360,7 @@ class GameUI {
     let playerIndex = 1;
     players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
+      // Player colors from Tailwind CSS: from-red-500 from-yellow-500 from-green-500 from-blue-500 to-red-500 to-yellow-500 to-green-500 to-blue-500 (DON'T REMOVE, USED IN CSS BUILD)
       const playerElement = `
         <div class="relative">
           <img src="${player.avatar}" alt="${player.name}" class="w-16 h-16 rounded-full border-4 border-gray-300">
