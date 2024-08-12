@@ -562,6 +562,34 @@ class GameUI {
     const playerAvatar = playerElement.querySelector("img");
     playerAvatar.style.borderImage = "none";
   }
+
+  /**
+   * Show game phase.
+   * @param {string} phase - The game phase.
+   * @param {number} timeout - The phase timeout.
+   */
+  showGamePhase(phase, timeout) {
+    const gamePhaseElement = document.getElementById("game-phase");
+    const gamePhaseText = document.createElement("span");
+
+    gamePhaseText.innerText = phase;
+    gamePhaseText.classList.add("font-bold", "text-2xl", "drop-shadow");
+    gamePhaseElement.style.display = "block";
+
+    gamePhaseElement.style.opacity = 1;
+    gamePhaseElement.style.transition = "opacity 0.5s ease-in-out";
+
+    gamePhaseElement.innerHTML = "";
+    gamePhaseElement.appendChild(gamePhaseText);
+
+    clearTimeout(this.gamePhaseTimeout);
+    this.gamePhaseTimeout = setTimeout(() => {
+      gamePhaseElement.style.opacity = 0;
+      setTimeout(() => {
+        gamePhaseElement.style.display = "none";
+      }, 500);
+    }, timeout);
+  }
 }
 
 /**
