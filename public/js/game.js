@@ -634,12 +634,69 @@ class Game {
    * Add network listeners. (Private)
    */
   _addNetworkListeners() {
+    const timeRemainingListener = (data) => {
+      if (data.timeRemaining === 10) {
+        this.ui.showGamePhase("10 Seconds Remaining", 1000);
+      } else if (data.timeRemaining === 5) {
+        this.ui.showGamePhase("5 Seconds Remaining", 1000);
+      } else if (data.timeRemaining === 3) {
+        this.ui.showGamePhase("3 Seconds Remaining", 1000);
+      } else if (data.timeRemaining === 2) {
+        this.ui.showGamePhase("2 Seconds Remaining", 1000);
+      } else if (data.timeRemaining === 1) {
+        this.ui.showGamePhase("1 Second Remaining", 1000);
+      } else if (data.timeRemaining === 0) {
+        this.ui.showGamePhase("Time's Up", 1000);
+
+        this.network.removeListener(
+          "game:timeRemaining",
+          timeRemainingListener
+        );
+      }
+    };
+
     this.network.addListener("game:pieces", (data) => {
       this.pieces = data.players;
     });
 
     this.network.addListenerOnce("game:start", () => {
       this.ui.showGame(this.players);
+    });
+
+    this.network.addListener("game:round", (data) => {
+      this.ui.showGamePhase(`Round ${data.round} Start`, 2000);
+    });
+
+    this.network.addListener("game:playersOrder", (data) => {
+      // data: { order: [playerId1, playerId2, ...] }
+    });
+
+    this.network.addListener("game:tossStart", (data) => {
+      const playerId = data.player;
+
+      this.ui.showGamePhase("Toss Start", 2000);
+
+      this.network.addListenerOnce("game:timeRemaining", (data) => {
+        this.ui.startPlayerTurn(playerId, data.timeRemaining);
+
+        this.network.addListener("game:timeRemaining", timeRemainingListener);
+      });
+    });
+
+    this.network.addListener("game:turn", (data) => {
+      const playerId = data.player;
+
+      this.ui.showGamePhase("Turn Start", 2000);
+
+      this.network.addListenerOnce("game:timeRemaining", (data) => {
+        this.ui.startPlayerTurn(playerId, data.timeRemaining);
+
+        this.network.addListener("game:timeRemaining", timeRemainingListener);
+      });
+    });
+
+    this.network.addListener("game:turnEnd", (data) => {
+      this.ui.endPlayerTurn(data.player);
     });
   }
 }
