@@ -529,10 +529,14 @@ class GameUI {
     const playerElement = document.getElementById(`game-player-${playerId}`);
     const playerAvatar = playerElement.querySelector("img");
 
+    playerAvatar.style.padding = "4px";
+    playerAvatar.style.backgroundOrigin = "border-box";
+    playerAvatar.style.backgroundClip = "padding-box, border-box";
+
     const updateBorderPercentage = (percentage) => {
-      playerAvatar.style.borderImage = `conic-gradient(blue ${
+      playerAvatar.style.backgroundImage = `conic-gradient(blue ${
         100 - percentage
-      }%, gray ${100 - percentage}% 100%) 1`;
+      }%, gray ${100 - percentage}% 100%)`;
     };
 
     const startTime = Date.now();
@@ -562,7 +566,9 @@ class GameUI {
   endPlayerTurn(playerId) {
     const playerElement = document.getElementById(`game-player-${playerId}`);
     const playerAvatar = playerElement.querySelector("img");
-    playerAvatar.style.borderImage = "none";
+
+    playerAvatar.style.padding = "0";
+    playerAvatar.style.backgroundImage = "none";
   }
 
   /**
