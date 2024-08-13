@@ -530,7 +530,9 @@ class GameUI {
     const playerAvatar = playerElement.querySelector("img");
 
     const updateBorderPercentage = (percentage) => {
-      playerAvatar.style.borderImage = `linear-gradient(to right, blue ${percentage}%, gray ${percentage}%) 1`;
+      playerAvatar.style.borderImage = `conic-gradient(blue ${
+        100 - percentage
+      }%, gray ${100 - percentage}% 100%) 1`;
     };
 
     const startTime = Date.now();
@@ -677,7 +679,7 @@ class Game {
       this.ui.showGamePhase("Toss Start", 2000);
 
       this.network.addListenerOnce("game:timeRemaining", (data) => {
-        this.ui.startPlayerTurn(playerId, data.timeRemaining);
+        this.ui.startPlayerTurn(playerId, data.timeRemaining * 1000);
 
         this.network.addListener("game:timeRemaining", timeRemainingListener);
       });
@@ -689,7 +691,7 @@ class Game {
       this.ui.showGamePhase("Turn Start", 2000);
 
       this.network.addListenerOnce("game:timeRemaining", (data) => {
-        this.ui.startPlayerTurn(playerId, data.timeRemaining);
+        this.ui.startPlayerTurn(playerId, data.timeRemaining * 1000);
 
         this.network.addListener("game:timeRemaining", timeRemainingListener);
       });
