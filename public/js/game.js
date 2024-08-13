@@ -581,7 +581,12 @@ class GameUI {
     const gamePhaseText = document.createElement("span");
 
     gamePhaseText.innerText = phase;
-    gamePhaseText.classList.add("font-bold", "text-2xl", "drop-shadow");
+    gamePhaseText.classList.add(
+      "font-bold",
+      "text-2xl",
+      "text-center",
+      "drop-shadow"
+    );
     gamePhaseElement.style.display = "block";
 
     gamePhaseElement.style.opacity = 1;
