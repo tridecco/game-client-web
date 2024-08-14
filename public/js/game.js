@@ -578,27 +578,18 @@ class GameUI {
    */
   showGamePhase(phase, timeout) {
     const gamePhaseElement = document.getElementById("game-phase");
-    const gamePhaseText = document.createElement("span");
+    const gamePhaseText = gamePhaseElement.querySelector("span");
 
     gamePhaseText.innerText = phase;
-    gamePhaseText.classList.add(
-      "font-bold",
-      "text-2xl",
-      "text-center",
-      "drop-shadow"
-    );
     gamePhaseElement.style.display = "block";
 
     gamePhaseElement.style.opacity = 1;
     gamePhaseElement.style.transition = "opacity 0.5s ease-in-out";
 
-    gamePhaseElement.innerHTML = "";
-    gamePhaseElement.appendChild(gamePhaseText);
-
     clearTimeout(this.gamePhaseTimeout);
     this.gamePhaseTimeout = setTimeout(() => {
       gamePhaseElement.style.opacity = 0;
-      setTimeout(() => {
+      this.gamePhaseTimeout = setTimeout(() => {
         gamePhaseElement.style.display = "none";
       }, 500);
     }, timeout);
