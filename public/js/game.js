@@ -597,6 +597,23 @@ class GameUI {
 }
 
 /**
+ * Game Renderer class.
+ * @module js/game/renderer
+ */
+class GameRenderer {
+  /**
+   * Create a game renderer.
+   * @param {Array} map - The game map.
+   * @param {HTMLElement} canvas - The canvas element.
+   */
+  constructor(map, canvas) {
+    this.map = map;
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+  }
+}
+
+/**
  * Game class.
  * @module js/game/game
  */
@@ -701,6 +718,8 @@ class Game {
 
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
+
+      this.ui.showGamePhase("Turn End", 2000);
     });
   }
 }
