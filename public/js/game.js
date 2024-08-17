@@ -611,10 +611,9 @@ class GameRenderer {
     this.map = map;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.rect = canvas.getBoundingClientRect();
 
-    this.canvas.width = this.rect.width;
-    this.canvas.height = this.rect.height;
+    this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
+    this.canvas.height = Math.min(window.innerHeight, window.innerWidth);
 
     this.backgroundImage = new Image();
     this.backgroundImage.src = backgroundImage;
