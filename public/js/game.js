@@ -612,23 +612,31 @@ class GameRenderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
 
-    this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
-    this.canvas.height = Math.min(window.innerHeight, window.innerWidth);
-
     this.backgroundImage = new Image();
     this.backgroundImage.src = backgroundImage;
     this.backgroundImage.onload = () => {
+      this.resizeCanvas();
       this.drawBackgroundImage();
     };
+
+    window.addEventListener("resize", () => this.resizeCanvas());
   }
 
   /**
-   * Draw the background image on the canvas.
-   * @param {string} backgroundImage - The background image URL.
+   * Resize the canvas.
    */
-  drawBackgroundImage(backgroundImage) {
+  resizeCanvas() {
+    this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
+    this.canvas.height = Math.min(window.innerWidth, window.innerHeight);
+    this.drawBackgroundImage();
+  }
+
+  /**
+   * Draw the background image.
+   */
+  drawBackgroundImage() {
     this.ctx.drawImage(
-      backgroundImage || this.backgroundImage,
+      this.backgroundImage,
       0,
       0,
       this.canvas.width,
