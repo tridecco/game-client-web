@@ -605,11 +605,24 @@ class GameRenderer {
    * Create a game renderer.
    * @param {Array} map - The game map.
    * @param {HTMLElement} canvas - The canvas element.
+   * @param {string} backgroundImage - The background image.
    */
-  constructor(map, canvas) {
+  constructor(map, canvas, backgroundImage) {
     this.map = map;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+
+    this.backgroundImage = new Image();
+    this.backgroundImage.src = backgroundImage;
+    this.backgroundImage.onload = () => {
+      this.ctx.drawImage(
+        this.backgroundImage,
+        0,
+        0,
+        this.canvas.width,
+        this.canvas.height
+      );
+    };
   }
 }
 
@@ -649,6 +662,18 @@ class Game {
     });
 
     this._addNetworkListeners();
+    this._initRenderer();
+  }
+
+  /**
+   * Initialize the game renderer. (Private)
+   */
+  _initRenderer() {
+    this.renderer = new GameRenderer(
+      [],
+      document.getElementById("game-canvas"),
+      "/img/default-game-board.png"
+    );
   }
 
   /**
