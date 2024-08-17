@@ -618,14 +618,22 @@ class GameRenderer {
     this.backgroundImage = new Image();
     this.backgroundImage.src = backgroundImage;
     this.backgroundImage.onload = () => {
-      this.ctx.drawImage(
-        this.backgroundImage,
-        0,
-        0,
-        this.canvas.width,
-        this.canvas.height
-      );
+      this.drawBackgroundImage();
     };
+  }
+
+  /**
+   * Draw the background image on the canvas.
+   * @param {string} backgroundImage - The background image URL.
+   */
+  drawBackgroundImage(backgroundImage) {
+    this.ctx.drawImage(
+      backgroundImage || this.backgroundImage,
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    );
   }
 }
 
