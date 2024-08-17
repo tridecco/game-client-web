@@ -174,6 +174,19 @@ class GameNetwork {
  */
 class GameUI {
   /**
+   * Create a game UI.
+   * @param {string} background - The background image.
+   */
+  constructor(background) {
+    document.body.style.backgroundImage = `url(${background})`;
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.setProperty("backdrop-filter", "blur(5px)");
+    document.body.style.setProperty("-webkit-backdrop-filter", "blur(5px)");
+  }
+
+  /**
    * Get a section. (Private)
    * @param {string} sectionName - The section name.
    * @returns {HTMLElement} The section.
