@@ -704,7 +704,7 @@ class Game {
     this.renderer = new GameRenderer(
       [],
       document.getElementById("game-canvas"),
-      "/img/default-game-board.png"
+      "/img/game/default-game-board.png"
     );
   }
 
