@@ -633,6 +633,9 @@ class GameRenderer {
     });
 
     window.addEventListener("resize", () => this.resizeCanvas());
+
+    this.canvas.addEventListener("click", (event) => this._handleClick(event));
+    this.clickHandlers = [];
   }
 
   /**
@@ -646,6 +649,53 @@ class GameRenderer {
       image.src = src;
       image.onload = () => resolve(image);
       image.onerror = (error) => reject(error);
+    });
+  }
+
+  /**
+   * Handle click event. (Private)
+   * @param {Event} event - The click event.
+   */
+  _handleClick(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const testingCanvas = document.createElement("canvas");
+    testingCanvas.width = this.canvas.width;
+    testingCanvas.height = this.canvas.height;
+    const testingCtx = testingCanvas.getContext("2d");
+
+    this.map.tiles.forEach((tile, index) => {
+      const tileImage = this.tileImages[tile.type];
+
+      const tileX = tile.x * this.scaleX;
+      const tileY = tile.y * this.scaleY;
+
+      const width = tile.width
+        ? tile.width * this.scaleX
+        : (tile.height * this.scaleY * tileImage.width) / tileImage.height;
+      const height = tile.height
+        ? tile.height * this.scaleY
+        : (tile.width * this.scaleX * tileImage.height) / tileImage.width;
+
+      testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      testingCtx.drawImage(tileImage, tileX, tileY, width, height);
+
+      if (
+        x >= tileX &&
+        x <= tileX + width &&
+        y >= tileY &&
+        y <= tileY + height
+      ) {
+        const imageX = x - tileX;
+        const imageY = y - tileY;
+        const imageData = testingCtx.getImageData(imageX, imageY, 1, 1).data;
+
+        if (imageData[3] > 0) {
+          this.clickHandlers.forEach((handler) => handler(index));
+        }
+      }
     });
   }
 
@@ -780,6 +830,14 @@ class GameRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBackgroundImage();
     this.drawMap();
+  }
+
+  /**
+   * Add click listener.
+   * @param {Function} handler - The click handler.
+   */
+  addClickListener(handler) {
+    this.clickHandlers.push(handler);
   }
 }
 
