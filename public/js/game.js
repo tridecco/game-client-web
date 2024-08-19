@@ -743,6 +743,44 @@ class GameRenderer {
       this.offscreenCtx.restore();
     });
   }
+
+  /**
+   * Draw a piece.
+   * @param {number} position - The position index.
+   */
+  drawPiece(position) {
+    const tile = this.map.tiles[position];
+    const image = this.tileImages[tile.type];
+    const x = tile.x * this.acaleX;
+    const y = tile.y * this.acaleY;
+    const imageWidth = image.width;
+    const imageHeight = image.height;
+
+    let width = tile.width
+      ? tile.width * this.acaleX
+      : (tile.height * this.acaleY * imageWidth) / imageHeight;
+    let height = tile.height
+      ? tile.height * this.acaleY
+      : (tile.width * this.acaleX * imageHeight) / imageWidth;
+
+    this.ctx.save();
+
+    this.ctx.translate(x + width / 2, y + height / 2);
+    this.ctx.rotate((tile.rotation * Math.PI) / 180);
+
+    this.ctx.drawImage(image, -width / 2, -height / 2, width, height);
+
+    this.ctx.restore();
+  }
+
+  /**
+   * Clear pieces. (Clear the canvas and draw the background image and map again)
+   */
+  clearPieces() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawBackgroundImage();
+    this.drawMap();
+  }
 }
 
 /**
