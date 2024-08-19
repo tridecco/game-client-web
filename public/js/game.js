@@ -616,7 +616,7 @@ class GameUI {
 class GameRenderer {
   /**
    * Create a game renderer.
-   * @param {Array} map - The game map.
+   * @param {Object} map - The game map.
    * @param {HTMLElement} canvas - The canvas element.
    * @param {string} backgroundImage - The background image.
    */
@@ -624,15 +624,29 @@ class GameRenderer {
     this.map = map;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.offscreenCanvas = document.createElement("canvas");
+    this.offscreenCtx = this.offscreenCanvas.getContext("2d");
 
-    this.backgroundImage = new Image();
-    this.backgroundImage.src = backgroundImage;
-    this.backgroundImage.onload = () => {
+    this._loadImage(backgroundImage).then((image) => {
+      this.backgroundImage = image;
       this.resizeCanvas();
-      this.drawBackgroundImage();
-    };
+    });
 
     window.addEventListener("resize", () => this.resizeCanvas());
+  }
+
+  /**
+   * Load image. (Private)
+   * @param {string} src - The image source.
+   * @returns {Promise} The promise object.
+   */
+  _loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.src = src;
+      image.onload = () => resolve(image);
+      image.onerror = (error) => reject(error);
+    });
   }
 
   /**
@@ -641,7 +655,14 @@ class GameRenderer {
   resizeCanvas() {
     this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
     this.canvas.height = Math.min(window.innerWidth, window.innerHeight);
+    this.offscreenCanvas.width = this.canvas.width;
+    this.offscreenCanvas.height = this.canvas.height;
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.offscreenCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     this.drawBackgroundImage();
+    this.setMap();
   }
 
   /**
@@ -655,6 +676,72 @@ class GameRenderer {
       this.canvas.width,
       this.canvas.height
     );
+  }
+
+  /**
+   * Set the game map.
+   */
+  setMap() {
+    this.acaleX = this.canvas.width / this.map.size;
+    this.acaleY = this.canvas.height / this.map.size;
+
+    const uniqueTiles = [...new Set(this.map.tiles.map((tile) => tile.type))];
+    const imagePromises = [];
+    this.tileImages = {};
+    uniqueTiles.forEach((tileType) => {
+      imagePromises.push(
+        this._loadImage(`/img/game/pieces/${tileType}.png`).then((image) => {
+          this.tileImages[tileType] = image;
+        })
+      );
+
+      imagePromises.push(
+        this._loadImage(`/img/game/pieces/${tileType}-flipped.png`).then(
+          (image) => {
+            this.tileImages[`${tileType}-flipped`] = image;
+          }
+        )
+      );
+    });
+
+    Promise.all(imagePromises).then(() => {
+      this.drawMap();
+    });
+  }
+
+  /**
+   * Draw the game map.
+   */
+  drawMap() {
+    this.map.tiles.forEach((tile) => {
+      const image = this.tileImages[tile.type];
+      const x = tile.x * this.acaleX;
+      const y = tile.y * this.acaleY;
+      const imageWidth = image.width;
+      const imageHeight = image.height;
+
+      let width = tile.width
+        ? tile.width * this.acaleX
+        : (tile.height * this.acaleY * imageWidth) / imageHeight;
+      let height = tile.height
+        ? tile.height * this.acaleY
+        : (tile.width * this.acaleX * imageHeight) / imageWidth;
+
+      this.offscreenCtx.save();
+
+      this.offscreenCtx.translate(x + width / 2, y + height / 2);
+      this.offscreenCtx.rotate((tile.rotation * Math.PI) / 180);
+
+      this.offscreenCtx.drawImage(
+        image,
+        -width / 2,
+        -height / 2,
+        width,
+        height
+      );
+
+      this.offscreenCtx.restore();
+    });
   }
 }
 
@@ -702,7 +789,7 @@ class Game {
    */
   _initRenderer() {
     this.renderer = new GameRenderer(
-      [],
+      {},
       document.getElementById("game-canvas"),
       "/img/game/default-game-board.png"
     );
