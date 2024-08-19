@@ -682,8 +682,8 @@ class GameRenderer {
    * Set the game map.
    */
   setMap() {
-    this.acaleX = this.canvas.width / this.map.size;
-    this.acaleY = this.canvas.height / this.map.size;
+    this.scaleX = this.canvas.width / this.map.size;
+    this.scaleY = this.canvas.height / this.map.size;
 
     const uniqueTiles = [...new Set(this.map.tiles.map((tile) => tile.type))];
     const imagePromises = [];
@@ -715,17 +715,17 @@ class GameRenderer {
   drawMap() {
     this.map.tiles.forEach((tile) => {
       const image = this.tileImages[tile.type];
-      const x = tile.x * this.acaleX;
-      const y = tile.y * this.acaleY;
+      const x = tile.x * this.scaleX;
+      const y = tile.y * this.scaleY;
       const imageWidth = image.width;
       const imageHeight = image.height;
 
       let width = tile.width
-        ? tile.width * this.acaleX
-        : (tile.height * this.acaleY * imageWidth) / imageHeight;
+        ? tile.width * this.scaleX
+        : (tile.height * this.scaleY * imageWidth) / imageHeight;
       let height = tile.height
-        ? tile.height * this.acaleY
-        : (tile.width * this.acaleX * imageHeight) / imageWidth;
+        ? tile.height * this.scaleY
+        : (tile.width * this.scaleX * imageHeight) / imageWidth;
 
       this.offscreenCtx.save();
 
@@ -751,17 +751,17 @@ class GameRenderer {
   drawPiece(position) {
     const tile = this.map.tiles[position];
     const image = this.tileImages[tile.type];
-    const x = tile.x * this.acaleX;
-    const y = tile.y * this.acaleY;
+    const x = tile.x * this.scaleX;
+    const y = tile.y * this.scaleY;
     const imageWidth = image.width;
     const imageHeight = image.height;
 
     let width = tile.width
-      ? tile.width * this.acaleX
-      : (tile.height * this.acaleY * imageWidth) / imageHeight;
+      ? tile.width * this.scaleX
+      : (tile.height * this.scaleY * imageWidth) / imageHeight;
     let height = tile.height
-      ? tile.height * this.acaleY
-      : (tile.width * this.acaleX * imageHeight) / imageWidth;
+      ? tile.height * this.scaleY
+      : (tile.width * this.scaleX * imageHeight) / imageWidth;
 
     this.ctx.save();
 
