@@ -929,9 +929,11 @@ class Game {
   /**
    * Initialize the game renderer. (Private)
    */
-  _initRenderer() {
+  async _initRenderer() {
+    const response = await fetch("/maps/default.json");
+    const data = await response.json();
     this.renderer = new GameRenderer(
-      {},
+      data,
       document.getElementById("game-canvas"),
       "/img/game/default-game-board.png"
     );
