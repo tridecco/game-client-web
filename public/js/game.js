@@ -838,11 +838,11 @@ class GameRenderer {
   /**
    * Draw a piece.
    * @param {number} position - The position index.
-   * @param {string} type - The piece type.
+   * @param {string} type - The piece type. (tile image name, not including the flipped extension)
    */
   drawPiece(position, type) {
     const tile = this.map.tiles[position];
-    const image = this.tileImages[type];
+    const image = this.tileImages[tile.flipped ? `${type}-flipped` : type];
     const x = tile.x * this.scaleX;
     const y = tile.y * this.scaleY;
     const imageWidth = image.width;
