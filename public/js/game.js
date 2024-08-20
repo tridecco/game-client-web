@@ -631,6 +631,8 @@ class GameRenderer {
     this.tileImages = {};
     this.clickHandlers = [];
 
+    this.pieces = [];
+
     this._loadImage(backgroundImage).then((image) => {
       this.backgroundImage = image;
 
@@ -744,6 +746,15 @@ class GameRenderer {
   }
 
   /**
+   * Restore the pieces. (Private)
+   */
+  _restorePieces() {
+    this.pieces.forEach((piece) => {
+      this.drawPiece(piece.position, piece.type);
+    });
+  }
+
+  /**
    * Resize the canvas.
    */
   resizeCanvas() {
@@ -757,6 +768,7 @@ class GameRenderer {
 
     this.drawBackgroundImage();
     this.setMap();
+    this._restorePieces();
   }
 
   /**
@@ -847,6 +859,8 @@ class GameRenderer {
     this.ctx.drawImage(image, -width / 2, -height / 2, width, height);
 
     this.ctx.restore();
+
+    this.pieces.push({ position, type });
   }
 
   /**
@@ -856,6 +870,8 @@ class GameRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBackgroundImage();
     this.drawMap();
+
+    this.pieces = [];
   }
 
   /**
