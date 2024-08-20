@@ -637,7 +637,13 @@ class GameRenderer {
       this.backgroundImage = image;
 
       this._loadTileImages().then(() => {
-        window.addEventListener("resize", () => this.resizeCanvas());
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+          if (resizeTimeout) {
+            cancelAnimationFrame(resizeTimeout);
+          }
+          resizeTimeout = requestAnimationFrame(() => this.resizeCanvas());
+        });
         this.canvas.addEventListener("click", (event) =>
           this._handleClick(event)
         );
