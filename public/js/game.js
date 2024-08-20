@@ -627,15 +627,22 @@ class GameRenderer {
     this.offscreenCanvas = document.createElement("canvas");
     this.offscreenCtx = this.offscreenCanvas.getContext("2d");
 
+    this.backgroundImage = null;
+    this.tileImages = {};
+    this.clickHandlers = [];
+
     this._loadImage(backgroundImage).then((image) => {
       this.backgroundImage = image;
-      this.resizeCanvas();
+
+      this._loadTileImages().then(() => {
+        window.addEventListener("resize", () => this.resizeCanvas());
+        this.canvas.addEventListener("click", (event) =>
+          this._handleClick(event)
+        );
+
+        this.resizeCanvas();
+      });
     });
-
-    window.addEventListener("resize", () => this.resizeCanvas());
-
-    this.canvas.addEventListener("click", (event) => this._handleClick(event));
-    this.clickHandlers = [];
   }
 
   /**
@@ -653,6 +660,41 @@ class GameRenderer {
   }
 
   /**
+   * Load tile images. (Private)
+   * @returns {Promise} The promise object.
+   */
+  _loadTileImages() {
+    const imagePromises = [];
+
+    imagePromises.push(
+      this._loadImage("/img/game/pieces/black.png").then((image) => {
+        this.tileImages.black = image;
+      })
+    );
+    imagePromises.push(
+      this._loadImage("/img/game/pieces/black-flipped.png").then((image) => {
+        this.tileImages["black-flipped"] = image;
+      })
+    );
+    this.map.tileImages.forEach((tileImage) => {
+      imagePromises.push(
+        this._loadImage(`/img/game/pieces/${tileImage}.png`).then((image) => {
+          this.tileImages[tileImage] = image;
+        })
+      );
+      imagePromises.push(
+        this._loadImage(`/img/game/pieces/${tileImage}-flipped.png`).then(
+          (image) => {
+            this.tileImages[`${tileImage}-flipped`] = image;
+          }
+        )
+      );
+    });
+
+    return Promise.all(imagePromises);
+  }
+
+  /**
    * Handle click event. (Private)
    * @param {Event} event - The click event.
    */
@@ -667,7 +709,9 @@ class GameRenderer {
     const testingCtx = testingCanvas.getContext("2d");
 
     this.map.tiles.forEach((tile, index) => {
-      const tileImage = this.tileImages[tile.type];
+      const tileImage = tile.flipped
+        ? this.tileImages["black-flipped"]
+        : this.tileImages.black;
 
       const tileX = tile.x * this.scaleX;
       const tileY = tile.y * this.scaleY;
@@ -735,28 +779,7 @@ class GameRenderer {
     this.scaleX = this.canvas.width / this.map.size;
     this.scaleY = this.canvas.height / this.map.size;
 
-    const uniqueTiles = [...new Set(this.map.tiles.map((tile) => tile.type))];
-    const imagePromises = [];
-    this.tileImages = {};
-    uniqueTiles.forEach((tileType) => {
-      imagePromises.push(
-        this._loadImage(`/img/game/pieces/${tileType}.png`).then((image) => {
-          this.tileImages[tileType] = image;
-        })
-      );
-
-      imagePromises.push(
-        this._loadImage(`/img/game/pieces/${tileType}-flipped.png`).then(
-          (image) => {
-            this.tileImages[`${tileType}-flipped`] = image;
-          }
-        )
-      );
-    });
-
-    Promise.all(imagePromises).then(() => {
-      this.drawMap();
-    });
+    this.drawMap();
   }
 
   /**
@@ -764,7 +787,9 @@ class GameRenderer {
    */
   drawMap() {
     this.map.tiles.forEach((tile) => {
-      const image = this.tileImages[tile.type];
+      const image = tile.flipped
+        ? this.tileImages["black-flipped"]
+        : this.tileImages.black;
       const x = tile.x * this.scaleX;
       const y = tile.y * this.scaleY;
       const imageWidth = image.width;
@@ -797,10 +822,11 @@ class GameRenderer {
   /**
    * Draw a piece.
    * @param {number} position - The position index.
+   * @param {string} type - The piece type.
    */
-  drawPiece(position) {
+  drawPiece(position, type) {
     const tile = this.map.tiles[position];
-    const image = this.tileImages[tile.type];
+    const image = this.tileImages[type];
     const x = tile.x * this.scaleX;
     const y = tile.y * this.scaleY;
     const imageWidth = image.width;
