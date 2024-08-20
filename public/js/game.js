@@ -731,22 +731,20 @@ class GameRenderer {
         ? tile.height * this.scaleY
         : (tile.width * this.scaleX * tileImage.height) / tileImage.width;
 
+      testingCtx.save();
+
+      testingCtx.translate(tileX + width / 2, tileY + height / 2);
+      testingCtx.rotate((tile.rotation * Math.PI) / 180);
+
       testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      testingCtx.drawImage(tileImage, tileX, tileY, width, height);
+      testingCtx.drawImage(tileImage, -width / 2, -height / 2, width, height);
 
-      if (
-        x >= tileX &&
-        x <= tileX + width &&
-        y >= tileY &&
-        y <= tileY + height
-      ) {
-        const imageX = x - tileX;
-        const imageY = y - tileY;
-        const imageData = testingCtx.getImageData(imageX, imageY, 1, 1).data;
+      testingCtx.restore();
 
-        if (imageData[3] > 0) {
-          this.clickHandlers.forEach((handler) => handler(index));
-        }
+      const imageData = testingCtx.getImageData(x, y, 1, 1).data;
+
+      if (imageData[3] > 0) {
+        this.clickHandlers.forEach((handler) => handler(index));
       }
     });
   }
