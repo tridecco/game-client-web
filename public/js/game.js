@@ -736,7 +736,6 @@ class GameRenderer {
       testingCtx.translate(tileX + width / 2, tileY + height / 2);
       testingCtx.rotate((tile.rotation * Math.PI) / 180);
 
-      testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       testingCtx.drawImage(tileImage, -width / 2, -height / 2, width, height);
 
       testingCtx.restore();
@@ -746,6 +745,8 @@ class GameRenderer {
       if (imageData[3] > 0) {
         this.clickHandlers.forEach((handler) => handler(index));
       }
+
+      testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     });
   }
 
