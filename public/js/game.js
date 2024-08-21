@@ -850,7 +850,7 @@ class GameRenderer {
 
     positions.forEach((position) => {
       const tile = this.map.tiles[position];
-      const image = this.tileImages["black"];
+      const image = this.tileImages[tile.flipped ? "black-flipped" : "black"];
       const x = tile.x * this.scaleX;
       const y = tile.y * this.scaleY;
       const imageWidth = image.width;
