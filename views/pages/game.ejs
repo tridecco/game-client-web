@@ -74,7 +74,8 @@
         (async () => {
             // Authenticate the user
             try {
-                await gameNetwork.authenticate((await app.session.check()).sessionId);
+                const session = await app.session.check();
+                await gameNetwork.authenticate(session.userId, session.sessionId);
             } catch (error) {
                 if (error.message === "User can only have one active session") {
                     gameUI.showError("Already in a game", "You can only have one active game session at a time. Please close the other game session to start a new one.", null, () => {

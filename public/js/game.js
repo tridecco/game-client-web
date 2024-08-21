@@ -19,10 +19,12 @@ class GameNetwork {
 
   /**
    * Authenticate the player.
+   * @param {string} userId - The user ID.
    * @param {string} sessionId - The session ID.
    * @returns {Promise} The promise object.
    */
-  authenticate(sessionId) {
+  authenticate(userId, sessionId) {
+    this.userId = userId;
     return new Promise((resolve, reject) => {
       this.socket.emit("authenticate", { sessionId }, (response) => {
         if (!response.success) {
