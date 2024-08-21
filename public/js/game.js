@@ -624,8 +624,6 @@ class GameRenderer {
     this.map = map;
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.offscreenCanvas = document.createElement("canvas");
-    this.offscreenCtx = this.offscreenCanvas.getContext("2d");
 
     this.backgroundImage = null;
     this.tileImages = {};
@@ -768,14 +766,13 @@ class GameRenderer {
   resizeCanvas() {
     this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
     this.canvas.height = Math.min(window.innerWidth, window.innerHeight);
-    this.offscreenCanvas.width = this.canvas.width;
-    this.offscreenCanvas.height = this.canvas.height;
+
+    this.scaleX = this.canvas.width / this.map.size;
+    this.scaleY = this.canvas.height / this.map.size;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.offscreenCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.drawBackgroundImage();
-    this.setMap();
     this._restorePieces();
   }
 
@@ -790,53 +787,6 @@ class GameRenderer {
       this.canvas.width,
       this.canvas.height
     );
-  }
-
-  /**
-   * Set the game map.
-   */
-  setMap() {
-    this.scaleX = this.canvas.width / this.map.size;
-    this.scaleY = this.canvas.height / this.map.size;
-
-    this.drawMap();
-  }
-
-  /**
-   * Draw the game map.
-   */
-  drawMap() {
-    this.map.tiles.forEach((tile) => {
-      const image = tile.flipped
-        ? this.tileImages["black-flipped"]
-        : this.tileImages.black;
-      const x = tile.x * this.scaleX;
-      const y = tile.y * this.scaleY;
-      const imageWidth = image.width;
-      const imageHeight = image.height;
-
-      let width = tile.width
-        ? tile.width * this.scaleX
-        : (tile.height * this.scaleY * imageWidth) / imageHeight;
-      let height = tile.height
-        ? tile.height * this.scaleY
-        : (tile.width * this.scaleX * imageHeight) / imageWidth;
-
-      this.offscreenCtx.save();
-
-      this.offscreenCtx.translate(x + width / 2, y + height / 2);
-      this.offscreenCtx.rotate((tile.rotation * Math.PI) / 180);
-
-      this.offscreenCtx.drawImage(
-        image,
-        -width / 2,
-        -height / 2,
-        width,
-        height
-      );
-
-      this.offscreenCtx.restore();
-    });
   }
 
   /**
@@ -877,7 +827,6 @@ class GameRenderer {
   clearPieces() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBackgroundImage();
-    this.drawMap();
 
     this.pieces = [];
   }
