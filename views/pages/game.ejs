@@ -68,6 +68,9 @@
         };
         gameNetwork.addListener("disconnect", disconnectListener);
 
+        // Initialize the game
+        new Game(gameNetwork, gameUI);
+
         (async () => {
             // Authenticate the user
             try {
@@ -103,9 +106,6 @@
                 gameNetwork.addListenerOnce("gameReady", () => {
                     // Stop the queue timer
                     queueTimer.stop();
-
-                    // Start the game
-                    new Game(gameNetwork, gameUI);
                 });
             } else if (gameStartType === "join") {
                 // Join the room
@@ -159,8 +159,7 @@
 
                 // Add game start event listener
                 gameNetwork.addListenerOnce("gameStart", () => {
-                    // Start the game
-                    new Game(gameNetwork, gameUI);
+                    /* Game start event listener */
                 });
             } else if (gameStartType === "create") {
                 // Create the room
@@ -214,8 +213,7 @@
 
                 // Add game start event listener
                 gameNetwork.addListenerOnce("gameStart", () => {
-                    // Start the game
-                    new Game(gameNetwork, gameUI);
+                    /* Game start event listener */
                 });
             } else {
                 window.location.href = "/";
