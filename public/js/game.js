@@ -705,6 +705,7 @@ class GameRenderer {
   /**
    * Handle click event. (Private)
    * @param {Event} event - The click event.
+   * @returns {number} The clicked piece index.
    */
   _handleClick(event) {
     const rect = this.canvas.getBoundingClientRect();
@@ -714,7 +715,9 @@ class GameRenderer {
     const testingCanvas = document.createElement("canvas");
     testingCanvas.width = this.canvas.width;
     testingCanvas.height = this.canvas.height;
-    const testingCtx = testingCanvas.getContext("2d");
+    const testingCtx = testingCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
 
     this.map.tiles.forEach((tile, index) => {
       const tileImage = tile.flipped
