@@ -832,6 +832,58 @@ class GameRenderer {
   }
 
   /**
+   * Show available positions.
+   * @param {number[]} positions - The available positions.
+   */
+  showAvailablePositions(positions) {
+    const coverCanvas = document.createElement("canvas");
+    const coverCtx = coverCanvas.getContext("2d");
+
+    coverCanvas.width = this.canvas.width;
+    coverCanvas.height = this.canvas.height;
+
+    coverCtx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    coverCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    coverCtx.globalCompositeOperation = "destination-out";
+
+    positions.forEach((position) => {
+      const tile = this.map.tiles[position];
+      const image = this.tileImages["black"];
+      const x = tile.x * this.scaleX;
+      const y = tile.y * this.scaleY;
+      const imageWidth = image.width;
+      const imageHeight = image.height;
+
+      let width = tile.width
+        ? tile.width * this.scaleX
+        : (tile.height * this.scaleY * imageWidth) / imageHeight;
+      let height = tile.height
+        ? tile.height * this.scaleY
+        : (tile.width * this.scaleX * imageHeight) / imageWidth;
+
+      coverCtx.save();
+
+      coverCtx.translate(x + width / 2, y + height / 2);
+      coverCtx.rotate((tile.rotation * Math.PI) / 180);
+
+      coverCtx.drawImage(image, -width / 2, -height / 2, width, height);
+
+      coverCtx.restore();
+    });
+
+    this.ctx.drawImage(coverCanvas, 0, 0);
+  }
+
+  /**
+   * Hide available positions.
+   */
+  hideAvailablePositions() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawBackgroundImage();
+    this._restorePieces();
+  }
+
+  /**
    * Add click listener.
    * @param {Function} handler - The click handler.
    */
