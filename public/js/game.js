@@ -1000,7 +1000,15 @@ class Game {
     });
 
     this.network.addListener("game:turn", (data) => {
+      const type = data.type;
       const playerId = data.player;
+      const availablePositions = data.availablePositions;
+
+      if (playerId === this.network.userId) {
+        if (type === "normal") {
+          this.renderer.showAvailablePositions(availablePositions);
+        }
+      }
 
       this.ui.showGamePhase("Turn Start", 2000);
 
@@ -1013,6 +1021,7 @@ class Game {
 
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
+      this.renderer.hideAvailablePositions();
 
       this.ui.showGamePhase("Turn End", 2000);
     });
