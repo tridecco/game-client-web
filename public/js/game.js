@@ -999,6 +999,18 @@ class Game {
       });
     });
 
+    this.network.addListener("game:toss", (data) => {
+      const playerId = data.player;
+      const pieceIndex = data.pieceIndex;
+      const position = data.position;
+
+      const playerPieces = this.pieces.find((player) => player.id === playerId);
+      const piece = playerPieces.pieces[pieceIndex];
+      const pieceType = `${piece.a.color}-${piece.h.color}`;
+
+      this.renderer.drawPiece(position, pieceType);
+    });
+
     this.network.addListener("game:turn", (data) => {
       const type = data.type;
       const playerId = data.player;
