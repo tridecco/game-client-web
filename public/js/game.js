@@ -143,6 +143,13 @@ class GameNetwork {
   }
 
   /**
+   * Toss the piece.
+   */
+  tossPiece() {
+    this.socket.emit("game-client:toss", {});
+  }
+
+  /**
    * Add listener.
    * @param {string} event - The event name.
    * @param {Function} listener - The listener function.
@@ -609,6 +616,25 @@ class GameUI {
       }, 500);
     }, timeout);
   }
+
+  /**
+   * Show the toss button.
+   * @param {Function} clickHandler - The click handler.
+   */
+  showTossButton(clickHandler) {
+    const tossButton = document.getElementById("game-toss");
+    tossButton.style.display = "block";
+
+    tossButton.addEventListener("click", clickHandler);
+  }
+
+  /**
+   * Hide the toss button.
+   */
+  hideTossButton() {
+    const tossButton = document.getElementById("game-toss");
+    tossButton.style.display = "none";
+  }
 }
 
 /**
@@ -990,6 +1016,13 @@ class Game {
     this.network.addListener("game:tossStart", (data) => {
       const playerId = data.player;
 
+      if (playerId === this.network.userId) {
+        this.ui.showTossButton(() => {
+          this.network.tossPiece();
+          this.ui.hideTossButton();
+        });
+      }
+
       this.ui.showGamePhase("Toss Start", 2000);
 
       this.network.addListenerOnce("game:timeRemaining", (data) => {
@@ -1033,6 +1066,7 @@ class Game {
 
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
+      this.ui.hideTossButton();
       this.renderer.hideAvailablePositions();
 
       this.ui.showGamePhase("Turn End", 2000);
