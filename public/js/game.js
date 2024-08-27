@@ -639,8 +639,9 @@ class GameUI {
   /**
    * Initialize the trade.
    * @param {Object[]} players - The players in the game.
+   * @param {string} currentPlayerId - The current player ID.
    */
-  initTrade(players) {
+  initTrade(players, currentPlayerId) {
     const gameTradePlayers = document.getElementById("game-trade-players");
 
     for (const player of players) {
@@ -662,7 +663,51 @@ class GameUI {
             </div>
             <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
           `;
-      gameTradePlayers.appendChild(playerElement);
+      if (player.id === currentPlayerId) {
+        const currentPlayerTitle = document.createElement("p");
+        currentPlayerTitle.innerText = "Your Pieces";
+        currentPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
+
+        const currentPlayerDescription = document.createElement("p");
+        currentPlayerDescription.innerText =
+          "Select a piece to trade with another player.";
+        currentPlayerDescription.classList.add("text-sm", "text-gray-500");
+
+        const hrElement = document.createElement("hr");
+        hrElement.classList.add("my-4");
+
+        const otherPlayerTitle = document.createElement("p");
+        otherPlayerTitle.innerText = "Other Players Pieces";
+        otherPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
+
+        const otherPlayerDescription = document.createElement("p");
+        otherPlayerDescription.innerText = "Select a piece to trade with you.";
+        otherPlayerDescription.classList.add("text-sm", "text-gray-500");
+
+        gameTradePlayers.insertBefore(
+          otherPlayerDescription,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(
+          otherPlayerTitle,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(hrElement, gameTradePlayers.firstChild);
+        gameTradePlayers.insertBefore(
+          playerElement,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(
+          currentPlayerDescription,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(
+          currentPlayerTitle,
+          gameTradePlayers.firstChild
+        );
+      } else {
+        gameTradePlayers.appendChild(playerElement);
+      }
     }
   }
 
@@ -1126,7 +1171,7 @@ class Game {
 
     this.network.addListenerOnce("game:start", () => {
       this.ui.showGame(this.players);
-      this.ui.initTrade(this.players);
+      this.ui.initTrade(this.players, this.network.userId);
     });
 
     this.network.addListener("game:round", (data) => {
@@ -1176,6 +1221,7 @@ class Game {
       if (playerId === this.network.userId) {
         if (type === "normal") {
           this.ui.showTrade(this.pieces, (selectedPiece) => {
+            this.renderer.hideAvailablePositions();
             this.ui.hideTrade();
           });
 
