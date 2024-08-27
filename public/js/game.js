@@ -635,6 +635,129 @@ class GameUI {
     const tossButton = document.getElementById("game-toss");
     tossButton.style.display = "none";
   }
+
+  /**
+   * Initialize the trade.
+   * @param {Object[]} players - The players in the game.
+   */
+  initTrade(players) {
+    const gameTradePlayers = document.getElementById("game-trade-players");
+
+    for (const player of players) {
+      const playerElement = document.createElement("div");
+      playerElement.id = `game-trade-player-${player.id}`;
+      playerElement.classList.add(
+        "flex",
+        "flex-col",
+        "space-y-2",
+        "border-b",
+        "pb-4"
+      );
+      playerElement.innerHTML = `
+            <div class="flex items-center space-x-4">
+                <img src="${player.avatar}" alt="${player.name}" class="w-12 h-12 object-cover rounded-full">
+                <div>
+                    <p class="font-semibold">${player.name}</p>
+                </div>
+            </div>
+            <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
+          `;
+      gameTradePlayers.appendChild(playerElement);
+    }
+  }
+
+  /**
+   * Show the trade.
+   * @param {Object[]} pieces - The pieces of the players.
+   * @param {Function} tradeHandler - The trade handler.
+   */
+  showTrade(pieces, tradeHandler) {
+    const tradeButton = document.getElementById("game-trade-button");
+    const gameTrade = document.getElementById("game-trade");
+    const tradeCloseButton = document.getElementById("game-trade-close");
+    const tradeConfirmButton = document.getElementById("game-trade-confirm");
+
+    this.playersId = [];
+
+    for (const player of pieces) {
+      const playerPiecesElement = document.getElementById(
+        `game-trade-pieces-${player.id}`
+      );
+      playerPiecesElement.innerHTML = "";
+
+      this.playersId.push(player.id);
+
+      for (
+        let pieceIndex = 0;
+        pieceIndex < player.pieces.length;
+        pieceIndex++
+      ) {
+        const piece = player.pieces[pieceIndex];
+        const pieceElement = document.createElement("img");
+        pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
+        pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
+        pieceElement.classList.add("w-8", "object-cover");
+        pieceElement.addEventListener("click", () => {
+          if (this.selectedPieceElement) {
+            this.selectedPieceElement.style.backgroundColor = "transparent";
+            this.selectedPieceElement.style.padding = "0";
+            this.selectedPieceElement.style.borderRadius = "0";
+            this.selectedPieceElement.style.boxShadow = "none";
+          }
+
+          this.selectedPieceElement = pieceElement;
+          this.selectedPiece = { player: player.id, pieceIndex };
+
+          pieceElement.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+          pieceElement.style.padding = "2px";
+          pieceElement.style.borderRadius = "4px";
+          pieceElement.style.boxShadow = "2px 2px 5px 2px rgba(0, 0, 0, 0.5)";
+        });
+        playerPiecesElement.appendChild(pieceElement);
+      }
+    }
+
+    tradeButton.style.display = "block";
+
+    tradeButton.onclick = () => {
+      gameTrade.style.display = "flex";
+    };
+    tradeCloseButton.onclick = () => {
+      gameTrade.style.display = "none";
+    };
+
+    tradeConfirmButton.onclick = () => {
+      if (!this.selectedPiece) {
+        return;
+      }
+
+      tradeHandler(this.selectedPiece);
+    };
+  }
+
+  /**
+   * Hide the trade.
+   */
+  hideTrade() {
+    if (!this.playersId) {
+      return;
+    }
+
+    const tradeButton = document.getElementById("game-trade-button");
+    const gameTrade = document.getElementById("game-trade");
+
+    for (const playerId of this.playersId) {
+      const playerPiecesElement = document.getElementById(
+        `game-trade-pieces-${playerId}`
+      );
+      playerPiecesElement.innerHTML = "";
+    }
+
+    this.selectedPiece = null;
+
+    tradeButton.style.display = "none";
+    gameTrade.style.display = "none";
+  }
 }
 
 /**
@@ -1003,6 +1126,7 @@ class Game {
 
     this.network.addListenerOnce("game:start", () => {
       this.ui.showGame(this.players);
+      this.ui.initTrade(this.players);
     });
 
     this.network.addListener("game:round", (data) => {
@@ -1051,6 +1175,10 @@ class Game {
 
       if (playerId === this.network.userId) {
         if (type === "normal") {
+          this.ui.showTrade(this.pieces, (selectedPiece) => {
+            this.ui.hideTrade();
+          });
+
           this.renderer.showAvailablePositions(availablePositions);
         }
       }
@@ -1067,6 +1195,7 @@ class Game {
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
       this.ui.hideTossButton();
+      this.ui.hideTrade();
       this.renderer.hideAvailablePositions();
 
       this.ui.showGamePhase("Turn End", 2000);
