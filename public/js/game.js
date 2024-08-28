@@ -642,6 +642,8 @@ class GameUI {
    * @param {string} currentPlayerId - The current player ID.
    */
   initTrade(players, currentPlayerId) {
+    this.currentPlayerId = currentPlayerId;
+
     const gameTradePlayers = document.getElementById("game-trade-players");
 
     for (const player of players) {
@@ -663,7 +665,7 @@ class GameUI {
             </div>
             <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
           `;
-      if (player.id === currentPlayerId) {
+      if (player.id === this.currentPlayerId) {
         const currentPlayerTitle = document.createElement("p");
         currentPlayerTitle.innerText = "Your Pieces";
         currentPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
@@ -742,22 +744,31 @@ class GameUI {
         pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
         pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
         pieceElement.classList.add("w-8", "object-cover");
+
         pieceElement.addEventListener("click", () => {
-          if (this.selectedPieceElement) {
-            this.selectedPieceElement.style.backgroundColor = "transparent";
-            this.selectedPieceElement.style.padding = "0";
-            this.selectedPieceElement.style.borderRadius = "0";
-            this.selectedPieceElement.style.boxShadow = "none";
-          }
-
-          this.selectedPieceElement = pieceElement;
-          this.selectedPiece = { player: player.id, pieceIndex };
-
-          pieceElement.style.backgroundColor = "rgba(0, 0, 0, 0.1)";
-          pieceElement.style.padding = "2px";
-          pieceElement.style.borderRadius = "4px";
-          pieceElement.style.boxShadow = "2px 2px 5px 2px rgba(0, 0, 0, 0.5)";
+          pieceElement.style.filter =
+            "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))";
         });
+        if (player.id === this.currentPlayerId) {
+          pieceElement.addEventListener("click", () => {
+            if (this.selectedPieceElement) {
+              this.selectedPieceElement.style.filter = "none";
+            }
+
+            this.selectedPieceElement = pieceElement;
+            this.selectedPiece = { player: player.id, pieceIndex };
+          });
+        } else {
+          pieceElement.addEventListener("click", () => {
+            if (this.selectedOtherPlayerPieceElement) {
+              this.selectedOtherPlayerPieceElement.style.filter = "none";
+            }
+
+            this.selectedOtherPlayerPieceElement = pieceElement;
+            this.selectedOtherPlayerPiece = { player: player.id, pieceIndex };
+          });
+        }
+
         playerPiecesElement.appendChild(pieceElement);
       }
     }
@@ -798,6 +809,8 @@ class GameUI {
       playerPiecesElement.innerHTML = "";
     }
 
+    this.selectedPieceElement = null;
+    this.selectedOtherPlayerPieceElement = null;
     this.selectedPiece = null;
 
     tradeButton.style.display = "none";
