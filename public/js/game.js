@@ -647,6 +647,8 @@ class GameUI {
     const gameTradePlayers = document.getElementById("game-trade-players");
 
     for (const player of players) {
+      player.avatar = player.avatar || "/img/default-avatar.png";
+
       const playerElement = document.createElement("div");
       playerElement.id = `game-trade-player-${player.id}`;
       playerElement.classList.add(
@@ -783,11 +785,11 @@ class GameUI {
     };
 
     tradeConfirmButton.onclick = () => {
-      if (!this.selectedPiece) {
+      if (!this.selectedPiece || !this.selectedOtherPlayerPiece) {
         return;
       }
 
-      tradeHandler(this.selectedPiece);
+      tradeHandler(this.selectedPiece, this.selectedOtherPlayerPiece);
     };
   }
 
@@ -815,6 +817,60 @@ class GameUI {
 
     tradeButton.style.display = "none";
     gameTrade.style.display = "none";
+  }
+
+  /**
+   * Show the trade request.
+   * @param {Object} player - The requesting player.
+   * @param {string} requestedPiece - The requested piece.
+   * @param {string} offeredPiece - The offered piece.
+   * @param {Function} acceptHandler - The accept handler.
+   * @param {Function} rejectHandler - The reject handler.
+   */
+  showTradeRequest(
+    player,
+    requestedPiece,
+    offeredPiece,
+    acceptHandler,
+    rejectHandler
+  ) {
+    const tradeRequest = document.getElementById("game-trade-request");
+    const tradeRequestPlayerAvatar = document.getElementById(
+      "game-trade-request-avatar"
+    );
+    const tradeRequestPlayerName = document.getElementById(
+      "game-trade-request-name"
+    );
+    const tradeRequestRequestedPiece = document.getElementById(
+      "game-trade-request-requested-piece"
+    );
+    const tradeRequestOfferedPiece = document.getElementById(
+      "game-trade-request-offered-piece"
+    );
+    const tradeRequestAccept = document.getElementById("game-trade-accept");
+    const tradeRequestReject = document.getElementById("game-trade-reject");
+
+    player.avatar = player.avatar || "/img/default-avatar.png";
+
+    tradeRequestPlayerAvatar.src = player.avatar;
+    tradeRequestPlayerName.innerText = player.name;
+    tradeRequestRequestedPiece.src = `/img/game/pieces/${requestedPiece.a.color}-${requestedPiece.h.color}.png`;
+    tradeRequestRequestedPiece.alt = `${requestedPiece.a.color}-${requestedPiece.h.color}`;
+    tradeRequestOfferedPiece.src = `/img/game/pieces/${offeredPiece.a.color}-${offeredPiece.h.color}.png`;
+    tradeRequestOfferedPiece.alt = `${offeredPiece.a.color}-${offeredPiece.h.color}`;
+
+    tradeRequestAccept.onclick = acceptHandler;
+    tradeRequestReject.onclick = rejectHandler;
+
+    tradeRequest.style.display = "block";
+  }
+
+  /**
+   * Hide the trade request.
+   */
+  hideTradeRequest() {
+    const tradeRequest = document.getElementById("game-trade-request");
+    tradeRequest.style.display = "none";
   }
 }
 

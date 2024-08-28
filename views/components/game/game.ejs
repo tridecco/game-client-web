@@ -26,6 +26,39 @@
         </div>
     </div>
 </div>
+<div id="game-trade-request" class="hidden fixed right-5 top-1/4 bg-white p-6 rounded-lg shadow-lg max-w-sm w-auto z-30">
+    <h3 class="text-lg font-semibold mb-4">Trade Request</h3>
+    <div class="flex items-center mb-6">
+        <img id="game-trade-request-avatar" src="" alt="Player Avatar" class="w-12 h-12 rounded-full">
+        <div class="ml-4">
+            <p id="game-trade-request-name" class="text-md font-semibold"></p>
+        </div>
+    </div>
+    <p class="mb-4">You have received a trade request:</p>
+    <div class="flex items-center space-x-4 mb-6">
+        <div class="flex flex-col items-center">
+            <img id="game-trade-request-requested-piece" src="" alt="Your Piece" class="w-12">
+            <p class="mt-2 text-sm">Your Piece</p>
+        </div>
+        <div>
+            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </div>
+        <div class="flex flex-col items-center">
+            <img id="game-trade-request-offered-piece" src="" alt="Other Piece" class="w-12">
+            <p class="mt-2 text-sm">Other Piece</p>
+        </div>
+    </div>
+    <div class="flex justify-end space-x-4">
+        <button id="game-trade-reject" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none">
+            Reject
+        </button>
+        <button id="game-trade-accept" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
+            Accept
+        </button>
+    </div>
+</div>
 <button id="game-toss" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none">
     Toss Piece
 </button>
