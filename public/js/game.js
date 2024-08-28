@@ -150,6 +150,32 @@ class GameNetwork {
   }
 
   /**
+   * Place a piece.
+   * @param {number} position - The position index.
+   * @param {string} pieceIndex - The piece index.
+   */
+  placePiece(position, pieceIndex) {
+    this.socket.emit("game-client:placePiece", { position, pieceIndex });
+  }
+
+  /**
+   * Trade request.
+   * @param {Object} offer - The trade offer.
+   * @param {string} responder - The responder player ID.
+   */
+  requestTrade(offer, responder) {
+    this.socket.emit("game-client:requestTrade", { offer, responder });
+  }
+
+  /**
+   * Trade response.
+   * @param {boolean} accepted - The trade accepted.
+   */
+  respondTrade(accepted) {
+    this.socket.emit("game-client:tradeResponse", { accepted });
+  }
+
+  /**
    * Add listener.
    * @param {string} event - The event name.
    * @param {Function} listener - The listener function.
@@ -1289,10 +1315,23 @@ class Game {
 
       if (playerId === this.network.userId) {
         if (type === "normal") {
-          this.ui.showTrade(this.pieces, (selectedPiece) => {
-            this.renderer.hideAvailablePositions();
-            this.ui.hideTrade();
-          });
+          this.ui.showTrade(
+            this.pieces,
+            (selectedPiece, selectedOtherPlayerPiece) => {
+              this.renderer.hideAvailablePositions();
+              this.ui.hideTrade();
+
+              const tradeOffer = {
+                requesterPieceIndex: selectedPiece.pieceIndex,
+                responderPieceIndex: selectedOtherPlayerPiece.pieceIndex,
+              };
+
+              this.network.requestTrade(
+                tradeOffer,
+                selectedOtherPlayerPiece.player
+              );
+            }
+          );
 
           this.renderer.showAvailablePositions(availablePositions);
         }
@@ -1307,10 +1346,37 @@ class Game {
       });
     });
 
+    this.network.addListener("game:tradeRequest", (data) => {
+      const requester = this.players.find(
+        (player) => player.id === data.requester
+      );
+      const requestedPiece = this.pieces.find(
+        (player) => player.id === this.network.userId
+      ).pieces[data.offer.responderPieceIndex];
+      const offeredPiece = this.pieces.find(
+        (player) => player.id === data.requester
+      ).pieces[data.offer.requesterPieceIndex];
+
+      this.ui.showTradeRequest(
+        requester,
+        requestedPiece,
+        offeredPiece,
+        () => {
+          this.network.respondTrade(true);
+          this.ui.hideTradeRequest();
+        },
+        () => {
+          this.network.respondTrade(false);
+          this.ui.hideTradeRequest();
+        }
+      );
+    });
+
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
       this.ui.hideTossButton();
       this.ui.hideTrade();
+      this.ui.hideTradeRequest();
       this.renderer.hideAvailablePositions();
 
       this.ui.showGamePhase("Turn End", 2000);
