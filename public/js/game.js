@@ -587,21 +587,25 @@ class GameUI {
       }%, gray ${100 - percentage}% 100%)`;
     };
 
+    if (this.playerTurnTimer) {
+      clearInterval(this.playerTurnTimer);
+    }
+
     const startTime = Date.now();
-    const timer = setInterval(() => {
+    this.playerTurnTimer = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       const percentage = (elapsedTime / timeout) * 100;
       updateBorderPercentage(percentage);
 
       if (elapsedTime >= timeout) {
-        clearInterval(timer);
+        clearInterval(this.playerTurnTimer);
         updateBorderPercentage(100);
       }
     }, 100);
 
     return {
       stop: () => {
-        clearInterval(timer);
+        clearInterval(this.playerTurnTimer);
         updateBorderPercentage(100);
       },
     };
