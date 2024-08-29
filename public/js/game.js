@@ -1119,6 +1119,13 @@ class GameRenderer {
   }
 
   /**
+   * Restore the available positions. (Private)
+   */
+  _restoreAvailablePositions() {
+    this.showAvailablePositions(this.availablePositions);
+  }
+
+  /**
    * Resize the canvas.
    */
   resizeCanvas() {
@@ -1132,6 +1139,7 @@ class GameRenderer {
 
     this.drawBackgroundImage();
     this._restorePieces();
+    this._restoreAvailablePositions();
   }
 
   /**
@@ -1230,6 +1238,8 @@ class GameRenderer {
     });
 
     this.ctx.drawImage(coverCanvas, 0, 0);
+
+    this.availablePositions = positions;
   }
 
   /**
@@ -1239,6 +1249,8 @@ class GameRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBackgroundImage();
     this._restorePieces();
+
+    this.availablePositions = [];
   }
 
   /**
@@ -1285,6 +1297,7 @@ class Game {
     this.ui = ui;
     this.players = [];
     this.pieces = [];
+    this.availablePositions = [];
 
     this._init();
   }
