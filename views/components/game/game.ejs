@@ -59,6 +59,30 @@
         </button>
     </div>
 </div>
+<div id="game-piece-selection" class="fixed right-0 top-1/2 transform -translate-y-1/2 bg-white p-4 rounded-l-lg shadow-lg z-40 max-h-[calc(100vh-4rem)] overflow-y-auto" style="display: none;">
+    <div id="game-piece-selection-pieces" class="flex flex-col space-y-4"></div>
+</div>
+<button id="game-piece-selection-hide" class="fixed right-4 bottom-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none z-50" style="display: none;">
+    Hide
+</button>
+<button id="game-piece-selection-show" class="hidden fixed right-4 bottom-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none z-50" style="display: none;">
+    Show
+</button>
+<script>
+    document.getElementById("game-piece-selection-hide").addEventListener("click", function () {
+        const selection = document.getElementById("game-piece-selection");
+        selection.classList.add("hidden");
+
+        document.getElementById("game-piece-selection-show").classList.remove("hidden");
+    });
+
+    document.getElementById("game-piece-selection-show").addEventListener("click", function () {
+        const selection = document.getElementById("game-piece-selection");
+        selection.classList.remove("hidden");
+
+        document.getElementById("game-piece-selection-show").classList.add("hidden");
+    });
+</script>
 <button id="game-toss" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none">
     Toss Piece
 </button>

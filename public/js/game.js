@@ -648,6 +648,69 @@ class GameUI {
   }
 
   /**
+   * Show the piece selection.
+   * @param {Object[]} pieces - The pieces.
+   * @param {Function} clickHandler - The click handler.
+   */
+  showPieceSelection(pieces, clickHandler) {
+    const piecesElement = document.getElementById("game-piece-selection");
+    piecesElement.style.display = "";
+    const piecesElementShowButton = document.getElementById(
+      "game-piece-selection-show"
+    );
+    piecesElementShowButton.style.display = "";
+    const piecesElementHideButton = document.getElementById(
+      "game-piece-selection-hide"
+    );
+    piecesElementHideButton.style.display = "";
+
+    const piecesElementList = document.getElementById(
+      "game-piece-selection-pieces"
+    );
+
+    for (let i = 0; i < pieces.length; i++) {
+      const pieceElement = document.createElement("img");
+      pieceElement.src = `/img/game/pieces/${pieces[i].a.color}-${pieces[i].h.color}.png`;
+      pieceElement.alt = `${pieces[i].a.color}-${pieces[i].h.color}`;
+      pieceElement.classList.add("w-12", "cursor-pointer");
+      pieceElement.addEventListener("click", () => {
+        if (this.selectedPieceElement) {
+          this.selectedPieceElement.style.filter = "none";
+        }
+        pieceElement.style.filter =
+          "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))";
+
+        this.selectedPieceFromListElement = pieceElement;
+        clickHandler(i);
+      });
+      piecesElementList.appendChild(pieceElement);
+    }
+  }
+
+  /**
+   * Hide the piece selection.
+   */
+  hidePieceSelection() {
+    const piecesElement = document.getElementById("game-piece-selection");
+    piecesElement.style.display = "none";
+    const piecesElementShowButton = document.getElementById(
+      "game-piece-selection-show"
+    );
+    piecesElementShowButton.style.display = "none";
+    const piecesElementHideButton = document.getElementById(
+      "game-piece-selection-hide"
+    );
+    piecesElementHideButton.style.display = "none";
+
+    const piecesElementList = document.getElementById(
+      "game-piece-selection-pieces"
+    );
+    piecesElementList.innerHTML = "";
+
+    this.selectedPieceElement = null;
+  }
+
+  /**
    * Show the toss button.
    * @param {Function} clickHandler - The click handler.
    */
@@ -1185,6 +1248,26 @@ class GameRenderer {
   addClickListener(handler) {
     this.clickHandlers.push(handler);
   }
+
+  /**
+   * Add click listener once.
+   * @param {Function} handler - The click handler.
+   */
+  addClickListenerOnce(handler) {
+    const clickHandler = (index) => {
+      handler(index);
+      this.clickHandlers = this.clickHandlers.filter((h) => h !== clickHandler);
+    };
+
+    this.clickHandlers.push(clickHandler);
+  }
+
+  /**
+   * Remove all click listeners.
+   */
+  removeAllClickListeners() {
+    this.clickHandlers = [];
+  }
 }
 
 /**
@@ -1337,7 +1420,25 @@ class Game {
             }
           );
 
-          this.renderer.showAvailablePositions(availablePositions);
+          const playerPieces = this.pieces.find(
+            (player) => player.id === this.network.userId
+          ).pieces;
+
+          this.ui.showPieceSelection(playerPieces, (pieceIndex) => {
+            this.renderer.hideAvailablePositions();
+            this.renderer.showAvailablePositions(availablePositions);
+
+            this.selectedPieceFromListIndex = pieceIndex;
+          });
+
+          const placePieceListener = (position) => {
+            if (typeof this.selectedPieceFromListIndex === "undefined") {
+              return;
+            }
+
+            this.network.placePiece(position, this.selectedPieceFromListIndex);
+          };
+          this.renderer.addClickListener(placePieceListener);
         }
       }
 
@@ -1381,7 +1482,9 @@ class Game {
       this.ui.hideTossButton();
       this.ui.hideTrade();
       this.ui.hideTradeRequest();
+      this.ui.hidePieceSelection();
       this.renderer.hideAvailablePositions();
+      this.renderer.removeAllClickListeners();
 
       this.ui.showGamePhase("Turn End", 2000);
     });
