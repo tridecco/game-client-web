@@ -674,8 +674,8 @@ class GameUI {
       pieceElement.alt = `${pieces[i].a.color}-${pieces[i].h.color}`;
       pieceElement.classList.add("w-12", "cursor-pointer");
       pieceElement.addEventListener("click", () => {
-        if (this.selectedPieceElement) {
-          this.selectedPieceElement.style.filter = "none";
+        if (this.selectedPieceFromListElement) {
+          this.selectedPieceFromListElement.style.filter = "none";
         }
         pieceElement.style.filter =
           "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))";
@@ -707,7 +707,7 @@ class GameUI {
     );
     piecesElementList.innerHTML = "";
 
-    this.selectedPieceElement = null;
+    this.selectedPieceFromListElement = null;
   }
 
   /**
