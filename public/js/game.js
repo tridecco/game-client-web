@@ -1122,6 +1122,9 @@ class GameRenderer {
    * Restore the available positions. (Private)
    */
   _restoreAvailablePositions() {
+    if (!this.availablePositions || this.availablePositions.length === 0) {
+      return;
+    }
     this.showAvailablePositions(this.availablePositions);
   }
 
@@ -1406,6 +1409,28 @@ class Game {
       const pieceType = `${piece.a.color}-${piece.h.color}`;
 
       this.renderer.drawPiece(position, pieceType);
+    });
+
+    this.network.addListener("game:placePiece", (data) => {
+      const playerId = data.player;
+      const pieceIndex = data.pieceIndex;
+      const position = data.position;
+      const formedHexagons = data.formedHexagons;
+
+      const playerPieces = this.pieces.find((player) => player.id === playerId);
+      const piece = playerPieces.pieces[pieceIndex];
+      const pieceType = `${piece.a.color}-${piece.h.color}`;
+
+      this.renderer.drawPiece(position, pieceType);
+
+      if (formedHexagons) {
+        this.ui.showGamePhase(
+          `Formed ${formedHexagons.length} Hexagon${
+            formedHexagons.length > 1 ? "s" : ""
+          }`,
+          2000
+        );
+      }
     });
 
     this.network.addListener("game:turn", (data) => {
