@@ -1415,22 +1415,12 @@ class Game {
       const playerId = data.player;
       const pieceIndex = data.pieceIndex;
       const position = data.position;
-      const formedHexagons = data.formedHexagons;
 
       const playerPieces = this.pieces.find((player) => player.id === playerId);
       const piece = playerPieces.pieces[pieceIndex];
       const pieceType = `${piece.a.color}-${piece.h.color}`;
 
       this.renderer.drawPiece(position, pieceType);
-
-      if (formedHexagons) {
-        this.ui.showGamePhase(
-          `Formed ${formedHexagons.length} Hexagon${
-            formedHexagons.length > 1 ? "s" : ""
-          }`,
-          2000
-        );
-      }
     });
 
     this.network.addListener("game:turn", (data) => {
@@ -1524,7 +1514,15 @@ class Game {
       this.renderer.hideAvailablePositions();
       this.renderer.removeAllClickListeners();
 
-      this.ui.showGamePhase("Turn End", 2000);
+      const formedHexagons = data.formedHexagons;
+      if (formedHexagons && formedHexagons > 0) {
+        this.ui.showGamePhase(
+          `Formed ${formedHexagons} Hexagon${formedHexagons > 1 ? "s" : ""}`,
+          2000
+        );
+      } else {
+        this.ui.showGamePhase("Turn End", 2000);
+      }
     });
   }
 }
