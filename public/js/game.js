@@ -1528,14 +1528,44 @@ class Game {
       this.renderer.hideAvailablePositions();
       this.renderer.removeAllClickListeners();
 
+      const nextTurnType = data.nextTurnType;
       const formedHexagons = data.formedHexagons;
+
+      let formedHexagonsMessage = "";
       if (formedHexagons && formedHexagons > 0) {
-        this.ui.showGamePhase(
-          `Formed ${formedHexagons} Hexagon${formedHexagons > 1 ? "s" : ""}`,
-          2000
-        );
-      } else {
-        this.ui.showGamePhase("Turn End", 2000);
+        formedHexagonsMessage = `Formed ${formedHexagons} Hexagon${
+          formedHexagons > 1 ? "s" : ""
+        }, `;
+      }
+
+      switch (nextTurnType) {
+        case "normal":
+          this.ui.showGamePhase(
+            formedHexagonsMessage + "Next Player Turn",
+            2000
+          );
+          break;
+        case "samePlayer":
+          this.ui.showGamePhase(
+            formedHexagonsMessage + "Same Player Turn",
+            2000
+          );
+          break;
+        case "forceTrade":
+          this.ui.showGamePhase(
+            formedHexagonsMessage + "Same Player Turn, Forced Trade",
+            2000
+          );
+          break;
+        case "givePieces":
+          this.ui.showGamePhase(
+            formedHexagonsMessage + "Player Gave All Pieces",
+            2000
+          );
+          break;
+        default:
+          this.ui.showGamePhase(formedHexagonsMessage + "Turn End", 2000);
+          break;
       }
     });
   }
