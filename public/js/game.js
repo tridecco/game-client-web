@@ -814,6 +814,10 @@ class GameUI {
    * @param {Function} tradeHandler - The trade handler.
    */
   showTrade(pieces, tradeHandler) {
+    if (pieces.length < 2) {
+      return;
+    }
+
     const tradeButton = document.getElementById("game-trade-button");
     const gameTrade = document.getElementById("game-trade");
     const tradeCloseButton = document.getElementById("game-trade-close");
@@ -1376,10 +1380,6 @@ class Game {
       this.ui.showGamePhase(`Round ${data.round} Start`, 2000);
     });
 
-    this.network.addListener("game:playersOrder", (data) => {
-      // data: { order: [playerId1, playerId2, ...] }
-    });
-
     this.network.addListener("game:tossStart", (data) => {
       const playerId = data.player;
 
@@ -1427,11 +1427,25 @@ class Game {
       const type = data.type;
       const playerId = data.player;
       const availablePositions = data.availablePositions;
+      const rejectedTrades = data.rejectedTrades;
+
+      let availablePieces = this.pieces;
+      if (rejectedTrades.length > 0) {
+        for (const rejectedPlayerId of rejectedTrades) {
+          for (const player of availablePieces) {
+            if (player.id === rejectedPlayerId) {
+              availablePieces = availablePieces.filter(
+                (player) => player.id !== rejectedPlayerId
+              );
+            }
+          }
+        }
+      }
 
       if (playerId === this.network.userId) {
         if (type === "normal") {
           this.ui.showTrade(
-            this.pieces,
+            availablePieces,
             (selectedPiece, selectedOtherPlayerPiece) => {
               this.renderer.hideAvailablePositions();
               this.ui.hideTrade();
