@@ -987,6 +987,9 @@ class GameRenderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
 
+    this.piecesCanvas = document.createElement("canvas");
+    this.piecesCtx = this.piecesCanvas.getContext("2d");
+
     this.backgroundImage = null;
     this.tileImages = {};
     this.clickHandlers = [];
@@ -1115,11 +1118,16 @@ class GameRenderer {
 
   /**
    * Restore the pieces. (Private)
+   * @param {boolean} useCache - Use the cache (pieces canvas). (Optional, default is true)
    */
-  _restorePieces() {
-    this.pieces.forEach((piece) => {
-      this.drawPiece(piece.position, piece.type);
-    });
+  _restorePieces(useCache = true) {
+    if (!useCache) {
+      this.pieces.forEach((piece) => {
+        this.drawPiece(piece.position, piece.type);
+      });
+    } else {
+      this.ctx.drawImage(this.piecesCanvas, 0, 0);
+    }
   }
 
   /**
@@ -1139,13 +1147,16 @@ class GameRenderer {
     this.canvas.width = Math.min(window.innerWidth, window.innerHeight);
     this.canvas.height = Math.min(window.innerWidth, window.innerHeight);
 
+    this.piecesCanvas.width = this.canvas.width;
+    this.piecesCanvas.height = this.canvas.height;
+
     this.scaleX = this.canvas.width / this.map.size;
     this.scaleY = this.canvas.height / this.map.size;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.drawBackgroundImage();
-    this._restorePieces();
+    this._restorePieces(false);
     this._restoreAvailablePositions();
   }
 
@@ -1182,14 +1193,16 @@ class GameRenderer {
       ? tile.height * this.scaleY
       : (tile.width * this.scaleX * imageHeight) / imageWidth;
 
-    this.ctx.save();
+    this.piecesCtx.save();
 
-    this.ctx.translate(x + width / 2, y + height / 2);
-    this.ctx.rotate((tile.rotation * Math.PI) / 180);
+    this.piecesCtx.translate(x + width / 2, y + height / 2);
+    this.piecesCtx.rotate((tile.rotation * Math.PI) / 180);
 
-    this.ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    this.piecesCtx.drawImage(image, -width / 2, -height / 2, width, height);
 
-    this.ctx.restore();
+    this.piecesCtx.restore();
+
+    this.ctx.drawImage(this.piecesCanvas, 0, 0);
 
     this.pieces.push({ position, type });
   }
