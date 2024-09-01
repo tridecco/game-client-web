@@ -1421,6 +1421,10 @@ class Game {
     });
 
     this.network.addListener("game:round", (data) => {
+      if (data.round !== 1) {
+        this.renderer.clearPieces();
+      }
+
       this.ui.showGamePhase(`Round ${data.round} Start`, 2000);
     });
 
