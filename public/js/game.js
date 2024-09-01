@@ -176,6 +176,15 @@ class GameNetwork {
   }
 
   /**
+   * Trade. (Forced)
+   * @param {Object} offer - The trade offer.
+   * @param {string} responder - The responder player ID.
+   */
+  trade(offer, responder) {
+    this.socket.emit("game-client:trade", { offer, responder });
+  }
+
+  /**
    * Add listener.
    * @param {string} event - The event name.
    * @param {Function} listener - The listener function.
@@ -812,8 +821,9 @@ class GameUI {
    * Show the trade.
    * @param {Object[]} pieces - The pieces of the players.
    * @param {Function} tradeHandler - The trade handler.
+   * @param {boolean} forced - The trade is forced. (Optional, default is false)
    */
-  showTrade(pieces, tradeHandler) {
+  showTrade(pieces, tradeHandler, forced = false) {
     if (pieces.length < 2) {
       return;
     }
@@ -822,6 +832,7 @@ class GameUI {
     const gameTrade = document.getElementById("game-trade");
     const tradeCloseButton = document.getElementById("game-trade-close");
     const tradeConfirmButton = document.getElementById("game-trade-confirm");
+    const noTradeButton = document.getElementById("game-trade-no-trade");
 
     this.playersId = [];
 
@@ -888,6 +899,17 @@ class GameUI {
 
       tradeHandler(this.selectedPiece, this.selectedOtherPlayerPiece);
     };
+
+    if (forced) {
+      tradeCloseButton.style.display = "none";
+      noTradeButton.style.display = "block";
+
+      noTradeButton.onclick = () => {
+        tradeHandler(null, null);
+      };
+
+      gameTrade.style.display = "flex";
+    }
   }
 
   /**
@@ -900,6 +922,8 @@ class GameUI {
 
     const tradeButton = document.getElementById("game-trade-button");
     const gameTrade = document.getElementById("game-trade");
+    const tradeCloseButton = document.getElementById("game-trade-close");
+    const noTradeButton = document.getElementById("game-trade-no-trade");
 
     for (const playerId of this.playersId) {
       const playerPiecesElement = document.getElementById(
@@ -914,6 +938,9 @@ class GameUI {
 
     tradeButton.style.display = "none";
     gameTrade.style.display = "none";
+
+    tradeCloseButton.style.display = "block";
+    noTradeButton.style.display = "none";
   }
 
   /**
@@ -1443,7 +1470,7 @@ class Game {
       const rejectedTrades = data.rejectedTrades;
 
       let availablePieces = this.pieces;
-      if (rejectedTrades.length > 0) {
+      if (rejectedTrades && rejectedTrades.length > 0) {
         for (const rejectedPlayerId of rejectedTrades) {
           for (const player of availablePieces) {
             if (player.id === rejectedPlayerId) {
@@ -1494,6 +1521,21 @@ class Game {
             this.network.placePiece(position, this.selectedPieceFromListIndex);
           };
           this.renderer.addClickListener(placePieceListener);
+        } else if (type === "forceTrade") {
+          this.ui.showTrade(
+            availablePieces,
+            (selectedPiece, selectedOtherPlayerPiece) => {
+              this.ui.hideTrade();
+
+              const tradeOffer = {
+                requesterPieceIndex: selectedPiece.pieceIndex,
+                responderPieceIndex: selectedOtherPlayerPiece.pieceIndex,
+              };
+
+              this.network.trade(tradeOffer, selectedOtherPlayerPiece.player);
+            },
+            true
+          );
         }
       }
 
