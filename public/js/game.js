@@ -637,6 +637,32 @@ class GameUI {
   }
 
   /**
+   * Show player rank.
+   * @param {string} playerId - The player ID.
+   * @param {number} rank - The player rank.
+   */
+  showPlayerRank(playerId, rank) {
+    const playerElement = document.getElementById(`game-player-${playerId}`);
+    const playerAvatar = playerElement.querySelector("img");
+
+    const rankColor = ["gold", "silver", "#cd7f32"];
+
+    playerAvatar.style.borderColor = rankColor[rank - 1] || "blue";
+  }
+
+  /**
+   * Clear player rank.
+   */
+  clearPlayerRank() {
+    const playersElement = document.getElementById("game-players");
+    const playerAvatars = playersElement.querySelectorAll("img");
+
+    playerAvatars.forEach((playerAvatar) => {
+      playerAvatar.style.borderColor = "";
+    });
+  }
+
+  /**
    * Show game phase.
    * @param {string} phase - The game phase.
    * @param {number} timeout - The phase timeout.
@@ -1423,6 +1449,7 @@ class Game {
     this.network.addListener("game:round", (data) => {
       if (data.round !== 1) {
         this.renderer.clearPieces();
+        this.ui.clearPlayerRank();
       }
 
       this.ui.showGamePhase(`Round ${data.round} Start`, 2000);
@@ -1636,6 +1663,13 @@ class Game {
           this.ui.showGamePhase(formedHexagonsMessage + "Turn End", 2000);
           break;
       }
+    });
+
+    this.network.addListener("game:playerRoundEnd", (data) => {
+      const playerId = data.player;
+      const rank = data.rank;
+
+      this.ui.showPlayerRank(playerId, rank);
     });
   }
 }
