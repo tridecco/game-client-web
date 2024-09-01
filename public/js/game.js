@@ -181,6 +181,10 @@ class GameNetwork {
    * @param {string} responder - The responder player ID.
    */
   trade(offer, responder) {
+    if (!offer || !responder) {
+      this.socket.emit("game-client:trade");
+    }
+
     this.socket.emit("game-client:trade", { offer, responder });
   }
 
@@ -1525,6 +1529,12 @@ class Game {
           this.ui.showTrade(
             availablePieces,
             (selectedPiece, selectedOtherPlayerPiece) => {
+              if (!selectedPiece || !selectedOtherPlayerPiece) {
+                this.network.trade(null, null);
+                this.ui.hideTrade();
+                return;
+              }
+
               this.ui.hideTrade();
 
               const tradeOffer = {
