@@ -1198,6 +1198,19 @@ class GameRenderer {
   }
 
   /**
+   * Clear pieces. (Private, clear the canvas and draw the background image and map again)
+   */
+  _clearPieces() {
+    this.piecesCtx.clearRect(
+      0,
+      0,
+      this.piecesCanvas.width,
+      this.piecesCanvas.height
+    );
+    this.pieces = [];
+  }
+
+  /**
    * Resize the canvas.
    */
   resizeCanvas() {
@@ -1268,10 +1281,8 @@ class GameRenderer {
    * Clear pieces. (Clear the canvas and draw the background image and map again)
    */
   clearPieces() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawBackgroundImage();
-
-    this.pieces = [];
+    this._clearPieces();
+    this.resizeCanvas();
   }
 
   /**
