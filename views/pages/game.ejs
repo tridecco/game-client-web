@@ -58,6 +58,11 @@
         const gameMode = gameParameters.get("gameMode") || null;
         const roomId = gameParameters.get("roomId") || null;
 
+        // Redirect to the home page if the game start type is invalid
+        if (gameStartType === null || (gameStartType !== "queue" && gameStartType !== "join" && gameStartType !== "create")) {
+            window.location.href = "/";
+        }
+
         // Create a new game ui instance
         const gameUI = new GameUI("/img/game/wood-texture.jpg");
 
