@@ -1782,6 +1782,50 @@ class Game {
 
       setTimeout(() => {
         this.ui.showGameResults(rankedPlayers, isWinner);
+
+        if (isWinner) {
+          const duration = 15 * 1000,
+            animationEnd = Date.now() + duration,
+            defaults = {
+              startVelocity: 45,
+              spread: 360,
+              ticks: 90,
+              gravity: 0.8,
+              zIndex: 0,
+              colors: [
+                "#bb0000",
+                "#ffffff",
+                "#00bb00",
+                "#0000bb",
+                "#ffff00",
+                "#ff00ff",
+                "#00ffff",
+              ],
+              shapes: ["circle", "square"],
+            },
+            randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+          const interval = setInterval(() => {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) return clearInterval(interval);
+
+            const particleCount = 100 * (timeLeft / duration);
+
+            [0.1, 0.7].forEach((x) =>
+              confetti(
+                Object.assign({}, defaults, {
+                  particleCount,
+                  origin: {
+                    x: randomInRange(x, x + 0.2),
+                    y: Math.random() - 0.2,
+                  },
+                  scalar: randomInRange(0.6, 1.2),
+                  drift: randomInRange(-0.2, 0.2),
+                })
+              )
+            );
+          }, 250);
+        }
       }, 2000);
     });
   }
