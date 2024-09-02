@@ -1615,6 +1615,10 @@ class Game {
       );
     });
 
+    this.network.addListener("game:trade", (data) => {
+      this.ui.showGamePhase("Forced Traded", 2000);
+    });
+
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
       this.ui.hideTossButton();
