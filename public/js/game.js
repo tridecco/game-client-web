@@ -1717,6 +1717,15 @@ class Game {
       this.ui.showGamePhase("Forced Traded", 2000);
     });
 
+    this.network.addListener("game:givePieces", (data) => {
+      const playerId = data.player;
+      const playerName = this.players.find(
+        (player) => player.id === playerId
+      ).name;
+
+      this.ui.showGamePhase(`${playerName} Gave All Pieces`, 2000);
+    });
+
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
       this.ui.hideTossButton();
