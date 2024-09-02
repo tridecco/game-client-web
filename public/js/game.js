@@ -1145,12 +1145,13 @@ class GameRenderer {
 
       this._loadTileImages().then(() => {
         let resizeTimeout;
-        window.addEventListener("resize", () => {
+        this.resizeCanvasListener = () => {
           if (resizeTimeout) {
             cancelAnimationFrame(resizeTimeout);
           }
           resizeTimeout = requestAnimationFrame(() => this.resizeCanvas());
-        });
+        };
+        window.addEventListener("resize", () => this.resizeCanvasListener);
         this.canvas.addEventListener("click", (event) =>
           this._handleClick(event)
         );
@@ -1454,6 +1455,31 @@ class GameRenderer {
    */
   removeAllClickListeners() {
     this.clickHandlers = [];
+  }
+
+  /**
+   * Clean up the renderer resources.
+   */
+  cleanUp() {
+    this.removeAllClickListeners();
+    window.removeEventListener("resize", this.resizeCanvasListener);
+    this._handleClick = () => {};
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.piecesCtx.clearRect(
+      0,
+      0,
+      this.piecesCanvas.width,
+      this.piecesCanvas.height
+    );
+
+    this.piecesCanvas.remove();
+
+    this.canvas.width = 0;
+    this.canvas.height = 0;
+
+    this.pieces = [];
+    this.tileImages = {};
   }
 }
 
@@ -1791,6 +1817,8 @@ class Game {
 
       setTimeout(() => {
         this.ui.showGameResults(rankedPlayers, isWinner);
+
+        this.renderer.cleanUp();
 
         if (isWinner) {
           const duration = 15 * 1000,
