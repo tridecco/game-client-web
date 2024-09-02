@@ -460,43 +460,57 @@ class GameUI {
     }
 
     const tableHeader = document.createElement("thead");
-    tableHeader.classList.add("bg-gray-200");
+    tableHeader.classList.add("bg-gray-200", "text-gray-600");
 
     const tableHeaderRow = document.createElement("tr");
 
     const tableHeaderPlayer = document.createElement("th");
+    tableHeaderPlayer.classList.add("py-2", "px-4", "border-b");
     tableHeaderPlayer.innerText = "Player";
     tableHeaderRow.appendChild(tableHeaderPlayer);
 
     for (let i = 0; i < rankedPlayers.length; i++) {
       const tableHeaderRound = document.createElement("th");
+      tableHeaderRound.classList.add("py-2", "px-4", "border-b");
       tableHeaderRound.innerText = `Round ${i + 1}`;
       tableHeaderRow.appendChild(tableHeaderRound);
     }
 
     const tableHeaderTotal = document.createElement("th");
+    tableHeaderTotal.classList.add("py-2", "px-4", "border-b");
     tableHeaderTotal.innerText = "Total";
     tableHeaderRow.appendChild(tableHeaderTotal);
 
     tableHeader.appendChild(tableHeaderRow);
 
     const tableBody = document.createElement("tbody");
+    tableBody.classList.add("text-gray-800");
 
     rankedPlayers.forEach((player) => {
       const tableBodyRow = document.createElement("tr");
+      tableBodyRow.classList.add("hover:bg-gray-100");
 
       const tableBodyPlayer = document.createElement("td");
+      tableBodyPlayer.classList.add("py-2", "px-4", "border-b");
       tableBodyPlayer.innerText = player.name;
       tableBodyRow.appendChild(tableBodyPlayer);
 
       player.rounds.forEach((round) => {
         const tableBodyRound = document.createElement("td");
+        tableBodyRound.classList.add("py-2", "px-4", "border-b", "text-center");
         tableBodyRound.innerText = round;
         tableBodyRow.appendChild(tableBodyRound);
       });
 
       const tableBodyTotal = document.createElement("td");
-      tableBodyTotal.classList.add("font-semibold");
+      tableBodyTotal.classList.add(
+        "py-2",
+        "px-4",
+        "border-b",
+        "text-center",
+        "font-semibold",
+        "text-blue-600"
+      );
       tableBodyTotal.innerText = player.total;
       tableBodyRow.appendChild(tableBodyTotal);
 
