@@ -245,6 +245,7 @@ class GameUI {
       sectionName !== "room" &&
       sectionName !== "ready" &&
       sectionName !== "game" &&
+      sectionName !== "game-results" &&
       sectionName !== "error"
     ) {
       throw new Error("Invalid section name");
@@ -305,7 +306,14 @@ class GameUI {
    * @param {string} section - The section name.
    */
   showSection(section) {
-    const sections = ["queue", "room", "game", "ready", "error"];
+    const sections = [
+      "queue",
+      "room",
+      "ready",
+      "game",
+      "game-results",
+      "error",
+    ];
     sections.forEach((s) => {
       if (s === section) {
         this._showSection(s);
@@ -349,7 +357,7 @@ class GameUI {
     const roomStatusElement = document.getElementById("room-status");
     roomStatusElement.innerText = `Waiting for players (${players.length}/${this.currentRoomPlayersMax})`;
 
-    let playersElement = document.getElementById("room-players");
+    const playersElement = document.getElementById("room-players");
     playersElement.innerHTML = "";
     players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
@@ -385,7 +393,7 @@ class GameUI {
    * @param {Function} clickHandler - The click handler.
    */
   showGameReady(players, clickHandler) {
-    let playersElement = document.getElementById("ready-players");
+    const playersElement = document.getElementById("ready-players");
     playersElement.innerHTML = "";
     players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
@@ -415,7 +423,7 @@ class GameUI {
    * @param {Object[]} players - The players in the game.
    */
   showGame(players) {
-    let playersElement = document.getElementById("game-players");
+    const playersElement = document.getElementById("game-players");
     playersElement.innerHTML = "";
 
     let playerIndex = 1;
@@ -434,6 +442,71 @@ class GameUI {
     });
 
     this.showSection("game");
+  }
+
+  /**
+   * Show the game results.
+   * @param {Object[]} rankedPlayers - The ranked players.
+   * @param {boolean} isWinner - The player is the winner.
+   */
+  showGameResults(rankedPlayers, isWinner) {
+    const gameResultsTitle = document.getElementById("game-results-title");
+    const gameResultsTable = document.getElementById("game-results-table");
+
+    if (isWinner) {
+      gameResultsTitle.innerText = "You won!";
+    } else {
+      gameResultsTitle.innerText = "Game Over!";
+    }
+
+    const tableHeader = document.createElement("thead");
+    tableHeader.classList.add("bg-gray-200");
+
+    const tableHeaderRow = document.createElement("tr");
+
+    const tableHeaderPlayer = document.createElement("th");
+    tableHeaderPlayer.innerText = "Player";
+    tableHeaderRow.appendChild(tableHeaderPlayer);
+
+    for (let i = 0; i < rankedPlayers.length; i++) {
+      const tableHeaderRound = document.createElement("th");
+      tableHeaderRound.innerText = `Round ${i + 1}`;
+      tableHeaderRow.appendChild(tableHeaderRound);
+    }
+
+    const tableHeaderTotal = document.createElement("th");
+    tableHeaderTotal.innerText = "Total";
+    tableHeaderRow.appendChild(tableHeaderTotal);
+
+    tableHeader.appendChild(tableHeaderRow);
+
+    const tableBody = document.createElement("tbody");
+
+    rankedPlayers.forEach((player) => {
+      const tableBodyRow = document.createElement("tr");
+
+      const tableBodyPlayer = document.createElement("td");
+      tableBodyPlayer.innerText = player.name;
+      tableBodyRow.appendChild(tableBodyPlayer);
+
+      player.rounds.forEach((round) => {
+        const tableBodyRound = document.createElement("td");
+        tableBodyRound.innerText = round;
+        tableBodyRow.appendChild(tableBodyRound);
+      });
+
+      const tableBodyTotal = document.createElement("td");
+      tableBodyTotal.classList.add("font-semibold");
+      tableBodyTotal.innerText = player.total;
+      tableBodyRow.appendChild(tableBodyTotal);
+
+      tableBody.appendChild(tableBodyRow);
+    });
+
+    gameResultsTable.appendChild(tableHeader);
+    gameResultsTable.appendChild(tableBody);
+
+    this.showSection("game-results");
   }
 
   /**
@@ -1685,6 +1758,17 @@ class Game {
       const rank = data.rank;
 
       this.ui.showPlayerRank(playerId, rank);
+    });
+
+    this.network.addListener("game:end", (data) => {
+      const rankedPlayers = data.rankedPlayers;
+      const isWinner = rankedPlayers[0].id === this.network.userId;
+
+      this.ui.showGamePhase(`${isWinner ? "You Win" : "Game Over"}`, 2000);
+
+      setTimeout(() => {
+        this.ui.showGameResults(rankedPlayers, isWinner);
+      }, 2000);
     });
   }
 }
