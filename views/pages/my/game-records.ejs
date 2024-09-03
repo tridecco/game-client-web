@@ -3,6 +3,7 @@
 
 <head>
     <%- include("../../components/head") %>
+    <script src="/js/my.js"></script>
     <meta name="description" content="Access your Tridecco game records. Review past game events and monitor your gaming activity.">
     <title>Tridecco | User Game Records</title>
     <script>
@@ -47,10 +48,161 @@
 
             <!-- Main Content -->
             <div class="w-full md:w-3/4 bg-white shadow-lg rounded-lg p-6 flex flex-col">
-                
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Game Records</h2>
+                <div id="game-records" class="space-y-4"></div>
+
+                <!-- Pagination -->
+                <div class="mt-6 flex justify-between items-center">
+                    <!-- Previous Page Button -->
+                    <button id="prev-page" class="bg-indigo-600 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                        Previous
+                    </button>
+
+                    <!-- Page Number Input -->
+                    <div class="flex items-center space-x-2">
+                        <span>Page:</span>
+                        <input type="number" id="pageNumber" class="border border-gray-300 rounded-lg px-2 py-1 w-20 text-center" value="1" min="1">
+                    </div>
+
+                    <!-- Next Page Button -->
+                    <button id="next-page" class="bg-indigo-600 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    <script>
+        // Add event listener to window load
+        window.addEventListener("DOMContentLoaded", async () => {
+            // Get user ID from session
+            const userId = (await app.session.check()).userId;
+
+            // New my instance
+            const my = new My(userId);
+
+            // Previous page button
+            const prevPageButton = document.getElementById("prev-page");
+
+            // Next page button
+            const nextPageButton = document.getElementById("next-page");
+
+            // Set page number, last page, and page size
+            let page = 1;
+            let lastPage = 1;
+            const pageSize = 10;
+
+            // Function to render game records
+            function renderGameRecords(gameRecords) {
+                const gameRecordsContainer = document.getElementById("game-records");
+                gameRecordsContainer.innerHTML = "";
+
+                gameRecords.forEach((gameRecord) => {
+                    const gameWinners = gameRecord.winners;
+                    const gameRank = gameWinners.indexOf(userId) + 1;
+
+                    let gameStatusElement = "";
+                    if (gameRecord.matchStatus === "Finished") {
+                        switch (gameRank) {
+                            case 1:
+                                gameStatusElement = `<h3 class="text-xl font-semibold text-yellow-600">Winner</h3>`;
+                                break;
+                            case 2:
+                                gameStatusElement = `<h3 class="text-xl font-semibold text-gray-400">Second Place</h3>`;
+                                break;
+                            case 3:
+                                gameStatusElement = `<h3 class="text-xl font-semibold text-orange-600">Third Place</h3>`;
+                                break;
+                            default:
+                                gameStatusElement = `<h3 class="text-xl font-semibold text-gray-950">Participated</h3>`;
+                                break;
+                        }
+                    } else if (gameRecord.matchStatus === "Terminated") {
+                        gameStatusElement = `<h3 class="text-xl font-semibold text-red-500">Status: Terminated</h3>`;
+                    } else if (gameRecord.matchStatus === "In Progress") {
+                        gameStatusElement = `<h3 class="text-xl font-semibold text-yellow-500">Status: In Progress</h3>`;
+                    }
+
+                    const gameRecordCard = document.createElement("div");
+                    gameRecordCard.classList.add("bg-gray-50", "border", "border-gray-200", "rounded-lg", "p-4", "flex", "flex-col", "space-y-2");
+                    gameRecordCard.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            ${gameStatusElement}
+                            <a href="/my/game-records/${gameRecord._id}" class="text-indigo-600 hover:text-indigo-800 font-medium">View Details</a>
+                        </div>
+                        <p><strong>Mode:</strong> ${gameRecord.matchType}</p>
+                        <p><strong>Status:</strong> ${gameRecord.matchStatus}</p>
+                        <p><strong>Map:</strong> ${gameRecord.map}</p>
+                        <p><strong>Start Time:</strong> ${new Date(gameRecord.startTime).toLocaleString()}</p>
+                        <p><strong>End Time:</strong> ${new Date(gameRecord.endTime).toLocaleString()}</p>
+                    `;
+                    gameRecordsContainer.appendChild(gameRecordCard);
+                });
+
+                // Enable or disable previous page button
+                if (page === 1) {
+                    prevPageButton.disabled = true;
+                } else {
+                    prevPageButton.disabled = false;
+                }
+
+                // Enable or disable next page button
+                if (gameRecords.length < pageSize) {
+                    nextPageButton.disabled = true;
+                } else {
+                    nextPageButton.disabled = false;
+                }
+
+                // Check if there are no game records
+                if (page === 1 && gameRecords.length === 0) {
+                    const noGameRecordsElement = document.createElement("p");
+                    noGameRecordsElement.classList.add("text-gray-600");
+                    noGameRecordsElement.textContent = "No game records found.";
+                    gameRecordsContainer.appendChild(noGameRecordsElement);
+                } else if (gameRecords.length === 0) {
+                    page = lastPage;
+                    document.getElementById("pageNumber").value = page;
+                    my.getGameRecords(page, pageSize).then(renderGameRecords);
+                    return;
+                }
+
+                // Update last page
+                lastPage = page;
+            }
+
+            // Previous page button
+            prevPageButton.addEventListener("click", async () => {
+                if (page > 1) {
+                    page--;
+                    document.getElementById("pageNumber").value = page;
+                    const gameRecords = await my.getGameRecords(page, pageSize);
+                    renderGameRecords(gameRecords);
+                }
+            });
+
+            // Next page button
+            nextPageButton.addEventListener("click", async () => {
+                page++;
+                document.getElementById("pageNumber").value = page;
+                const gameRecords = await my.getGameRecords(page, pageSize);
+                renderGameRecords(gameRecords);
+            });
+
+            // Page number input
+            const pageNumberInput = document.getElementById("pageNumber");
+            pageNumberInput.addEventListener("change", async () => {
+                page = parseInt(pageNumberInput.value);
+                const gameRecords = await my.getGameRecords(page, pageSize);
+                renderGameRecords(gameRecords);
+            });
+
+            // Get game records
+            const gameRecords = await my.getGameRecords(page, pageSize);
+
+            // Render game records
+            renderGameRecords(gameRecords);
+        });
+    </script>
 </body>
 
 </html>
