@@ -52,7 +52,7 @@
                     <div class="flex items-center">
                         <img id="user-avatar" class="w-24 h-24 rounded-full" src="/img/default-avatar.png"
                             alt="User Avatar">
-                        <div class="ml-4">
+                        <div class="ml-4 relative">
                             <h3 id="username" class="text-xl font-semibold text-gray-900">Loading...</h3>
                             <p id="user-email" class="text-sm text-gray-500">Loading...</p>
                         </div>
@@ -85,6 +85,18 @@
                             <div class="col-span-2">
                                 <label class="block text-sm font-medium text-gray-700">Bio</label>
                                 <p id="bio" class="mt-1 text-gray-900">User has not provided a bio.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Level Progress (Experience)</span>
+                            <span id="progress-label" class="text-sm font-medium text-gray-700">4/10</span>
+                        </div>
+                        <div class="relative">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="progress-bar" class="h-2.5 rounded-full"></div>
                             </div>
                         </div>
                     </div>
@@ -174,6 +186,18 @@
             }
             if (userData.profile.bio) {
                 document.getElementById("bio").textContent = userData.profile.bio; // Display bio if available
+            }
+            if (userData.experience !== undefined) {
+                const { level, color, nextLevelXp } = my.getLevelProgress(userData.experience); // Get level progress data
+                document.getElementById("progress-label").textContent = `${userData.experience}/${nextLevelXp}`; // Display level progress label
+                document.getElementById("progress-bar").style.backgroundColor = color; // Set level progress bar color
+                document.getElementById("progress-bar").style.width = `${(userData.experience / nextLevelXp) * 100}%`; // Display level progress bar
+
+                const levelBadge = document.createElement("span");
+                levelBadge.classList.add("absolute", "-top-1", "-right-1", "text-white", "text-xs", "font-semibold", "px-2", "py-1", "rounded-lg", "shadow-lg");
+                levelBadge.style.backgroundColor = color;
+                levelBadge.textContent = `Lv. ${level}`;
+                document.getElementById("username").appendChild(levelBadge); // Display level badge next to username
             }
             document.getElementById("last-updated").textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`; // Display last updated date
         });
