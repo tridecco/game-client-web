@@ -738,6 +738,17 @@ class GameUI {
   }
 
   /**
+   * Show player disconnected.
+   * @param {string} playerId - The player ID.
+   */
+  showPlayerDisconnected(playerId) {
+    const playerElement = document.getElementById(`game-player-${playerId}`);
+    const playerAvatar = playerElement.querySelector("img");
+
+    playerAvatar.style.filter = "grayscale(100%)";
+  }
+
+  /**
    * Clear player rank.
    */
   clearPlayerRank() {
@@ -1807,6 +1818,10 @@ class Game {
       const rank = data.rank;
 
       this.ui.showPlayerRank(playerId, rank);
+    });
+
+    this.network.addListener("game-client:disconnected", (data) => {
+      this.ui.showPlayerDisconnected(data.player);
     });
 
     this.network.addListener("game:end", (data) => {
