@@ -481,6 +481,11 @@ class GameUI {
     tableHeaderTotal.innerText = "Total";
     tableHeaderRow.appendChild(tableHeaderTotal);
 
+    const tableHeaderExperience = document.createElement("th");
+    tableHeaderExperience.classList.add("py-2", "px-4", "border-b");
+    tableHeaderExperience.innerText = "Experience";
+    tableHeaderRow.appendChild(tableHeaderExperience);
+
     tableHeader.appendChild(tableHeaderRow);
 
     const tableBody = document.createElement("tbody");
@@ -513,6 +518,47 @@ class GameUI {
       );
       tableBodyTotal.innerText = player.total;
       tableBodyRow.appendChild(tableBodyTotal);
+
+      const tableBodyExperience = document.createElement("td");
+      tableBodyExperience.classList.add("py-2", "px-4", "border-b");
+
+      const experienceContainer = document.createElement("div");
+      experienceContainer.classList.add(
+        "relative",
+        "w-full",
+        "h-6",
+        "bg-gray-200",
+        "rounded",
+        "overflow-hidden"
+      );
+
+      const experienceBar = document.createElement("div");
+      experienceBar.classList.add(
+        "absolute",
+        "top-0",
+        "left-0",
+        "h-full",
+        "bg-green-500",
+        "rounded"
+      );
+      experienceBar.style.width = `${Math.min(player.experience, 100)}%`;
+
+      const experienceText = document.createElement("span");
+      experienceText.classList.add(
+        "absolute",
+        "top-0",
+        "left-1",
+        "text-xs",
+        "font-semibold",
+        "text-white"
+      );
+      experienceText.innerText = `${player.experience}/100`;
+
+      experienceContainer.appendChild(experienceBar);
+      experienceContainer.appendChild(experienceText);
+      tableBodyExperience.appendChild(experienceContainer);
+
+      tableBodyRow.appendChild(tableBodyExperience);
 
       tableBody.appendChild(tableBodyRow);
     });
