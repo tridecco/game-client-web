@@ -131,10 +131,37 @@ class My {
   }
 
   /**
+   * Get user game records.
+   * @param {number} page - The page number.
+   * @param {number} pageSize - The number of records per page.
+   * @returns {Array} The user game records.
+   */
+  async getGameRecords(page, pageSize) {
+    const response = await fetch(
+      `${app.serverUrl}/games/user/${this.userId}?page=${page}&pageSize=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      return data.data;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Get user security records.
    * @param {number} startIndex - The start index of the records.
    * @param {number} limit - The number of records to fetch.
-   * @returns {Object} The user security records.
+   * @returns {Array} The user security records.
    */
   async getSecurityRecords(startIndex, limit) {
     const response = await fetch(
