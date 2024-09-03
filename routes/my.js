@@ -21,6 +21,11 @@ router.get("/settings", (req, res) => {
   res.render("pages/my/settings");
 });
 
+// Load the game records route
+router.get("/game-records", (req, res) => {
+  res.render("pages/my/game-records");
+});
+
 // Load the security records route
 router.get("/security-records", (req, res) => {
   res.render("pages/my/security-records");
