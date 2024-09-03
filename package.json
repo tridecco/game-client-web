@@ -10,5 +10,16 @@
   "scripts": {
     "start": "node server.js",
     "build:css": "postcss styles.css -o public/css/styles.css"
-  }
+  },
+  "author": "Tony Kan <tianchengkan@gmail.com>",
+  "contributors": [
+    {
+      "name": "Tony Kan",
+      "email": "tianchengkan@gmail.com"
+    },
+    {
+      "name": "Ted Yu",
+      "email": "tedhyu@yahoo.com"
+    }
+  ]
 }
