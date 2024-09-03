@@ -329,12 +329,27 @@ class My {
 
     for (let i = 0; i < levels.length; i++) {
       if (xp < levels[i]) {
+        let color;
+        for (let j = colors.length - 1; j >= 0; j--) {
+          if (i >= colors[j].level) {
+            console.log(i, colors[j].level);
+            color = colors[j].color;
+            break;
+          }
+        }
+
         return {
           level: i,
-          color: colors.find((c) => c.level > i - 1).color,
+          color: color,
           nextLevelXp: levels[i],
         };
       }
     }
+
+    return {
+      level: levels.length,
+      color: colors[colors.length - 1].color,
+      nextLevelXp: levels[levels.length - 1],
+    };
   }
 }
