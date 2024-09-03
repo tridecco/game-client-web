@@ -92,7 +92,7 @@
                     <div class="mt-6">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-medium text-gray-700">Level Progress (Experience)</span>
-                            <span id="progress-label" class="text-sm font-medium text-gray-700">4/10</span>
+                            <span id="progress-label" class="text-sm font-medium text-gray-700">Loading...</span>
                         </div>
                         <div class="relative">
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -123,12 +123,15 @@
             // Get user data
             const userData = await my.getUserData();
 
-            // Display user data
+            // Display user avatar if available
             if (userData.profile.avatar) {
-                document.getElementById("user-avatar").src = userData.profile.avatar; // Display user avatar if available
+                document.getElementById("user-avatar").src = userData.profile.avatar;
             }
-            document.getElementById("username").textContent = userData.username; // Display username
-            document.getElementById("user-email").textContent = userData.email; // Display user email
+
+            // Display username, email
+            document.getElementById("username").textContent = userData.username;
+            document.getElementById("user-email").textContent = userData.email;
+
             // Display user gender (SVG icons)
             if (userData.profile.gender !== null) {
                 if (userData.profile.gender === true) {
@@ -162,18 +165,27 @@
                             </svg>`;
                 }
             }
+
+            // Display first name if available
             if (userData.profile.firstName) {
-                document.getElementById("first-name").textContent = userData.profile.firstName; // Display first name if available
+                document.getElementById("first-name").textContent = userData.profile.firstName;
             }
+
+            // Display last name if available
             if (userData.profile.lastName) {
-                document.getElementById("last-name").textContent = userData.profile.lastName; // Display last name if available
+                document.getElementById("last-name").textContent = userData.profile.lastName;
             }
+
+            // Display location if available
             if (userData.profile.location) {
-                document.getElementById("location").textContent = userData.profile.location; // Display location if available
+                document.getElementById("location").textContent = userData.profile.location;
             }
+
+            // Display birthday if available (formatted)
             if (userData.profile.birthday) {
-                document.getElementById("birthday").textContent = new Date(userData.profile.birthday).toLocaleDateString(undefined, { timeZone: "UTC" }); // Display birthday if available (formatted)
+                document.getElementById("birthday").textContent = new Date(userData.profile.birthday).toLocaleDateString(undefined, { timeZone: "UTC" });
             }
+
             // Display custom URLs if available
             if (userData.profile.customizeUrls) {
                 const customizeUrls = document.getElementById("custom-urls");
@@ -184,23 +196,29 @@
                     customizeUrls.appendChild(p);
                 });
             }
+
+            // Display bio if available
             if (userData.profile.bio) {
-                document.getElementById("bio").textContent = userData.profile.bio; // Display bio if available
+                document.getElementById("bio").textContent = userData.profile.bio;
             }
-            if (userData.experience !== undefined) {
-                const { level, color, nextLevelXp } = my.getLevelProgress(userData.experience); // Get level progress data
 
-                document.getElementById("progress-label").textContent = `${userData.experience}/${nextLevelXp}`; // Display level progress label
-                document.getElementById("progress-bar").style.backgroundColor = color; // Set level progress bar color
-                document.getElementById("progress-bar").style.width = `${Math.min((userData.experience / nextLevelXp) * 100, 100)}%`; // Display level progress bar
+            // Get level and progress data
+            const { level, color, nextLevelXp } = my.getLevelProgress(userData.experience);
 
-                const levelBadge = document.createElement("span");
-                levelBadge.classList.add("absolute", "-top-1", "-right-1", "text-white", "text-xs", "font-semibold", "px-2", "py-1", "rounded-lg", "shadow-lg");
-                levelBadge.style.backgroundColor = color;
-                levelBadge.textContent = `Lv. ${level}`;
-                document.getElementById("username").appendChild(levelBadge); // Display level badge next to username
-            }
-            document.getElementById("last-updated").textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`; // Display last updated date
+            // Display level progress
+            document.getElementById("progress-label").textContent = `${userData.experience}/${nextLevelXp}`; // Display level progress label
+            document.getElementById("progress-bar").style.backgroundColor = color; // Set level progress bar color
+            document.getElementById("progress-bar").style.width = `${Math.min((userData.experience / nextLevelXp) * 100, 100)}%`; // Display level progress bar
+
+            // Display level badge
+            const levelBadge = document.createElement("span");
+            levelBadge.classList.add("absolute", "-top-1", "-right-1", "text-white", "text-xs", "font-semibold", "px-2", "py-1", "rounded-lg", "shadow-lg");
+            levelBadge.style.backgroundColor = color; // Set level badge color
+            levelBadge.textContent = `Lv. ${level}`; // Display level badge text
+            document.getElementById("username").appendChild(levelBadge); // Display level badge next to username
+
+            // Display last updated date
+            document.getElementById("last-updated").textContent = `Last updated: ${new Date(userData.updatedAt).toLocaleDateString()}`;
         });
     </script>
 </body>
