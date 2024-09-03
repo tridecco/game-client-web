@@ -189,9 +189,10 @@
             }
             if (userData.experience !== undefined) {
                 const { level, color, nextLevelXp } = my.getLevelProgress(userData.experience); // Get level progress data
+
                 document.getElementById("progress-label").textContent = `${userData.experience}/${nextLevelXp}`; // Display level progress label
                 document.getElementById("progress-bar").style.backgroundColor = color; // Set level progress bar color
-                document.getElementById("progress-bar").style.width = `${(userData.experience / nextLevelXp) * 100}%`; // Display level progress bar
+                document.getElementById("progress-bar").style.width = `${Math.min((userData.experience / nextLevelXp) * 100, 100)}%`; // Display level progress bar
 
                 const levelBadge = document.createElement("span");
                 levelBadge.classList.add("absolute", "-top-1", "-right-1", "text-white", "text-xs", "font-semibold", "px-2", "py-1", "rounded-lg", "shadow-lg");
