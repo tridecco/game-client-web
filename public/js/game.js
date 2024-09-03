@@ -1810,8 +1810,22 @@ class Game {
     });
 
     this.network.addListener("game:end", (data) => {
+      const reason = data.reason;
       const rankedPlayers = data.rankedPlayers;
       const isWinner = rankedPlayers[0].id === this.network.userId;
+
+      if (reason === "disconnected") {
+        this.ui.showError(
+          "Game Over",
+          "The game has been terminated due to fewer than 2 players being connected. Thank you for playing!",
+          null,
+          () => {
+            window.location.href = "/";
+          },
+          "Return Home"
+        );
+        return;
+      }
 
       this.ui.showGamePhase(`${isWinner ? "You Win" : "Game Over"}`, 2000);
 
