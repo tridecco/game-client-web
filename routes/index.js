@@ -23,6 +23,11 @@ router.use("/game", (req, res) => {
   res.render("pages/game");
 });
 
+// Load the game record route
+router.get("/game-records/:gameId", (req, res) => {
+  res.render("pages/game-record", { gameId: req.params.gameId });
+});
+
 // Load the auth routes
 router.use("/", require("./auth"));
 
