@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include("../components/head") %>
+    <script src="/js/leaderboard.js"></script>
+    <script src="/js/users.js"></script>
+    <meta name="description" content="Tridecco leaderboard page, where users can view the top players and their scores.">
+    <title>Tridecco | Leaderboard</title>
+    <style>
+        .leaderboard-card {
+            transition: transform 0.3s;
+        }
+
+        .leaderboard-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .leaderboard-card:hover .player-name {
+            color: #4c51bf;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <%- include("../components/main-header", { currentPage: "leaderboard" }) %>
+
+    <header class="bg-indigo-600 text-white py-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <h1 class="text-3xl font-bold">Tridecco Leaderboard</h1>
+            <a href="/" class="text-white hover:text-gray-200">← Return to Home</a>
+        </div>
+    </header>
+    
+    <main class="container mx-auto p-6">
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Top 100 Players</h2>
+            <div id="leaderboard" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        </section>
+    </main>
+    <script>
+        // Add event listener to window load
+        window.addEventListener("DOMContentLoaded", async () => {
+            // Get the leaderboard data from the server
+            const leaderboardData = await new Leaderboard().get();
+
+            // Initialize the users class
+            const users = new Users();
+
+            // Get the leaderboard element
+            const leaderboardElement = document.getElementById("leaderboard");
+
+            // Loop through the leaderboard data and create a card for each player
+            leaderboardData.forEach((player) => {
+                // Get the user level
+                player.levelProgress = users.getLevelProgress(player.experience);
+
+                if (player.avatar) {
+                    // Create a player card with avatar
+                    leaderboardElement.innerHTML += `
+                        <div onclick="window.location.href = '/users/${player.username}'" class="bg-white shadow-lg rounded-lg overflow-hidden leaderboard-card">
+                            <div class="p-4 flex items-center">
+                                <img src="${player.avatar}" alt="Player Avatar" class="w-12 h-12 rounded-full mr-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-800 player-name relative">${player.username}<span class="absolute -top-1 -right-1 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg" style="background-color: ${player.levelProgress.color};">Lv. ${player.levelProgress.level}</span></h3>
+                                    <p class="text-gray-600">Experience: ${player.experience}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Create a player card without avatar
+                    leaderboardElement.innerHTML += `
+                        <div onclick="window.location.href = '/users/${player.username}'" class="bg-white shadow-lg rounded-lg overflow-hidden leaderboard-card">
+                            <div class="p-4 flex items-center">
+                                <div class="w-12 h-12 bg-gray-200 rounded-full mr-4"></div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-800 player-name relative">${player.username}<span class="absolute -top-1 -right-1 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg" style="background-color: ${player.levelProgress.color};">Lv. ${player.levelProgress.level}</span></h3>
+                                    <p class="text-gray-600">Experience: ${player.experience}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

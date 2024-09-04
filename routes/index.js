@@ -18,6 +18,11 @@ router.use("/rooms", (req, res) => {
   res.render("pages/rooms");
 });
 
+// Load the leaderboard route
+router.use("/leaderboard", (req, res) => {
+  res.render("pages/leaderboard");
+});
+
 // Load the game route
 router.use("/game", (req, res) => {
   res.render("pages/game");
