@@ -173,7 +173,6 @@ class Users {
         let color;
         for (let j = colors.length - 1; j >= 0; j--) {
           if (i >= colors[j].level) {
-            console.log(i, colors[j].level);
             color = colors[j].color;
             break;
           }
