@@ -36,12 +36,57 @@ class Users {
       const data = await response.json();
 
       if (data.status === "success") {
+        this.userId = data.data._id;
+
         return data.data;
       } else {
         throw new Error(`Error in response data: ${data.message}`);
       }
     } catch (error) {
       throw new Error(`Exception while fetching user data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get user game records.
+   * @param {number} page - The page number.
+   * @param {number} pageSize - The number of records per page.
+   * @returns {Array} The user game records.
+   */
+  async getGameRecords(page, pageSize) {
+    try {
+      if (!this.userId) {
+        await this.getUserData();
+      }
+
+      const response = await fetch(
+        `${app.serverUrl}/games/user/${this.userId}?page=${page}&pageSize=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching user game records: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        return data.data;
+      } else {
+        throw new Error(`Error in response data: ${data.message}`);
+      }
+    } catch (error) {
+      throw new Error(
+        `Exception while fetching user game records: ${error.message}`
+      );
     }
   }
 
