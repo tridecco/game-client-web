@@ -19,8 +19,8 @@
  */
 
 const config = {
-  host: "127.0.0.1",
-  port: 8080,
+  host: "localhost",
+  port: 4000,
   codePath: __dirname,
   https: {
     enabled: false,

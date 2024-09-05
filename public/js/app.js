@@ -124,4 +124,4 @@ class App {
 }
 
 // Create a new App object (global variable)
-const app = new App("https://127.0.0.1");
+const app = new App("/api", "/");
