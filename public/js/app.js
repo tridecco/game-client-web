@@ -7,10 +7,13 @@ class App {
   /**
    * Create a new App object.
    * @param {string} serverUrl - The URL of the server.
+   * @param {string} socketUrl - The URL of the socket server. (Optional, defaults to the server URL.)
    */
-  constructor(serverUrl) {
+  constructor(serverUrl, socketUrl) {
     this.serverUrl = serverUrl;
     this.session.serverUrl = serverUrl;
+
+    this.socketUrl = socketUrl || serverUrl;
   }
 
   /**

@@ -9,10 +9,10 @@
 class GameNetwork {
   /**
    * Create a game network.
-   * @param {string} serverUrl - The server URL.
+   * @param {string} socketUrl - The socket URL.
    */
-  constructor(serverUrl) {
-    this.socket = io(serverUrl, {
+  constructor(socketUrl) {
+    this.socket = io(socketUrl, {
       withCredentials: true,
     });
   }

@@ -79,7 +79,7 @@
         const gameUI = new GameUI("/img/game/wood-texture.jpg");
 
         // Create a new game network instance
-        const gameNetwork = new GameNetwork(app.serverUrl);
+        const gameNetwork = new GameNetwork(app.socketUrl);
 
         // Add disconnect event listener
         const disconnectListener = () => {
