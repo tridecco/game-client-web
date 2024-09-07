@@ -331,6 +331,8 @@ class GameUI {
     document.getElementById("queue-mode").innerText =
       this._getDisplayGameMode(gameMode);
 
+    this.queuePlayersMax = this._getGameModePlayerCount(gameMode);
+
     this.showSection("queue");
   }
 
@@ -640,6 +642,15 @@ class GameUI {
     return {
       stop: () => clearInterval(timer),
     };
+  }
+
+  /**
+   * Update the queue players count.
+   * @param {number} playersCount - The players count.
+   */
+  updateQueuePlayersCount(playersCount) {
+    const queueSize = document.getElementById("queue-size");
+    queueSize.innerText = `${playersCount}/${this.queuePlayersMax}`;
   }
 
   /**

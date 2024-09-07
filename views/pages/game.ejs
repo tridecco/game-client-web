@@ -112,6 +112,13 @@
                 // Show the queue component
                 gameUI.showQueue(gameMode);
 
+                // Add users count event listener
+                const usersCountListener = (data) => {
+                    console.log(data.count);
+                    gameUI.updateQueuePlayersCount(data.count);
+                };
+                gameNetwork.addListener("usersCount", usersCountListener);
+
                 // Join the queue
                 try {
                     await gameNetwork.joinQueue(gameMode);
@@ -126,6 +133,9 @@
 
                 // Add game ready event listener (once the game is ready)
                 gameNetwork.addListenerOnce("gameReady", () => {
+                    // Remove the users count event listener
+                    gameNetwork.removeListener("usersCount", usersCountListener);
+
                     // Stop the queue timer
                     queueTimer.stop();
                 });
