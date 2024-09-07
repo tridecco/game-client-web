@@ -302,6 +302,59 @@ class GameUI {
   }
 
   /**
+   * Request wake lock. (Private)
+   * @returns {boolean} The wake lock request result.
+   */
+  async _requestWakeLock() {
+    try {
+      if ("wakeLock" in navigator) {
+        this.wakeLock = await navigator.wakeLock.request("screen");
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Release wake lock. (Private)
+   * @returns {boolean} The wake lock release result.
+   */
+  async _releaseWakeLock() {
+    try {
+      if (this.wakeLock) {
+        await this.wakeLock.release();
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Enable no sleep. (Private)
+   */
+  _enableNoSleep() {
+    if (!this.noSleep) {
+      this.noSleep = new NoSleep();
+    }
+    this.noSleep.enable();
+  }
+
+  /**
+   * Disable no sleep. (Private)
+   */
+  _disableNoSleep() {
+    if (this.noSleep) {
+      this.noSleep.disable();
+    }
+  }
+
+  /**
    * Show a section, hide the others.
    * @param {string} section - The section name.
    */
@@ -1181,6 +1234,26 @@ class GameUI {
     const tradeRequest = document.getElementById("game-trade-request");
     tradeRequest.style.display = "none";
   }
+
+  /**
+   * Start prevent sleep.
+   */
+  async startPreventSleep() {
+    const wakeLockAcquired = await this._requestWakeLock();
+    if (!wakeLockAcquired) {
+      this._enableNoSleep();
+    }
+  }
+
+  /**
+   * Stop prevent sleep.
+   */
+  stopPreventSleep() {
+    const wakeLockReleased = this._releaseWakeLock();
+    if (!wakeLockReleased) {
+      this._disableNoSleep();
+    }
+  }
 }
 
 /**
@@ -1580,6 +1653,8 @@ class Game {
 
       this.ui.showGameReady(this.players, () => {
         this.network.playerReady();
+
+        this.ui.startPreventSleep();
       });
 
       this.network.addListener("game-client:ready", (data) => {
@@ -1950,6 +2025,8 @@ class Game {
           }, 250);
         }
       }, 2000);
+
+      this.ui.stopPreventSleep();
     });
   }
 }

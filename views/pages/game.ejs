@@ -4,6 +4,7 @@
 <head>
     <%- include("../components/head") %>
     <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/NoSleep.js/NoSleep.min.js"></script>
     <script src="/canvas-confetti/confetti.browser.min.js"></script>
     <script src="/js/game.js"></script>
     <meta name="description" content="An online multiplayer board game using unique 13-sided pieces, inspired by Einstein's 2023 discovery. Players aim to dispose of all their pieces, forming hexagons of the same color with two-color Einstein shapes to earn extra turns, while preventing opponents from doing the same.">
@@ -114,7 +115,6 @@
 
                 // Add users count event listener
                 const usersCountListener = (data) => {
-                    console.log(data.count);
                     gameUI.updateQueuePlayersCount(data.count);
                 };
                 gameNetwork.addListener("usersCount", usersCountListener);
