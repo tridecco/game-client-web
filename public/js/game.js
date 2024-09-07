@@ -922,10 +922,12 @@ class GameUI {
       pieceElement.classList.add("w-12", "cursor-pointer");
       pieceElement.addEventListener("click", () => {
         if (this.selectedPieceFromListElement) {
+          this.selectedPieceFromListElement.style.transform = "none";
           this.selectedPieceFromListElement.style.filter = "none";
         }
+        pieceElement.style.transform = "scale(1.1)";
         pieceElement.style.filter =
-          "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))";
+          "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
 
         this.selectedPieceFromListElement = pieceElement;
         clickHandler(i);
@@ -1094,12 +1096,14 @@ class GameUI {
         pieceElement.classList.add("w-8", "object-cover");
 
         pieceElement.addEventListener("click", () => {
+          pieceElement.style.transform = "scale(1.1)";
           pieceElement.style.filter =
-            "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))";
+            "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
         });
         if (player.id === this.currentPlayerId) {
           pieceElement.addEventListener("click", () => {
             if (this.selectedPieceElement) {
+              this.selectedPieceElement.style.transform = "none";
               this.selectedPieceElement.style.filter = "none";
             }
 
@@ -1109,6 +1113,7 @@ class GameUI {
         } else {
           pieceElement.addEventListener("click", () => {
             if (this.selectedOtherPlayerPieceElement) {
+              this.selectedOtherPlayerPieceElement.style.transform = "none";
               this.selectedOtherPlayerPieceElement.style.filter = "none";
             }
 
