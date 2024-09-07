@@ -20,7 +20,7 @@
 
 const config = {
   host: "localhost",
-  port: 4000,
+  port: 3000,
   codePath: __dirname,
   https: {
     enabled: false,
