@@ -1236,6 +1236,53 @@ class GameUI {
   }
 
   /**
+   * Show the round summary.
+   * @param {number} roundRemaining - The remaining rounds.
+   * @param {Object[]} winners - The round winners.
+   */
+  showRoundSummary(roundRemaining, winners) {
+    const roundSummary = document.getElementById("game-round-summary");
+    const roundSummaryTitle = document.getElementById(
+      "game-round-summary-title"
+    );
+    const roundSummaryWinners = document.getElementById(
+      "game-round-summary-table"
+    );
+
+    roundSummaryTitle.innerText = `${roundRemaining} round(s) remaining`;
+
+    winners.forEach((winner) => {
+      winner.avatar = winner.avatar || "/img/default-avatar.png";
+      const winnerElement = `
+        <tr class="border-b border-gray-300 last:border-b-0">
+          <td class="py-2 px-4">
+            <img src="${winner.avatar}" alt="${winner.name}" class="w-8 h-8 rounded-full">
+          </td>
+          <td class="py-2 px-4 font-semibold">${winner.name}</td>
+          <td class="py-2 px-4">${winner.points}</td>
+          <td class="py-2 px-4">${winner.formedHexagons}</td>
+        </tr>
+      `;
+      roundSummaryWinners.innerHTML += winnerElement;
+    });
+
+    roundSummary.style.display = "flex";
+  }
+
+  /**
+   * Hide the round summary.
+   */
+  hideRoundSummary() {
+    const roundSummary = document.getElementById("game-round-summary");
+    roundSummary.style.display = "none";
+
+    const roundSummaryWinners = document.getElementById(
+      "game-round-summary-table"
+    );
+    roundSummaryWinners.innerHTML = "";
+  }
+
+  /**
    * Start prevent sleep.
    */
   async startPreventSleep() {
@@ -1950,6 +1997,23 @@ class Game {
       const rank = data.rank;
 
       this.ui.showPlayerRank(playerId, rank);
+    });
+
+    this.network.addListener("game:roundSummary", (data) => {
+      const roundsRemaining = data.roundsRemaining;
+      let winners = data.winners;
+
+      winners.forEach((winner) => {
+        winner.avatar = this.players.find(
+          (player) => player.id === winner.id
+        ).avatar;
+      });
+
+      this.ui.showRoundSummary(roundsRemaining, winners);
+
+      setTimeout(() => {
+        this.ui.hideRoundSummary();
+      }, 7000);
     });
 
     this.network.addListener("game-client:disconnected", (data) => {
