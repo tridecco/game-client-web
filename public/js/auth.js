@@ -113,4 +113,21 @@ class Auth {
 
     return data;
   }
+
+  /**
+   * Log out.
+   */
+  async logout() {
+    const response = await fetch(`${app.serverUrl}/users/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
 }

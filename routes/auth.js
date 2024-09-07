@@ -26,4 +26,9 @@ router.get("/reset-password", (req, res) => {
   res.render("pages/auth/password-reset");
 });
 
+// Load the logout route
+router.get("/logout", (req, res) => {
+  res.render("pages/auth/logout");
+});
+
 module.exports = router;

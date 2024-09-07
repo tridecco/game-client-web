@@ -44,6 +44,9 @@
                     <li class="mb-4">
                         <a href="/my/sessions" class="text-gray-600 hover:text-indigo-600">User Sessions</a>
                     </li>
+                    <li class="mb-4">
+                        <a href="/logout" class="text-gray-600 hover:text-red-600">Logout</a>
+                    </li>
                 </ul>
             </div>
 
@@ -99,6 +102,13 @@
                         <button id="update-password"
                             class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded hover:bg-indigo-500">Update
                             Password</button>
+                    </div>
+
+                    <!-- Logout -->
+                    <div id="logout-group" class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Logout</label>
+                        <button id="logout"
+                            class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-500">Logout</button>
                     </div>
                 </div>
             </div>
@@ -235,6 +245,24 @@
                         response.message,
                         "error",
                         document.getElementById("password-group")
+                    );
+                }
+            });
+
+            // Add event listener to logout button
+            document.getElementById("logout").addEventListener("click", async () => {
+                // Logout
+                const response = await auth.logout();
+
+                // Display notification
+                if (response.status === "success") {
+                    window.location.href = "/login";
+                } else {
+                    app.notification(
+                        "alert",
+                        response.message,
+                        "error",
+                        document.getElementById("logout-group")
                     );
                 }
             });
