@@ -1355,6 +1355,11 @@ class GameRenderer {
       willReadFrequently: true,
     });
 
+    const imageData = this.ctx.getImageData(x, y, 1, 1).data;
+    if (imageData[3] === 0) {
+      return;
+    }
+
     this.map.tiles.forEach((tile, index) => {
       const tileImage = tile.flipped
         ? this.tileImages["black-flipped"]
@@ -1383,6 +1388,7 @@ class GameRenderer {
 
       if (imageData[3] > 0) {
         this.clickHandlers.forEach((handler) => handler(index));
+        return index;
       }
 
       testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
