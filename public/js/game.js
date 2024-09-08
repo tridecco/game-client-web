@@ -505,83 +505,101 @@ class GameUI {
   }
 
   /**
+   * Create a table cell with given classes and text content.
+   * @param {string[]} classes - The classes to add.
+   * @param {string} text - The text content.
+   * @param {string} [alignment="left"] - The text alignment.
+   * @returns {HTMLTableCellElement} The created table cell.
+   */
+  _createTableCell(classes, text, alignment = "left") {
+    const cell = document.createElement("td");
+    cell.classList.add(...classes);
+    cell.innerText = text;
+    cell.style.textAlign = alignment;
+    return cell;
+  }
+
+  /**
+   * Create a table header with given text.
+   * @param {string[]} headers - The header texts.
+   * @returns {HTMLTableRowElement} The created table header row.
+   */
+  _createTableHeader(headers) {
+    const headerRow = document.createElement("tr");
+    headerRow.classList.add("bg-gray-200", "text-gray-600");
+    headerRow.appendChild(
+      this._createTableCell(["py-2", "px-4", "border-b"], "Player")
+    );
+
+    headers.forEach((headerText) => {
+      headerRow.appendChild(
+        this._createTableCell(["py-2", "px-4", "border-b"], headerText)
+      );
+    });
+
+    headerRow.appendChild(
+      this._createTableCell(["py-2", "px-4", "border-b"], "Total")
+    );
+    headerRow.appendChild(
+      this._createTableCell(["py-2", "px-4", "border-b"], "Experience")
+    );
+
+    return headerRow;
+  }
+
+  /**
    * Show the game results.
    * @param {Object[]} rankedPlayers - The ranked players.
    * @param {boolean} isWinner - The player is the winner.
    */
   showGameResults(rankedPlayers, isWinner) {
     const gameResultsTitle = document.getElementById("game-results-title");
-    const gameResultsTable = document.getElementById("game-results-table");
+    gameResultsTitle.innerText = isWinner ? "You won!" : "Game Over!";
 
-    if (isWinner) {
-      gameResultsTitle.innerText = "You won!";
-    } else {
-      gameResultsTitle.innerText = "Game Over!";
-    }
+    const gameResultsTable = document.getElementById("game-results-table");
+    gameResultsTable.innerHTML = "";
 
     const tableHeader = document.createElement("thead");
-    tableHeader.classList.add("bg-gray-200", "text-gray-600");
-
-    const tableHeaderRow = document.createElement("tr");
-
-    const tableHeaderPlayer = document.createElement("th");
-    tableHeaderPlayer.classList.add("py-2", "px-4", "border-b");
-    tableHeaderPlayer.innerText = "Player";
-    tableHeaderRow.appendChild(tableHeaderPlayer);
-
-    for (let i = 0; i < rankedPlayers.length; i++) {
-      const tableHeaderRound = document.createElement("th");
-      tableHeaderRound.classList.add("py-2", "px-4", "border-b");
-      tableHeaderRound.innerText = `Round ${i + 1}`;
-      tableHeaderRow.appendChild(tableHeaderRound);
-    }
-
-    const tableHeaderTotal = document.createElement("th");
-    tableHeaderTotal.classList.add("py-2", "px-4", "border-b");
-    tableHeaderTotal.innerText = "Total";
-    tableHeaderRow.appendChild(tableHeaderTotal);
-
-    const tableHeaderExperience = document.createElement("th");
-    tableHeaderExperience.classList.add("py-2", "px-4", "border-b");
-    tableHeaderExperience.innerText = "Experience";
-    tableHeaderRow.appendChild(tableHeaderExperience);
-
-    tableHeader.appendChild(tableHeaderRow);
+    tableHeader.appendChild(
+      this._createTableHeader(
+        rankedPlayers[0]?.rounds.map((_, index) => `Round ${index + 1}`) || []
+      )
+    );
 
     const tableBody = document.createElement("tbody");
     tableBody.classList.add("text-gray-800");
 
     rankedPlayers.forEach((player) => {
-      const tableBodyRow = document.createElement("tr");
-      tableBodyRow.classList.add("hover:bg-gray-100");
+      const row = document.createElement("tr");
+      row.classList.add("hover:bg-gray-100");
 
-      const tableBodyPlayer = document.createElement("td");
-      tableBodyPlayer.classList.add("py-2", "px-4", "border-b");
-      tableBodyPlayer.innerText = player.name;
-      tableBodyRow.appendChild(tableBodyPlayer);
-
-      player.rounds.forEach((round) => {
-        const tableBodyRound = document.createElement("td");
-        tableBodyRound.classList.add("py-2", "px-4", "border-b", "text-center");
-        tableBodyRound.innerText = round;
-        tableBodyRow.appendChild(tableBodyRound);
-      });
-
-      const tableBodyTotal = document.createElement("td");
-      tableBodyTotal.classList.add(
-        "py-2",
-        "px-4",
-        "border-b",
-        "text-center",
-        "font-semibold",
-        "text-blue-600"
+      row.appendChild(
+        this._createTableCell(["py-2", "px-4", "border-b"], player.name)
       );
-      tableBodyTotal.innerText = player.total;
-      tableBodyRow.appendChild(tableBodyTotal);
+      player.rounds.forEach((round) =>
+        row.appendChild(
+          this._createTableCell(
+            ["py-2", "px-4", "border-b", "text-center"],
+            round
+          )
+        )
+      );
+      row.appendChild(
+        this._createTableCell(
+          [
+            "py-2",
+            "px-4",
+            "border-b",
+            "text-center",
+            "font-semibold",
+            "text-blue-600",
+          ],
+          player.total
+        )
+      );
 
-      const tableBodyExperience = document.createElement("td");
-      tableBodyExperience.classList.add("py-2", "px-4", "border-b");
-
+      const experienceCell = document.createElement("td");
+      experienceCell.classList.add("py-2", "px-4", "border-b");
       const experienceContainer = document.createElement("div");
       experienceContainer.classList.add(
         "relative",
@@ -591,7 +609,6 @@ class GameUI {
         "rounded",
         "overflow-hidden"
       );
-
       const experienceBar = document.createElement("div");
       experienceBar.classList.add(
         "absolute",
@@ -602,7 +619,6 @@ class GameUI {
         "rounded"
       );
       experienceBar.style.width = `${Math.min(player.experience, 100)}%`;
-
       const experienceText = document.createElement("span");
       experienceText.classList.add(
         "absolute",
@@ -613,14 +629,12 @@ class GameUI {
         "text-white"
       );
       experienceText.innerText = `${player.experience}/100`;
-
       experienceContainer.appendChild(experienceBar);
       experienceContainer.appendChild(experienceText);
-      tableBodyExperience.appendChild(experienceContainer);
+      experienceCell.appendChild(experienceContainer);
+      row.appendChild(experienceCell);
 
-      tableBodyRow.appendChild(tableBodyExperience);
-
-      tableBody.appendChild(tableBodyRow);
+      tableBody.appendChild(row);
     });
 
     gameResultsTable.appendChild(tableHeader);
