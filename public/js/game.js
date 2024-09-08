@@ -438,6 +438,7 @@ class GameUI {
 
     players.forEach((player, index) => {
       const avatar = player.avatar || "/img/default-avatar.png";
+      // Player colors from Tailwind CSS: from-red-500 from-yellow-500 from-green-500 from-blue-500 to-red-500 to-yellow-500 to-green-500 to-blue-500 (DON'T REMOVE, USED IN CSS BUILD)
       const playerElement = `
       <div id="game-player-${player.id}" class="relative">
         <img src="${avatar}" alt="${
@@ -450,7 +451,9 @@ class GameUI {
       }</span>
         <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${
           player.name
-        }</span>
+        } <span id="game-player-${
+        player.id
+      }-points" class="font-semibold text-blue-600">(0)</span></span>
       </div>
     `;
       playersElement.innerHTML += playerElement;
@@ -1171,6 +1174,18 @@ class GameUI {
    */
   hideTradeRequest() {
     document.getElementById("game-trade-request").style.display = "none";
+  }
+
+  /**
+   * Update the player points.
+   * @param {string} playerId - The player ID.
+   * @param {number} points - The player points.
+   */
+  updatePlayerPoints(playerId, points) {
+    const playerScore = document.getElementById(
+      `game-player-${playerId}-points`
+    );
+    playerScore.innerText = `(${points})`;
   }
 
   /**
@@ -1950,6 +1965,8 @@ class Game {
       let winners = data.winners;
 
       winners.forEach((winner) => {
+        this.ui.updatePlayerPoints(winner.id, winner.totalPoints);
+
         winner.avatar = this.players.find(
           (player) => player.id === winner.id
         ).avatar;
