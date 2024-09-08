@@ -927,39 +927,44 @@ class GameUI {
    */
   showPieceSelection(pieces, clickHandler) {
     const piecesElement = document.getElementById("game-piece-selection");
-    piecesElement.style.display = "";
     const piecesElementShowButton = document.getElementById(
       "game-piece-selection-show"
     );
-    piecesElementShowButton.style.display = "";
     const piecesElementHideButton = document.getElementById(
       "game-piece-selection-hide"
     );
-    piecesElementHideButton.style.display = "";
-
     const piecesElementList = document.getElementById(
       "game-piece-selection-pieces"
     );
 
-    for (let i = 0; i < pieces.length; i++) {
+    piecesElement.style.display = "";
+    piecesElementShowButton.style.display = "";
+    piecesElementHideButton.style.display = "";
+
+    piecesElementList.innerHTML = "";
+
+    pieces.forEach((piece, index) => {
       const pieceElement = document.createElement("img");
-      pieceElement.src = `/img/game/pieces/${pieces[i].a.color}-${pieces[i].h.color}.png`;
-      pieceElement.alt = `${pieces[i].a.color}-${pieces[i].h.color}`;
-      pieceElement.classList.add("w-12", "cursor-pointer");
+      pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
+      pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
+      pieceElement.className = "w-12 cursor-pointer";
+
       pieceElement.addEventListener("click", () => {
         if (this.selectedPieceFromListElement) {
-          this.selectedPieceFromListElement.style.transform = "none";
-          this.selectedPieceFromListElement.style.filter = "none";
+          this.selectedPieceFromListElement.style.transform = "";
+          this.selectedPieceFromListElement.style.filter = "";
         }
+
         pieceElement.style.transform = "scale(1.1)";
         pieceElement.style.filter =
           "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
 
         this.selectedPieceFromListElement = pieceElement;
-        clickHandler(i);
+        clickHandler(index);
       });
+
       piecesElementList.appendChild(pieceElement);
-    }
+    });
   }
 
   /**
@@ -967,19 +972,20 @@ class GameUI {
    */
   hidePieceSelection() {
     const piecesElement = document.getElementById("game-piece-selection");
-    piecesElement.style.display = "none";
     const piecesElementShowButton = document.getElementById(
       "game-piece-selection-show"
     );
-    piecesElementShowButton.style.display = "none";
     const piecesElementHideButton = document.getElementById(
       "game-piece-selection-hide"
     );
-    piecesElementHideButton.style.display = "none";
-
     const piecesElementList = document.getElementById(
       "game-piece-selection-pieces"
     );
+
+    piecesElement.style.display = "none";
+    piecesElementShowButton.style.display = "none";
+    piecesElementHideButton.style.display = "none";
+
     piecesElementList.innerHTML = "";
 
     this.selectedPieceFromListElement = null;
@@ -991,8 +997,8 @@ class GameUI {
    */
   showTossButton(clickHandler) {
     const tossButton = document.getElementById("game-toss");
-    tossButton.style.display = "block";
 
+    tossButton.style.display = "block";
     tossButton.addEventListener("click", clickHandler);
   }
 
@@ -1002,6 +1008,8 @@ class GameUI {
   hideTossButton() {
     const tossButton = document.getElementById("game-toss");
     tossButton.style.display = "none";
+
+    tossButton.replaceWith(tossButton.cloneNode(true));
   }
 
   /**
