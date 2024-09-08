@@ -139,7 +139,7 @@ class GameNetwork {
    * @param {string} [responder] - The responder player ID.
    */
   trade(offer, responder) {
-    const data = offer && responder ? { offer, responder } : {};
+    const data = offer && responder ? { offer, responder } : null;
     this.socket.emit("game-client:trade", data);
   }
 
