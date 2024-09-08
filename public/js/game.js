@@ -226,12 +226,14 @@ class GameUI {
    * @param {string} background - The background image.
    */
   constructor(background) {
-    document.body.style.backgroundImage = `url(${background})`;
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.setProperty("backdrop-filter", "blur(5px)");
-    document.body.style.setProperty("-webkit-backdrop-filter", "blur(5px)");
+    Object.assign(document.body.style, {
+      backgroundImage: `url(${background})`,
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "cover",
+      backdropFilter: "blur(5px)",
+      WebkitBackdropFilter: "blur(5px)",
+    });
   }
 
   /**
@@ -240,16 +242,19 @@ class GameUI {
    * @returns {HTMLElement} The section.
    */
   _getSection(sectionName) {
-    if (
-      sectionName !== "queue" &&
-      sectionName !== "room" &&
-      sectionName !== "ready" &&
-      sectionName !== "game" &&
-      sectionName !== "game-results" &&
-      sectionName !== "error"
-    ) {
+    const validSections = new Set([
+      "queue",
+      "room",
+      "ready",
+      "game",
+      "game-results",
+      "error",
+    ]);
+
+    if (!validSections.has(sectionName)) {
       throw new Error("Invalid section name");
     }
+
     return document.getElementById(sectionName);
   }
 
@@ -259,14 +264,12 @@ class GameUI {
    * @returns {string} The display game mode.
    */
   _getDisplayGameMode(gameMode) {
-    switch (gameMode) {
-      case "classic-3p":
-        return "Classic (3 players)";
-      case "classic-4p":
-        return "Classic (4 players)";
-      default:
-        return gameMode;
-    }
+    const modeMap = {
+      "classic-3p": "Classic (3 players)",
+      "classic-4p": "Classic (4 players)",
+    };
+
+    return modeMap[gameMode] || gameMode;
   }
 
   /**
@@ -275,14 +278,21 @@ class GameUI {
    * @returns {number} The player count.
    */
   _getGameModePlayerCount(gameMode) {
-    switch (gameMode) {
-      case "classic-3p":
-        return 3;
-      case "classic-4p":
-        return 4;
-      default:
-        return 0;
-    }
+    const playerCountMap = {
+      "classic-3p": 3,
+      "classic-4p": 4,
+    };
+
+    return playerCountMap[gameMode] || 0;
+  }
+
+  /**
+   * Toggle section visibility. (Private)
+   * @param {string} section - The section name.
+   * @param {boolean} show - Whether to show or hide the section.
+   */
+  _toggleSectionVisibility(section, show) {
+    this._getSection(section).style.display = show ? "block" : "none";
   }
 
   /**
@@ -290,7 +300,7 @@ class GameUI {
    * @param {string} section - The section name.
    */
   _showSection(section) {
-    this._getSection(section).style.display = "block";
+    this._toggleSectionVisibility(section, true);
   }
 
   /**
@@ -298,7 +308,7 @@ class GameUI {
    * @param {string} section - The section name.
    */
   _hideSection(section) {
-    this._getSection(section).style.display = "none";
+    this._toggleSectionVisibility(section, false);
   }
 
   /**
