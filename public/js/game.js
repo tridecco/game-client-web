@@ -874,7 +874,7 @@ class GameUI {
     clearTimeout(this.gamePhaseTimeout);
     this.gamePhaseTimeout = setTimeout(() => {
       gamePhaseElement.style.opacity = 0;
-      setTimeout(() => {
+      this.gamePhaseTimeout = setTimeout(() => {
         gamePhaseElement.style.display = "none";
       }, 500);
     }, timeout);
