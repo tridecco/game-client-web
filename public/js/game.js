@@ -1272,7 +1272,7 @@ class GameRenderer {
   constructor(map, canvas, backgroundImage) {
     this.map = map;
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+    this.ctx = canvas.getContext("2d", { willReadFrequently: true });
 
     this.piecesCanvas = document.createElement("canvas");
     this.piecesCtx = this.piecesCanvas.getContext("2d");
