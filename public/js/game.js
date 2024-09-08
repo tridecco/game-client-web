@@ -802,7 +802,9 @@ class GameUI {
    * @param {string} playerId - The player ID.
    */
   playerReady(playerId) {
-    const playerElement = document.getElementById(`ready-player-${playerId}`);
+    const playerElement = document.getElementById(
+      `ready-players-player-${playerId}`
+    );
     const playerAvatar = playerElement.querySelector("img");
     playerAvatar.classList.add("border-green-500");
   }
