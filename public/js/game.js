@@ -1356,7 +1356,6 @@ class GameRenderer {
   /**
    * Handle click event. (Private)
    * @param {Event} event - The click event.
-   * @returns {number} The clicked piece index.
    */
   _handleClick(event) {
     const rect = this.canvas.getBoundingClientRect();
@@ -1375,7 +1374,7 @@ class GameRenderer {
       return;
     }
 
-    this.map.tiles.forEach((tile, index) => {
+    for (const [index, tile] of this.map.tiles.entries()) {
       const tileImage = tile.flipped
         ? this.tileImages["black-flipped"]
         : this.tileImages.black;
@@ -1403,11 +1402,11 @@ class GameRenderer {
 
       if (imageData[3] > 0) {
         this.clickHandlers.forEach((handler) => handler(index));
-        return index;
+        break;
       }
+    }
 
-      testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    });
+    testingCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   /**
