@@ -12,8 +12,22 @@ class GameNetwork {
    * @param {string} socketUrl - The socket URL.
    */
   constructor(socketUrl) {
-    this.socket = io(socketUrl, {
-      withCredentials: true,
+    this.socket = io(socketUrl, { withCredentials: true });
+  }
+
+  /**
+   * Send a socket event and handle the response.
+   * @param {string} event - The event name.
+   * @param {Object} data - The data to send.
+   * @returns {Promise} The promise object.
+   */
+  _sendEvent(event, data = {}) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit(event, data, (response) => {
+        response.success
+          ? resolve(response)
+          : reject(new Error(response.message));
+      });
     });
   }
 
@@ -25,15 +39,7 @@ class GameNetwork {
    */
   authenticate(userId, sessionId) {
     this.userId = userId;
-    return new Promise((resolve, reject) => {
-      this.socket.emit("authenticate", { sessionId }, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("authenticate", { sessionId });
   }
 
   /**
@@ -42,15 +48,7 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   joinQueue(queueName) {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("queue", { queueName }, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("queue", { queueName });
   }
 
   /**
@@ -58,15 +56,7 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   leaveQueue() {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("unqueue", {}, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("unqueue");
   }
 
   /**
@@ -75,15 +65,7 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   createRoom(gameMode) {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("createCustomRoom", { gameMode }, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("createCustomRoom", { gameMode });
   }
 
   /**
@@ -92,15 +74,7 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   joinRoom(roomId) {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("joinCustomRoom", { roomId }, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("joinCustomRoom", { roomId });
   }
 
   /**
@@ -108,15 +82,7 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   startRoom() {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("startCustomRoom", {}, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("startCustomRoom");
   }
 
   /**
@@ -124,29 +90,21 @@ class GameNetwork {
    * @returns {Promise} The promise object.
    */
   leaveRoom() {
-    return new Promise((resolve, reject) => {
-      this.socket.emit("leaveCustomRoom", {}, (response) => {
-        if (!response.success) {
-          reject(new Error(response.message));
-        } else {
-          resolve(response);
-        }
-      });
-    });
+    return this._sendEvent("leaveCustomRoom");
   }
 
   /**
    * Set the player ready.
    */
   playerReady() {
-    this.socket.emit("game-client:ready", {});
+    this.socket.emit("game-client:ready");
   }
 
   /**
    * Toss the piece.
    */
   tossPiece() {
-    this.socket.emit("game-client:toss", {});
+    this.socket.emit("game-client:toss");
   }
 
   /**
@@ -177,15 +135,12 @@ class GameNetwork {
 
   /**
    * Trade. (Forced)
-   * @param {Object} offer - The trade offer.
-   * @param {string} responder - The responder player ID.
+   * @param {Object} [offer] - The trade offer.
+   * @param {string} [responder] - The responder player ID.
    */
   trade(offer, responder) {
-    if (!offer || !responder) {
-      this.socket.emit("game-client:trade");
-    }
-
-    this.socket.emit("game-client:trade", { offer, responder });
+    const data = offer && responder ? { offer, responder } : {};
+    this.socket.emit("game-client:trade", data);
   }
 
   /**
