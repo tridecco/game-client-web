@@ -377,13 +377,7 @@ class GameUI {
       "game-results",
       "error",
     ];
-    sections.forEach((s) => {
-      if (s === section) {
-        this._showSection(s);
-      } else {
-        this._hideSection(s);
-      }
-    });
+    sections.forEach((s) => this._toggleSectionVisibility(s, s === section));
   }
 
   /**
@@ -393,10 +387,28 @@ class GameUI {
   showQueue(gameMode) {
     document.getElementById("queue-mode").innerText =
       this._getDisplayGameMode(gameMode);
-
     this.queuePlayersMax = this._getGameModePlayerCount(gameMode);
-
     this.showSection("queue");
+  }
+
+  /**
+   * Render players in a section.
+   * @param {string} elementId - The parent element ID.
+   * @param {Object[]} players - The players to render.
+   */
+  _renderPlayers(elementId, players) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = "";
+    players.forEach((player) => {
+      const avatar = player.avatar || "/img/default-avatar.png";
+      const playerElement = `
+      <div id="${elementId}-player-${player.id}" class="flex flex-col items-center mb-4">
+        <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${avatar}" alt="${player.name}">
+        <span class="mt-2 text-sm">${player.name}</span>
+      </div>
+    `;
+      container.innerHTML += playerElement;
+    });
   }
 
   /**
@@ -404,7 +416,7 @@ class GameUI {
    * @param {string} roomId - The room ID.
    * @param {string} gameMode - The game mode.
    * @param {Object[]} players - The players in the room.
-   * @param {isHost} isHost - The player is the host.
+   * @param {boolean} isHost - The player is the host.
    * @param {Function} startGameHandler - The start game handler.
    */
   showRoom(roomId, gameMode, players, isHost, startGameHandler) {
@@ -413,43 +425,29 @@ class GameUI {
     this.currentRoomPlayersMax = this._getGameModePlayerCount(gameMode);
     this.currentRoomPlayers = players;
 
-    const roomIdElement = document.getElementById("room-id");
-    roomIdElement.value = roomId;
+    document.getElementById("room-id").value = roomId;
+    document.getElementById("room-mode").innerText =
+      this._getDisplayGameMode(gameMode);
+    document.getElementById(
+      "room-status"
+    ).innerText = `Waiting for players (${players.length}/${this.currentRoomPlayersMax})`;
 
-    const gameModeElement = document.getElementById("room-mode");
-    gameModeElement.innerText = this._getDisplayGameMode(gameMode);
-
-    const roomStatusElement = document.getElementById("room-status");
-    roomStatusElement.innerText = `Waiting for players (${players.length}/${this.currentRoomPlayersMax})`;
-
-    const playersElement = document.getElementById("room-players");
-    playersElement.innerHTML = "";
-    players.forEach((player) => {
-      player.avatar = player.avatar || "/img/default-avatar.png";
-      const playerElement = `
-        <div id="room-player-${player.id}" class="flex flex-col items-center mb-4">
-          <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
-          <span class="mt-2 text-sm">${player.name}</span>
-        </div>
-      `;
-      playersElement.innerHTML += playerElement;
-    });
+    this._renderPlayers("room-players", players);
 
     const startButton = document.getElementById("room-start-game");
+    startButton.disabled = false;
+    startButton.classList.remove("cursor-not-allowed");
+    startButton.innerText = "Start Game";
 
-    startButton.addEventListener("click", () => {
+    startButton.onclick = () => {
       startButton.disabled = true;
       startButton.classList.add("cursor-not-allowed");
       startButton.innerText = "Starting...";
-
       startGameHandler();
-    });
+    };
 
-    if (isHost) {
-      this.currentRoomIsHost = true;
-
-      startButton.style.display = "block";
-    }
+    startButton.style.display = isHost ? "block" : "none";
+    this.currentRoomIsHost = isHost;
   }
 
   /**
@@ -458,27 +456,19 @@ class GameUI {
    * @param {Function} clickHandler - The click handler.
    */
   showGameReady(players, clickHandler) {
-    const playersElement = document.getElementById("ready-players");
-    playersElement.innerHTML = "";
-    players.forEach((player) => {
-      player.avatar = player.avatar || "/img/default-avatar.png";
-      const playerElement = `
-        <div id="ready-player-${player.id}" class="flex flex-col items-center mb-4">
-          <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
-          <span class="mt-2 text-sm">${player.name}</span>
-        </div>
-      `;
-      playersElement.innerHTML += playerElement;
-    });
+    this._renderPlayers("ready-players", players);
 
     const startButton = document.getElementById("ready-start-game");
-    startButton.addEventListener("click", () => {
+    startButton.disabled = false;
+    startButton.classList.remove("cursor-not-allowed");
+    startButton.innerText = "Start Game";
+
+    startButton.onclick = () => {
       startButton.disabled = true;
       startButton.classList.add("cursor-not-allowed");
       startButton.innerText = "Ready...";
-
       clickHandler();
-    });
+    };
 
     this.showSection("ready");
   }
@@ -491,19 +481,24 @@ class GameUI {
     const playersElement = document.getElementById("game-players");
     playersElement.innerHTML = "";
 
-    let playerIndex = 1;
-    players.forEach((player) => {
-      player.avatar = player.avatar || "/img/default-avatar.png";
-      // Player colors from Tailwind CSS: from-red-500 from-yellow-500 from-green-500 from-blue-500 to-red-500 to-yellow-500 to-green-500 to-blue-500 (DON'T REMOVE, USED IN CSS BUILD)
+    players.forEach((player, index) => {
+      const avatar = player.avatar || "/img/default-avatar.png";
       const playerElement = `
-        <div id="game-player-${player.id}" class="relative">
-          <img src="${player.avatar}" alt="${player.name}" class="w-16 h-16 rounded-full border-4 border-gray-300">
-          <span class="absolute top-0 right-0 bg-gradient-to-r from-${player.color.a}-500 to-${player.color.h}-500 text-white text-xs px-1 rounded-full">P${playerIndex}</span>
-          <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${player.name}</span>
-        </div>
-      `;
+      <div id="game-player-${player.id}" class="relative">
+        <img src="${avatar}" alt="${
+        player.name
+      }" class="w-16 h-16 rounded-full border-4 border-gray-300">
+        <span class="absolute top-0 right-0 bg-gradient-to-r from-${
+          player.color.a
+        }-500 to-${player.color.h}-500 text-white text-xs px-1 rounded-full">P${
+        index + 1
+      }</span>
+        <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${
+          player.name
+        }</span>
+      </div>
+    `;
       playersElement.innerHTML += playerElement;
-      playerIndex++;
     });
 
     this.showSection("game");
