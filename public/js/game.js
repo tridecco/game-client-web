@@ -1021,86 +1021,64 @@ class GameUI {
     this.currentPlayerId = currentPlayerId;
 
     const gameTradePlayers = document.getElementById("game-trade-players");
+    gameTradePlayers.innerHTML = "";
 
-    for (const player of players) {
+    players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
 
       const playerElement = document.createElement("div");
       playerElement.id = `game-trade-player-${player.id}`;
-      playerElement.classList.add(
-        "flex",
-        "flex-col",
-        "space-y-2",
-        "border-b",
-        "pb-4"
-      );
+      playerElement.className = "flex flex-col space-y-2 border-b pb-4";
+
       playerElement.innerHTML = `
-            <div class="flex items-center space-x-4">
-                <img src="${player.avatar}" alt="${player.name}" class="w-12 h-12 object-cover rounded-full">
-                <div>
-                    <p class="font-semibold">${player.name}</p>
-                </div>
-            </div>
-            <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
-          `;
+      <div class="flex items-center space-x-4">
+        <img src="${player.avatar}" alt="${player.name}" class="w-12 h-12 object-cover rounded-full">
+        <div>
+          <p class="font-semibold">${player.name}</p>
+        </div>
+      </div>
+      <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
+    `;
+
       if (player.id === this.currentPlayerId) {
-        const currentPlayerTitle = document.createElement("p");
-        currentPlayerTitle.innerText = "Your Pieces";
-        currentPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
+        const elements = [
+          { text: "Your Pieces", class: "text-lg font-semibold mt-4" },
+          {
+            text: "Select a piece to trade with another player.",
+            class: "text-sm text-gray-500",
+          },
+          { text: "Other Players Pieces", class: "text-lg font-semibold mt-4" },
+          {
+            text: "Select a piece to trade with you.",
+            class: "text-sm text-gray-500",
+          },
+        ];
 
-        const currentPlayerDescription = document.createElement("p");
-        currentPlayerDescription.innerText =
-          "Select a piece to trade with another player.";
-        currentPlayerDescription.classList.add("text-sm", "text-gray-500");
-
-        const hrElement = document.createElement("hr");
-        hrElement.classList.add("my-4");
-
-        const otherPlayerTitle = document.createElement("p");
-        otherPlayerTitle.innerText = "Other Players Pieces";
-        otherPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
-
-        const otherPlayerDescription = document.createElement("p");
-        otherPlayerDescription.innerText = "Select a piece to trade with you.";
-        otherPlayerDescription.classList.add("text-sm", "text-gray-500");
+        elements.reverse().forEach(({ text, class: className }) => {
+          const p = document.createElement("p");
+          p.innerText = text;
+          p.className = className;
+          gameTradePlayers.insertBefore(p, gameTradePlayers.firstChild);
+        });
 
         gameTradePlayers.insertBefore(
-          otherPlayerDescription,
+          document.createElement("hr"),
           gameTradePlayers.firstChild
         );
-        gameTradePlayers.insertBefore(
-          otherPlayerTitle,
-          gameTradePlayers.firstChild
-        );
-        gameTradePlayers.insertBefore(hrElement, gameTradePlayers.firstChild);
-        gameTradePlayers.insertBefore(
-          playerElement,
-          gameTradePlayers.firstChild
-        );
-        gameTradePlayers.insertBefore(
-          currentPlayerDescription,
-          gameTradePlayers.firstChild
-        );
-        gameTradePlayers.insertBefore(
-          currentPlayerTitle,
-          gameTradePlayers.firstChild
-        );
-      } else {
-        gameTradePlayers.appendChild(playerElement);
       }
-    }
+
+      gameTradePlayers.appendChild(playerElement);
+    });
   }
 
   /**
    * Show the trade.
    * @param {Object[]} pieces - The pieces of the players.
    * @param {Function} tradeHandler - The trade handler.
-   * @param {boolean} forced - The trade is forced. (Optional, default is false)
+   * @param {boolean} [forced=false] - The trade is forced.
    */
   showTrade(pieces, tradeHandler, forced = false) {
-    if (pieces.length < 2) {
-      return;
-    }
+    if (pieces.length < 2) return;
 
     const tradeButton = document.getElementById("game-trade-button");
     const gameTrade = document.getElementById("game-trade");
@@ -1108,83 +1086,59 @@ class GameUI {
     const tradeConfirmButton = document.getElementById("game-trade-confirm");
     const noTradeButton = document.getElementById("game-trade-no-trade");
 
-    this.playersId = [];
+    this.playersId = pieces.map((player) => player.id);
 
-    for (const player of pieces) {
+    pieces.forEach((player) => {
       const playerPiecesElement = document.getElementById(
         `game-trade-pieces-${player.id}`
       );
       playerPiecesElement.innerHTML = "";
 
-      this.playersId.push(player.id);
-
-      for (
-        let pieceIndex = 0;
-        pieceIndex < player.pieces.length;
-        pieceIndex++
-      ) {
-        const piece = player.pieces[pieceIndex];
+      player.pieces.forEach((piece, pieceIndex) => {
         const pieceElement = document.createElement("img");
         pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
         pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
-        pieceElement.classList.add("w-8", "object-cover");
+        pieceElement.className = "w-8 object-cover";
 
         pieceElement.addEventListener("click", () => {
+          if (player.id === this.currentPlayerId) {
+            if (this.selectedPieceElement) {
+              this.selectedPieceElement.style.transform = "";
+              this.selectedPieceElement.style.filter = "";
+            }
+            this.selectedPieceElement = pieceElement;
+            this.selectedPiece = { player: player.id, pieceIndex };
+          } else {
+            if (this.selectedOtherPlayerPieceElement) {
+              this.selectedOtherPlayerPieceElement.style.transform = "";
+              this.selectedOtherPlayerPieceElement.style.filter = "";
+            }
+            this.selectedOtherPlayerPieceElement = pieceElement;
+            this.selectedOtherPlayerPiece = { player: player.id, pieceIndex };
+          }
+
           pieceElement.style.transform = "scale(1.1)";
           pieceElement.style.filter =
             "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
         });
-        if (player.id === this.currentPlayerId) {
-          pieceElement.addEventListener("click", () => {
-            if (this.selectedPieceElement) {
-              this.selectedPieceElement.style.transform = "none";
-              this.selectedPieceElement.style.filter = "none";
-            }
-
-            this.selectedPieceElement = pieceElement;
-            this.selectedPiece = { player: player.id, pieceIndex };
-          });
-        } else {
-          pieceElement.addEventListener("click", () => {
-            if (this.selectedOtherPlayerPieceElement) {
-              this.selectedOtherPlayerPieceElement.style.transform = "none";
-              this.selectedOtherPlayerPieceElement.style.filter = "none";
-            }
-
-            this.selectedOtherPlayerPieceElement = pieceElement;
-            this.selectedOtherPlayerPiece = { player: player.id, pieceIndex };
-          });
-        }
 
         playerPiecesElement.appendChild(pieceElement);
-      }
-    }
+      });
+    });
 
     tradeButton.style.display = "block";
-
-    tradeButton.onclick = () => {
-      gameTrade.style.display = "flex";
-    };
-    tradeCloseButton.onclick = () => {
-      gameTrade.style.display = "none";
-    };
-
+    tradeButton.onclick = () => (gameTrade.style.display = "flex");
+    tradeCloseButton.onclick = () => (gameTrade.style.display = "none");
     tradeConfirmButton.onclick = () => {
-      if (!this.selectedPiece || !this.selectedOtherPlayerPiece) {
-        return;
+      if (this.selectedPiece && this.selectedOtherPlayerPiece) {
+        tradeHandler(this.selectedPiece, this.selectedOtherPlayerPiece);
       }
-
-      tradeHandler(this.selectedPiece, this.selectedOtherPlayerPiece);
     };
 
     if (forced) {
       tradeCloseButton.style.display = "none";
       noTradeButton.style.display = "block";
-
-      noTradeButton.onclick = () => {
-        tradeHandler(null, null);
-      };
-
+      noTradeButton.onclick = () => tradeHandler(null, null);
       gameTrade.style.display = "flex";
     }
   }
@@ -1193,38 +1147,27 @@ class GameUI {
    * Hide the trade.
    */
   hideTrade() {
-    if (!this.playersId) {
-      return;
-    }
+    if (!this.playersId) return;
 
-    const tradeButton = document.getElementById("game-trade-button");
-    const gameTrade = document.getElementById("game-trade");
-    const tradeCloseButton = document.getElementById("game-trade-close");
-    const noTradeButton = document.getElementById("game-trade-no-trade");
-
-    for (const playerId of this.playersId) {
-      const playerPiecesElement = document.getElementById(
-        `game-trade-pieces-${playerId}`
-      );
-      playerPiecesElement.innerHTML = "";
-    }
+    this.playersId.forEach((playerId) => {
+      document.getElementById(`game-trade-pieces-${playerId}`).innerHTML = "";
+    });
 
     this.selectedPieceElement = null;
     this.selectedOtherPlayerPieceElement = null;
     this.selectedPiece = null;
 
-    tradeButton.style.display = "none";
-    gameTrade.style.display = "none";
-
-    tradeCloseButton.style.display = "block";
-    noTradeButton.style.display = "none";
+    document.getElementById("game-trade-button").style.display = "none";
+    document.getElementById("game-trade").style.display = "none";
+    document.getElementById("game-trade-close").style.display = "block";
+    document.getElementById("game-trade-no-trade").style.display = "none";
   }
 
   /**
    * Show the trade request.
    * @param {Object} player - The requesting player.
-   * @param {string} requestedPiece - The requested piece.
-   * @param {string} offeredPiece - The offered piece.
+   * @param {Object} requestedPiece - The requested piece.
+   * @param {Object} offeredPiece - The offered piece.
    * @param {Function} acceptHandler - The accept handler.
    * @param {Function} rejectHandler - The reject handler.
    */
@@ -1270,8 +1213,7 @@ class GameUI {
    * Hide the trade request.
    */
   hideTradeRequest() {
-    const tradeRequest = document.getElementById("game-trade-request");
-    tradeRequest.style.display = "none";
+    document.getElementById("game-trade-request").style.display = "none";
   }
 
   /**
