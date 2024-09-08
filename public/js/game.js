@@ -706,9 +706,12 @@ class GameUI {
     const startTime = Date.now();
     const timer = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
-      const minutes = Math.floor(elapsedTime / 60000);
-      const seconds = Math.floor((elapsedTime % 60000) / 1000);
-      queueTime.innerText = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+      const minutes = String(Math.floor(elapsedTime / 60000)).padStart(2, "0");
+      const seconds = String(Math.floor((elapsedTime % 60000) / 1000)).padStart(
+        2,
+        "0"
+      );
+      queueTime.innerText = `${minutes}:${seconds}`;
     }, 1000);
 
     return {
@@ -734,27 +737,32 @@ class GameUI {
 
     const playersElement = document.getElementById("room-players");
     player.avatar = player.avatar || "/img/default-avatar.png";
-    const playerElement = `
-      <div id="room-player-${player.id}" class="flex flex-col items-center mb-4">
-        <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
-        <span class="mt-2 text-sm">${player.name}</span>
-      </div>
-    `;
-    playersElement.innerHTML += playerElement;
+
+    const playerElement = document.createElement("div");
+    playerElement.id = `room-player-${player.id}`;
+    playerElement.className = "flex flex-col items-center mb-4";
+    playerElement.innerHTML = `
+    <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
+    <span class="mt-2 text-sm">${player.name}</span>
+  `;
+    playersElement.appendChild(playerElement);
 
     const roomStatusElement = document.getElementById("room-status");
-    if (this.currentRoomPlayers.length === this.currentRoomPlayersMax) {
-      roomStatusElement.innerText = "Waiting for host to start the game";
+    const statusText =
+      this.currentRoomPlayers.length === this.currentRoomPlayersMax
+        ? "Waiting for host to start the game"
+        : `Waiting for players (${this.currentRoomPlayers.length}/${this.currentRoomPlayersMax})`;
 
-      if (this.currentRoomIsHost) {
-        const startButton = document.getElementById("room-start-game");
-        startButton.disabled = false;
-        startButton.classList.remove("cursor-not-allowed");
-        startButton.classList.remove("bg-gray-400");
-        startButton.classList.add("bg-blue-500", "hover:bg-blue-700");
-      }
-    } else {
-      roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayers.length}/${this.currentRoomPlayersMax})`;
+    roomStatusElement.innerText = statusText;
+
+    if (
+      this.currentRoomPlayers.length === this.currentRoomPlayersMax &&
+      this.currentRoomIsHost
+    ) {
+      const startButton = document.getElementById("room-start-game");
+      startButton.disabled = false;
+      startButton.classList.remove("cursor-not-allowed", "bg-gray-400");
+      startButton.classList.add("bg-blue-500", "hover:bg-blue-700");
     }
   }
 
@@ -768,7 +776,7 @@ class GameUI {
     );
 
     const playerElement = document.getElementById(`room-player-${playerId}`);
-    playerElement.remove();
+    playerElement && playerElement.remove();
 
     const roomStatusElement = document.getElementById("room-status");
     roomStatusElement.innerText = `Waiting for players (${this.currentRoomPlayers.length}/${this.currentRoomPlayersMax})`;
@@ -776,10 +784,12 @@ class GameUI {
     if (this.currentRoomIsHost) {
       const startButton = document.getElementById("room-start-game");
       startButton.disabled = true;
-      startButton.classList.add("cursor-not-allowed");
-      startButton.classList.add("bg-gray-400");
+      startButton.classList.add("cursor-not-allowed", "bg-gray-400");
       startButton.classList.remove("bg-blue-500", "hover:bg-blue-700");
-    } else if (this.currentRoomPlayers[0].isCurrentPlayer) {
+    } else if (
+      this.currentRoomPlayers.length &&
+      this.currentRoomPlayers[0].isCurrentPlayer
+    ) {
       this.currentRoomIsHost = true;
 
       const startButton = document.getElementById("room-start-game");
@@ -823,7 +833,7 @@ class GameUI {
     const startTime = Date.now();
     this.playerTurnTimer = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
-      const percentage = (elapsedTime / timeout) * 100;
+      const percentage = Math.min((elapsedTime / timeout) * 100, 100);
       updateBorderPercentage(percentage);
 
       if (elapsedTime >= timeout) {
@@ -862,7 +872,6 @@ class GameUI {
     const playerAvatar = playerElement.querySelector("img");
 
     const rankColor = ["gold", "silver", "#cd7f32"];
-
     playerAvatar.style.borderColor = rankColor[rank - 1] || "blue";
   }
 
@@ -881,8 +890,7 @@ class GameUI {
    * Clear player rank.
    */
   clearPlayerRank() {
-    const playersElement = document.getElementById("game-players");
-    const playerAvatars = playersElement.querySelectorAll("img");
+    const playerAvatars = document.querySelectorAll("#game-players img");
 
     playerAvatars.forEach((playerAvatar) => {
       playerAvatar.style.borderColor = "";
@@ -900,14 +908,13 @@ class GameUI {
 
     gamePhaseText.innerText = phase;
     gamePhaseElement.style.display = "block";
-
     gamePhaseElement.style.opacity = 1;
     gamePhaseElement.style.transition = "opacity 0.5s ease-in-out";
 
     clearTimeout(this.gamePhaseTimeout);
     this.gamePhaseTimeout = setTimeout(() => {
       gamePhaseElement.style.opacity = 0;
-      this.gamePhaseTimeout = setTimeout(() => {
+      setTimeout(() => {
         gamePhaseElement.style.display = "none";
       }, 500);
     }, timeout);
