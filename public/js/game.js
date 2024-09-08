@@ -1279,7 +1279,7 @@ class GameRenderer {
           }
           resizeTimeout = requestAnimationFrame(() => this.resizeCanvas());
         };
-        window.addEventListener("resize", () => this.resizeCanvasListener);
+        window.addEventListener("resize", this.resizeCanvasListener);
         this.canvas.addEventListener("click", (event) =>
           this._handleClick(event)
         );
