@@ -981,7 +981,6 @@ class GameUI {
     this.currentPlayerId = currentPlayerId;
 
     const gameTradePlayers = document.getElementById("game-trade-players");
-    gameTradePlayers.innerHTML = "";
 
     players.forEach((player) => {
       player.avatar = player.avatar || "/img/default-avatar.png";
@@ -989,45 +988,60 @@ class GameUI {
       const playerElement = document.createElement("div");
       playerElement.id = `game-trade-player-${player.id}`;
       playerElement.className = "flex flex-col space-y-2 border-b pb-4";
-
       playerElement.innerHTML = `
-      <div class="flex items-center space-x-4">
-        <img src="${player.avatar}" alt="${player.name}" class="w-12 h-12 object-cover rounded-full">
-        <div>
-          <p class="font-semibold">${player.name}</p>
-        </div>
-      </div>
-      <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
-    `;
-
+            <div class="flex items-center space-x-4">
+                <img src="${player.avatar}" alt="${player.name}" class="w-12 h-12 object-cover rounded-full">
+                <div>
+                    <p class="font-semibold">${player.name}</p>
+                </div>
+            </div>
+            <div id="game-trade-pieces-${player.id}" class="flex space-x-2"></div>
+          `;
       if (player.id === this.currentPlayerId) {
-        const elements = [
-          { text: "Your Pieces", class: "text-lg font-semibold mt-4" },
-          {
-            text: "Select a piece to trade with another player.",
-            class: "text-sm text-gray-500",
-          },
-          { text: "Other Players Pieces", class: "text-lg font-semibold mt-4" },
-          {
-            text: "Select a piece to trade with you.",
-            class: "text-sm text-gray-500",
-          },
-        ];
+        const currentPlayerTitle = document.createElement("p");
+        currentPlayerTitle.innerText = "Your Pieces";
+        currentPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
 
-        elements.reverse().forEach(({ text, class: className }) => {
-          const p = document.createElement("p");
-          p.innerText = text;
-          p.className = className;
-          gameTradePlayers.insertBefore(p, gameTradePlayers.firstChild);
-        });
+        const currentPlayerDescription = document.createElement("p");
+        currentPlayerDescription.innerText =
+          "Select a piece to trade with another player.";
+        currentPlayerDescription.classList.add("text-sm", "text-gray-500");
+
+        const hrElement = document.createElement("hr");
+        hrElement.classList.add("my-4");
+
+        const otherPlayerTitle = document.createElement("p");
+        otherPlayerTitle.innerText = "Other Players Pieces";
+        otherPlayerTitle.classList.add("text-lg", "font-semibold", "mt-4");
+
+        const otherPlayerDescription = document.createElement("p");
+        otherPlayerDescription.innerText = "Select a piece to trade with you.";
+        otherPlayerDescription.classList.add("text-sm", "text-gray-500");
 
         gameTradePlayers.insertBefore(
-          document.createElement("hr"),
+          otherPlayerDescription,
           gameTradePlayers.firstChild
         );
+        gameTradePlayers.insertBefore(
+          otherPlayerTitle,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(hrElement, gameTradePlayers.firstChild);
+        gameTradePlayers.insertBefore(
+          playerElement,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(
+          currentPlayerDescription,
+          gameTradePlayers.firstChild
+        );
+        gameTradePlayers.insertBefore(
+          currentPlayerTitle,
+          gameTradePlayers.firstChild
+        );
+      } else {
+        gameTradePlayers.appendChild(playerElement);
       }
-
-      gameTradePlayers.appendChild(playerElement);
     });
   }
 
