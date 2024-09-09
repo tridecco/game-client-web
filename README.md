@@ -25,3 +25,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 ## Quick Start
 
 For detailed setup instructions, including environment requirements, configuring the backend server URL, and starting the client, please refer to the [Tridecco Game Documentation](https://github.com/tridecco/game-docs).
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
