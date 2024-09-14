@@ -2,6 +2,13 @@
     <span class="font-bold text-2xl text-center drop-shadow" style="text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);"></span>
 </div>
 <div id="game-players" class="fixed top-5 left-5 flex space-x-4"></div>
+<div id="game-next-player" class="hidden fixed top-5 right-5 flex flex-col items-center space-x-2">
+    <span class="text-white text-sm font-semibold mb-1">Next Player</span>
+    <div class="relative">
+        <img id="game-next-player-avatar" src="" alt="Next Player" class="w-16 h-16 rounded-full border-4 border-gray-300">
+    </div>
+    <span id="game-next-player-name" class="absolute bottom-0 right-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center"></span>
+</div>
 <div class="flex items-center justify-center min-h-screen">
     <div class="flex flex-col items-center justify-center space-y-4">
         <div class="aspect-square w-full h-full max-w-full max-h-full">

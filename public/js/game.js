@@ -823,6 +823,30 @@ class GameUI {
   }
 
   /**
+   * Show next player.
+   * @param {Object} player - The player.
+   */
+  showNextPlayer(player) {
+    const nextPlayerElement = document.getElementById("game-next-player");
+    const nextPlayerAvatar = document.getElementById("game-next-player-avatar");
+    const nextPlayerName = document.getElementById("game-next-player-name");
+
+    nextPlayerAvatar.src = player.avatar || "/img/default-avatar.png";
+    nextPlayerAvatar.alt = player.name;
+    nextPlayerName.innerText = player.name;
+
+    nextPlayerElement.style.display = "flex";
+  }
+
+  /**
+   * Hide next player.
+   */
+  hideNextPlayer() {
+    const nextPlayerElement = document.getElementById("game-next-player");
+    nextPlayerElement.style.display = "none";
+  }
+
+  /**
    * Show player rank.
    * @param {string} playerId - The player ID.
    * @param {number} rank - The player rank.
@@ -1659,6 +1683,7 @@ class Game {
     this.network = network;
     this.ui = ui;
     this.players = [];
+    this.playersOrder = [];
     this.pieces = [];
     this.availablePositions = [];
 
@@ -1741,6 +1766,10 @@ class Game {
       }
 
       this.ui.showGamePhase(`Round ${data.round} Start`, 2000);
+    });
+
+    this.network.addListener("game:playersOrder", (data) => {
+      this.playersOrder = data.order;
     });
 
     this.network.addListener("game:tossStart", (data) => {
@@ -1870,6 +1899,15 @@ class Game {
 
       this.ui.showGamePhase("Turn Start", 2000);
 
+      this.ui.showNextPlayer(
+        this.players.find(
+          (player) =>
+            player.id ===
+            (this.playersOrder[this.playersOrder.indexOf(playerId) + 1] ||
+              this.playersOrder[0])
+        )
+      );
+
       this.network.addListenerOnce("game:timeRemaining", (data) => {
         this.ui.startPlayerTurn(playerId, data.timeRemaining * 1000);
 
@@ -1918,6 +1956,7 @@ class Game {
 
     this.network.addListener("game:turnEnd", (data) => {
       this.ui.endPlayerTurn(data.player);
+      this.ui.hideNextPlayer();
       this.ui.hideTossButton();
       this.ui.hideTrade();
       this.ui.hideTradeRequest();
