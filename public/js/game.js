@@ -1809,6 +1809,10 @@ class Game {
 
     this.network.addListener("game:pieces", (data) => {
       this.pieces = data.players;
+
+      for (const player of this.pieces) {
+        this.ui.updatePlayerPieces(player.id, player.pieces.length);
+      }
     });
 
     this.network.addListenerOnce("game:start", () => {
