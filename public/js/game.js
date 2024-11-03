@@ -927,13 +927,33 @@ class GameUI {
 
     piecesElementList.innerHTML = "";
 
-    pieces.forEach((piece, index) => {
+    const pieceCountMap = pieces.reduce((acc, piece) => {
+      const key = `${piece.a.color}-${piece.h.color}`;
+      if (!acc[key]) {
+        acc[key] = { piece, count: 0 };
+      }
+      acc[key].count += 1;
+      return acc;
+    }, {});
+
+    Object.values(pieceCountMap).forEach(({ piece, count }, index) => {
+      const pieceContainer = document.createElement("div");
+      pieceContainer.className = "relative w-12 cursor-pointer";
+
       const pieceElement = document.createElement("img");
       pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
       pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
-      pieceElement.className = "w-12 cursor-pointer";
+      pieceElement.className = "w-12";
 
-      pieceElement.addEventListener("click", () => {
+      const countBadge = document.createElement("span");
+      countBadge.className =
+        "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
+      countBadge.innerText = count;
+
+      pieceContainer.appendChild(pieceElement);
+      pieceContainer.appendChild(countBadge);
+
+      pieceContainer.addEventListener("click", () => {
         if (this.selectedPieceFromListElement) {
           this.selectedPieceFromListElement.style.transform = "";
           this.selectedPieceFromListElement.style.filter = "";
@@ -947,7 +967,7 @@ class GameUI {
         clickHandler(index);
       });
 
-      piecesElementList.appendChild(pieceElement);
+      piecesElementList.appendChild(pieceContainer);
     });
   }
 
