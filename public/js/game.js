@@ -1112,27 +1112,50 @@ class GameUI {
       );
       playerPiecesElement.innerHTML = "";
 
-      player.pieces.forEach((piece, pieceIndex) => {
+      const pieceCountMap = player.pieces.reduce((acc, piece, i) => {
+        const key = `${piece.a.color}-${piece.h.color}`;
+        if (!acc[key]) {
+          acc[key] = { piece, count: 0, index: i };
+        }
+        acc[key].count += 1;
+        return acc;
+      }, {});
+
+      Object.values(pieceCountMap).forEach(({ piece, count, index }) => {
+        const pieceContainer = document.createElement("div");
+        pieceContainer.className = "relative w-12 cursor-pointer";
+
         const pieceElement = document.createElement("img");
         pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
         pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
-        pieceElement.className = "w-8 object-cover";
+        pieceElement.className = "w-12";
 
-        pieceElement.addEventListener("click", () => {
+        const countBadge = document.createElement("span");
+        countBadge.className =
+          "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
+        countBadge.innerText = count;
+
+        pieceContainer.appendChild(pieceElement);
+        pieceContainer.appendChild(countBadge);
+
+        pieceContainer.addEventListener("click", () => {
           if (player.id === this.currentPlayerId) {
             if (this.selectedPieceElement) {
               this.selectedPieceElement.style.transform = "";
               this.selectedPieceElement.style.filter = "";
             }
             this.selectedPieceElement = pieceElement;
-            this.selectedPiece = { player: player.id, pieceIndex };
+            this.selectedPiece = { player: player.id, pieceIndex: index };
           } else {
             if (this.selectedOtherPlayerPieceElement) {
               this.selectedOtherPlayerPieceElement.style.transform = "";
               this.selectedOtherPlayerPieceElement.style.filter = "";
             }
             this.selectedOtherPlayerPieceElement = pieceElement;
-            this.selectedOtherPlayerPiece = { player: player.id, pieceIndex };
+            this.selectedOtherPlayerPiece = {
+              player: player.id,
+              pieceIndex: index,
+            };
           }
 
           pieceElement.style.transform = "scale(1.1)";
@@ -1140,7 +1163,7 @@ class GameUI {
             "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
         });
 
-        playerPiecesElement.appendChild(pieceElement);
+        playerPiecesElement.appendChild(pieceContainer);
       });
     });
 
