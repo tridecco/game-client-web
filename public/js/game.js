@@ -453,7 +453,9 @@ class GameUI {
           player.name
         } <span id="game-player-${
         player.id
-      }-points" class="font-semibold text-blue-600">(0)</span></span>
+      }-points" class="font-semibold text-blue-600">(0)</span><span id="game-player-${
+        player.id
+      }-pieces" class="font-semibold text-green-600">[0]</span></span>
       </div>
     `;
       playersElement.innerHTML += playerElement;
@@ -1267,6 +1269,18 @@ class GameUI {
       `game-player-${playerId}-points`
     );
     playerScore.innerText = `(${points})`;
+  }
+
+  /**
+   * Update the player pieces.
+   * @param {string} playerId - The player ID.
+   * @param {number} pieces - The player pieces.
+   */
+  updatePlayerPieces(playerId, pieces) {
+    const playerPieces = document.getElementById(
+      `game-player-${playerId}-pieces`
+    );
+    playerPieces.innerText = `[${pieces}]`;
   }
 
   /**
