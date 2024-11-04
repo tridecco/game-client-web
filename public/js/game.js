@@ -1000,16 +1000,16 @@ class GameUI {
 
     piecesElementList.innerHTML = "";
 
-    const pieceCountMap = pieces.reduce((acc, piece) => {
+    const pieceCountMap = pieces.reduce((acc, piece, i) => {
       const key = `${piece.a.color}-${piece.h.color}`;
       if (!acc[key]) {
-        acc[key] = { piece, count: 0 };
+        acc[key] = { piece, count: 0, index: i };
       }
       acc[key].count += 1;
       return acc;
     }, {});
 
-    Object.values(pieceCountMap).forEach(({ piece, count }, index) => {
+    Object.values(pieceCountMap).forEach(({ piece, count, index }) => {
       const pieceContainer = document.createElement("div");
       pieceContainer.className = "relative w-12 cursor-pointer";
 
