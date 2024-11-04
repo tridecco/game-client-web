@@ -465,6 +465,77 @@ class GameUI {
   }
 
   /**
+   * Show player pieces on hover.
+   * @param {Object[]} players - The players in the game.
+   * @param {Function<Object[]>} pieces - The pieces getter function.
+   */
+  showPlayerPiecesOnHover(players, pieces) {
+    players.forEach((player) => {
+      const playerElement = document.getElementById(`game-player-${player.id}`);
+
+      const showPieces = () => {
+        const playerPieces = pieces().find((p) => p.id === player.id).pieces;
+
+        const pieceCountMap = playerPieces.reduce((acc, piece) => {
+          const key = `${piece.a.color}-${piece.h.color}`;
+          if (!acc[key]) {
+            acc[key] = { piece, count: 0 };
+          }
+          acc[key].count += 1;
+          return acc;
+        }, {});
+
+        const piecesContainer = document.createElement("div");
+        piecesContainer.className =
+          "absolute flex flex-col items-center bg-white p-2 rounded shadow-lg";
+        piecesContainer.style.top = "100%";
+        piecesContainer.style.left = "50%";
+        piecesContainer.style.transform = "translateX(-50%)";
+        piecesContainer.style.zIndex = "10";
+
+        Object.values(pieceCountMap).forEach(
+          ({ piece, count }, index, array) => {
+            const pieceElement = document.createElement("div");
+            pieceElement.className = "relative w-12 cursor-pointer";
+            if (index !== array.length - 1) {
+              pieceElement.classList.add("mb-2");
+            }
+
+            const pieceImg = document.createElement("img");
+            pieceImg.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
+            pieceImg.alt = `${piece.a.color}-${piece.h.color}`;
+            pieceImg.className = "w-12";
+
+            const countBadge = document.createElement("span");
+            countBadge.className =
+              "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
+            countBadge.innerText = count;
+
+            pieceElement.appendChild(pieceImg);
+            pieceElement.appendChild(countBadge);
+            piecesContainer.appendChild(pieceElement);
+          }
+        );
+
+        playerElement.appendChild(piecesContainer);
+        piecesContainer.style.display = "flex";
+
+        const hidePieces = () => {
+          piecesContainer.remove();
+        };
+
+        playerElement.addEventListener("mouseleave", hidePieces, {
+          once: true,
+        });
+        playerElement.addEventListener("touchend", hidePieces, { once: true });
+      };
+
+      playerElement.addEventListener("mouseenter", showPieces);
+      playerElement.addEventListener("touchstart", showPieces);
+    });
+  }
+
+  /**
    * Create a table cell with given classes and text content.
    * @param {string[]} classes - The classes to add.
    * @param {string} text - The text content.
@@ -1808,6 +1879,11 @@ class Game {
     };
 
     this.network.addListener("game:pieces", (data) => {
+      if (!this.pieces.length) {
+        // First time pieces are received
+        this.ui.showPlayerPiecesOnHover(data.players, () => this.pieces);
+      }
+
       this.pieces = data.players;
 
       for (const player of this.pieces) {

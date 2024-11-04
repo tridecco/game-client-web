@@ -23,7 +23,7 @@ class App {
   session = {
     /**
      * Check the current session.
-     * @returns {Promise<object>} The session data.
+     * @returns {Promise<Object>} The session data.
      */
     async check() {
       try {
