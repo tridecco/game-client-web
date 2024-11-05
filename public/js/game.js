@@ -453,13 +453,86 @@ class GameUI {
           player.name
         } <span id="game-player-${
         player.id
-      }-points" class="font-semibold text-blue-600">(0)</span></span>
+      }-points" class="font-semibold text-blue-600">(0)</span><span id="game-player-${
+        player.id
+      }-pieces" class="font-semibold text-green-600">[0]</span></span>
       </div>
     `;
       playersElement.innerHTML += playerElement;
     });
 
     this.showSection("game");
+  }
+
+  /**
+   * Show player pieces on hover.
+   * @param {Object[]} players - The players in the game.
+   * @param {Function<Object[]>} pieces - The pieces getter function.
+   */
+  showPlayerPiecesOnHover(players, pieces) {
+    players.forEach((player) => {
+      const playerElement = document.getElementById(`game-player-${player.id}`);
+
+      const showPieces = () => {
+        const playerPieces = pieces().find((p) => p.id === player.id).pieces;
+
+        const pieceCountMap = playerPieces.reduce((acc, piece) => {
+          const key = `${piece.a.color}-${piece.h.color}`;
+          if (!acc[key]) {
+            acc[key] = { piece, count: 0 };
+          }
+          acc[key].count += 1;
+          return acc;
+        }, {});
+
+        const piecesContainer = document.createElement("div");
+        piecesContainer.className =
+          "absolute flex flex-col items-center bg-white p-2 rounded shadow-lg";
+        piecesContainer.style.top = "100%";
+        piecesContainer.style.left = "50%";
+        piecesContainer.style.transform = "translateX(-50%)";
+        piecesContainer.style.zIndex = "10";
+
+        Object.values(pieceCountMap).forEach(
+          ({ piece, count }, index, array) => {
+            const pieceElement = document.createElement("div");
+            pieceElement.className = "relative w-12 cursor-pointer";
+            if (index !== array.length - 1) {
+              pieceElement.classList.add("mb-2");
+            }
+
+            const pieceImg = document.createElement("img");
+            pieceImg.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
+            pieceImg.alt = `${piece.a.color}-${piece.h.color}`;
+            pieceImg.className = "w-12";
+
+            const countBadge = document.createElement("span");
+            countBadge.className =
+              "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
+            countBadge.innerText = count;
+
+            pieceElement.appendChild(pieceImg);
+            pieceElement.appendChild(countBadge);
+            piecesContainer.appendChild(pieceElement);
+          }
+        );
+
+        playerElement.appendChild(piecesContainer);
+        piecesContainer.style.display = "flex";
+
+        const hidePieces = () => {
+          piecesContainer.remove();
+        };
+
+        playerElement.addEventListener("mouseleave", hidePieces, {
+          once: true,
+        });
+        playerElement.addEventListener("touchend", hidePieces, { once: true });
+      };
+
+      playerElement.addEventListener("mouseenter", showPieces);
+      playerElement.addEventListener("touchstart", showPieces);
+    });
   }
 
   /**
@@ -927,16 +1000,16 @@ class GameUI {
 
     piecesElementList.innerHTML = "";
 
-    const pieceCountMap = pieces.reduce((acc, piece) => {
+    const pieceCountMap = pieces.reduce((acc, piece, i) => {
       const key = `${piece.a.color}-${piece.h.color}`;
       if (!acc[key]) {
-        acc[key] = { piece, count: 0 };
+        acc[key] = { piece, count: 0, index: i };
       }
       acc[key].count += 1;
       return acc;
     }, {});
 
-    Object.values(pieceCountMap).forEach(({ piece, count }, index) => {
+    Object.values(pieceCountMap).forEach(({ piece, count, index }) => {
       const pieceContainer = document.createElement("div");
       pieceContainer.className = "relative w-12 cursor-pointer";
 
@@ -1267,6 +1340,18 @@ class GameUI {
       `game-player-${playerId}-points`
     );
     playerScore.innerText = `(${points})`;
+  }
+
+  /**
+   * Update the player pieces.
+   * @param {string} playerId - The player ID.
+   * @param {number} pieces - The player pieces.
+   */
+  updatePlayerPieces(playerId, pieces) {
+    const playerPieces = document.getElementById(
+      `game-player-${playerId}-pieces`
+    );
+    playerPieces.innerText = `[${pieces}]`;
   }
 
   /**
@@ -1794,7 +1879,16 @@ class Game {
     };
 
     this.network.addListener("game:pieces", (data) => {
+      if (!this.pieces.length) {
+        // First time pieces are received
+        this.ui.showPlayerPiecesOnHover(data.players, () => this.pieces);
+      }
+
       this.pieces = data.players;
+
+      for (const player of this.pieces) {
+        this.ui.updatePlayerPieces(player.id, player.pieces.length);
+      }
     });
 
     this.network.addListenerOnce("game:start", () => {
