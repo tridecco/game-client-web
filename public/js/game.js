@@ -220,6 +220,7 @@ class GameUI {
    */
   _getDisplayGameMode(gameMode) {
     const modeMap = {
+      "classic-2p": "Classic (2 players)",
       "classic-3p": "Classic (3 players)",
       "classic-4p": "Classic (4 players)",
     };
@@ -234,6 +235,7 @@ class GameUI {
    */
   _getGameModePlayerCount(gameMode) {
     const playerCountMap = {
+      "classic-2p": 2,
       "classic-3p": 3,
       "classic-4p": 4,
     };
@@ -445,10 +447,10 @@ class GameUI {
         player.name
       }" class="w-16 h-16 rounded-full border-4 border-gray-300">
         <span class="absolute top-0 right-0 bg-gradient-to-r from-${
-          player.color.a
-        }-500 to-${player.color.h}-500 text-white text-xs px-1 rounded-full">P${
-        index + 1
-      }</span>
+          player.color.a ? player.color.a : player.color[0].a
+        }-500 to-${
+        player.color.h ? player.color.h : player.color[1].a
+      }-500 text-white text-xs px-1 rounded-full">P${index + 1}</span>
         <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${
           player.name
         } <span id="game-player-${

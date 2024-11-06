@@ -63,7 +63,9 @@
             const playerCount = document.getElementById("player-count").value;
             let gameMode;
             if (selectedGameMode === "classic") {
-                if (playerCount === "3p") {
+                if (playerCount === "2p") {
+                    gameMode = "classic-2p";
+                } else if (playerCount === "3p") {
                     gameMode = "classic-3p";
                 } else if (playerCount === "4p") {
                     gameMode = "classic-4p";
