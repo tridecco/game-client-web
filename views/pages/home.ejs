@@ -28,6 +28,7 @@
                     <h2 class="text-lg font-semibold">Classic Mode</h2>
                     <p class="text-gray-600 mb-2">Select player count for classic mode.</p>
                     <select id="player-count" class="w-full p-2 border border-gray-300 rounded mb-4">
+                        <option value="2p">2-Player</option>
                         <option value="3p">3-Player</option>
                         <option value="4p">4-Player</option>
                     </select>
@@ -43,7 +44,9 @@
         document.getElementById("start-game-classic").addEventListener("click", () => {
             const playerCount = document.getElementById("player-count").value;
             let gameMode;
-            if (playerCount === "3p") {
+            if (playerCount === "2p") {
+                gameMode = "classic-2p";
+            } else if (playerCount === "3p") {
                 gameMode = "classic-3p";
             } else if (playerCount === "4p") {
                 gameMode = "classic-4p";

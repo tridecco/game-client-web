@@ -39,6 +39,7 @@
                             <option value="classic">Classic</option>
                         </select>
                         <select id="player-count" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="2p">2-Player</option>
                             <option value="3p">3-Player</option>
                             <option value="4p">4-Player</option>
                         </select>
@@ -63,7 +64,9 @@
             const playerCount = document.getElementById("player-count").value;
             let gameMode;
             if (selectedGameMode === "classic") {
-                if (playerCount === "3p") {
+                if (playerCount === "2p") {
+                    gameMode = "classic-2p";
+                } else if (playerCount === "3p") {
                     gameMode = "classic-3p";
                 } else if (playerCount === "4p") {
                     gameMode = "classic-4p";
