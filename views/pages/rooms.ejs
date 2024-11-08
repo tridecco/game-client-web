@@ -3,6 +3,8 @@
 
 <head>
     <%- include("../components/head") %>
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/js/game.js"></script>
     <meta name="description" content="Join or create a room on Tridecco. Enter a room ID to join an existing game or select game mode and player count to create a new room. Start your game with friends now!">
     <title>Tridecco | Invite/Join Room</title>
     <script>
@@ -48,6 +50,12 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Room List Block -->
+                <div id="room-list-container" class="hidden space-y-6 mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Available Rooms</h2>
+                    <div id="room-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -74,6 +82,163 @@
             }
             window.location.href = `/game?type=create&gameMode=${gameMode}`;
         });
+
+        // Initialize GameNetwork (Socket.IO)
+        const gameNetwork = new GameNetwork(app.socketUrl);
+
+        // Room counter
+        let roomCount = 0;
+
+        (async () => {
+            const roomList = document.getElementById("room-list");
+
+            // Authenticate the user
+            try {
+                const session = await app.session.check();
+                await gameNetwork.authenticate(session.userId, session.sessionId);
+            } catch (error) {
+                roomList.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        ${error.message}
+                    </div>
+                `;
+                return;
+            }
+
+            // Get available rooms
+            gameNetwork._sendEvent("joinCustomRoomList", null).then((data) => {
+                // Update room count
+                roomCount = data.rooms.length;
+
+                if (roomCount > 0) {
+                    document.getElementById("room-list-container").classList.remove("hidden");
+                }
+
+                // Render available rooms
+                data.rooms.forEach((room) => {
+                    const roomItem = document.createElement("div");
+                    roomItem.id = `room-${room.roomId}`;
+                    roomItem.classList.add("p-4", "border", "border-gray-300", "rounded-lg", "shadow-lg", "bg-white", "relative");
+                    roomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${room.players.length}/${room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: room.maxPlayers - room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 bg-green-500 text-white font-bold rounded hover:bg-green-600" onclick="window.location.href = '/game?type=join&roomId=${room.roomId}'">
+                            Join
+                        </button>
+                    `;
+                    roomList.appendChild(roomItem);
+                });
+            });
+
+            // Listen for room list updates
+            gameNetwork.addListener("customRoomListUpdate", (data) => {
+                const roomItem = document.getElementById(`room-${data.room.roomId}`);
+                if (data.type === "create") {
+                    const newRoomItem = document.createElement("div");
+                    newRoomItem.id = `room-${data.room.roomId}`;
+                    newRoomItem.classList.add("p-4", "border", "border-gray-300", "rounded-lg", "shadow-lg", "bg-white", "relative");
+                    newRoomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${data.room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${data.room.players.length}/${data.room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${data.room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: data.room.maxPlayers - data.room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 bg-green-500 text-white font-bold rounded hover:bg-green-600" onclick="window.location.href = '/game?type=join&roomId=${data.room.roomId}'">
+                            Join
+                        </button>
+                    `;
+                    roomList.insertBefore(newRoomItem, roomList.firstChild);
+
+                    // Update room count
+                    roomCount++;
+                } else if (data.type === "update") {
+                    roomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${data.room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${data.room.players.length}/${data.room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${data.room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: data.room.maxPlayers - data.room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 bg-green-500 text-white font-bold rounded hover:bg-green-600" onclick="window.location.href = '/game?type=join&roomId=${data.room.roomId}'">
+                            Join
+                        </button>
+                    `;
+                } else if (data.type === "delete") {
+                    roomItem.remove();
+
+                    // Update room count
+                    roomCount--;
+                }
+
+                if (roomCount > 0) {
+                    document.getElementById("room-list-container").classList.remove("hidden");
+                } else {
+                    document.getElementById("room-list-container").classList.add("hidden");
+                }
+            });
+        })();
     </script>
 </body>
 
