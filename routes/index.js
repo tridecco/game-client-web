@@ -13,9 +13,9 @@ router.get("/", (req, res) => {
   res.render("pages/home");
 });
 
-// Load the rooms route
-router.use("/rooms", (req, res) => {
-  res.render("pages/rooms");
+// Load the play route
+router.use("/play", (req, res) => {
+  res.render("pages/play-now");
 });
 
 // Load the leaderboard route
