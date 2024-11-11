@@ -32,25 +32,54 @@
                         Join Room
                     </button>
                 </div>
-
-                <!-- Create Room Block -->
+    
+                <!-- Create Room Block with Toggle Switch for Rounds -->
                 <div class="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
                     <h1 class="text-2xl font-bold mb-4">Create Room</h1>
-                    <div class="space-y-4">
-                        <select id="game-mode" class="w-full p-2 border border-gray-300 rounded">
-                            <option value="classic">Classic</option>
-                        </select>
-                        <select id="player-count" class="w-full p-2 border border-gray-300 rounded">
+                    
+                    <!-- Toggle Switch for Rounds -->
+                    <div class="flex justify-center mb-6">
+                        <div class="relative w-60 h-10">
+                            <div id="toggle-container" class="relative bg-gray-300 rounded-full h-full w-full flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-rounds" class="sr-only" />
+                                <div class="absolute left-0 h-full w-1/2 flex items-center justify-center">
+                                    <span class="text-gray-700 text-xs font-semibold">Single Round</span>
+                                </div>
+                                <div id="slider" class="absolute left-0 h-10 w-1/2 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out flex items-center justify-center">
+                                    <span id="slider-text" class="text-gray-700 text-xs font-semibold">Single Round</span>
+                                </div>
+                                <div class="absolute right-0 h-full w-1/2 flex items-center justify-center">
+                                    <span class="text-gray-700 text-xs font-semibold">Multiple Rounds</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Single Round Mode -->
+                    <div id="single-round" class="space-y-4">
+                        <select id="player-count-single" class="w-full p-2 border border-gray-300 rounded">
                             <option value="2p">2-Player</option>
                             <option value="3p">3-Player</option>
                             <option value="4p">4-Player</option>
                         </select>
-                        <button id="create-room" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
-                            Create Room
+                        <button id="create-room-single" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
+                            Create Single Round Room
+                        </button>
+                    </div>
+    
+                    <!-- Multiple Round Mode (Hidden initially) -->
+                    <div id="multiple-round" class="space-y-4 hidden">
+                        <select id="player-count-multi" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="2p">2-Player</option>
+                            <option value="3p">3-Player</option>
+                            <option value="4p">4-Player</option>
+                        </select>
+                        <button id="create-room-multi" class="w-full py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700">
+                            Create Multiple Rounds Room
                         </button>
                     </div>
                 </div>
-
+    
                 <!-- Room List Block -->
                 <div id="room-list-container" class="hidden space-y-6 mt-8">
                     <h2 class="text-2xl font-bold text-gray-800">Available Rooms</h2>
@@ -60,28 +89,49 @@
         </div>
     </main>
     <script>
+        // Toggle switch functionality
+        const toggleRoundsCheckbox = document.getElementById("toggle-rounds");
+        const singleRoundSection = document.getElementById("single-round");
+        const multipleRoundSection = document.getElementById("multiple-round");
+        const slider = document.getElementById("slider");
+        const sliderText = document.getElementById("slider-text");
+    
+        document.getElementById("toggle-container").addEventListener("click", () => {
+            toggleRoundsCheckbox.checked = !toggleRoundsCheckbox.checked;
+    
+            if (toggleRoundsCheckbox.checked) {
+                // Multiple Rounds selected
+                slider.style.transform = "translateX(100%)";
+                sliderText.textContent = "Multiple Rounds";
+                singleRoundSection.classList.add("hidden");
+                multipleRoundSection.classList.remove("hidden");
+            } else {
+                // Single Round selected
+                slider.style.transform = "translateX(0)";
+                sliderText.textContent = "Single Round";
+                multipleRoundSection.classList.add("hidden");
+                singleRoundSection.classList.remove("hidden");
+            }
+        });
+    
         // Handle Join Room
         document.getElementById("join-room").addEventListener("click", () => {
             const roomId = encodeURIComponent(document.getElementById("room-id").value);
             window.location.href = `/game?type=join&roomId=${roomId}`;
         });
-
-        // Handle Create Room
-        document.getElementById("create-room").addEventListener("click", () => {
-            const selectedGameMode = document.getElementById("game-mode").value;
-            const playerCount = document.getElementById("player-count").value;
-            let gameMode;
-            if (selectedGameMode === "classic") {
-                if (playerCount === "2p") {
-                    gameMode = "classic-2p";
-                } else if (playerCount === "3p") {
-                    gameMode = "classic-3p";
-                } else if (playerCount === "4p") {
-                    gameMode = "classic-4p";
-                }
-            }
+    
+        // Create Room event listeners
+        document.getElementById("create-room-single").addEventListener("click", () => {
+            const playerCount = document.getElementById("player-count-single").value;
+            const gameMode = `classic-${playerCount}-single`;
             window.location.href = `/game?type=create&gameMode=${gameMode}`;
         });
+    
+        document.getElementById("create-room-multi").addEventListener("click", () => {
+            const playerCount = document.getElementById("player-count-multi").value;
+            const gameMode = `classic-${playerCount}`;
+            window.location.href = `/game?type=create&gameMode=${gameMode}`;
+        });    
 
         // Initialize GameNetwork (Socket.IO)
         const gameNetwork = new GameNetwork(app.socketUrl);

@@ -223,6 +223,9 @@ class GameUI {
       "classic-2p": "Classic (2 players)",
       "classic-3p": "Classic (3 players)",
       "classic-4p": "Classic (4 players)",
+      "classic-2p-single": "Classic (2 players, Single Round)",
+      "classic-3p-single": "Classic (3 players, Single Round)",
+      "classic-4p-single": "Classic (4 players, Single Round)",
     };
 
     return modeMap[gameMode] || gameMode;
@@ -238,6 +241,9 @@ class GameUI {
       "classic-2p": 2,
       "classic-3p": 3,
       "classic-4p": 4,
+      "classic-2p-single": 2,
+      "classic-3p-single": 3,
+      "classic-4p-single": 4,
     };
 
     return playerCountMap[gameMode] || 0;
