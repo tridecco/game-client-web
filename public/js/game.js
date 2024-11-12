@@ -959,13 +959,23 @@ class GameUI {
   /**
    * Show game phase.
    * @param {string} phase - The game phase.
-   * @param {number} timeout - The phase timeout.
+   * @param {number} timeout - The phase timeout in milliseconds.
+   * @param {string} color - The text color (default is 'black').
+   * @param {boolean} isFlashing - Whether the phase text should flash (default is false).
    */
-  showGamePhase(phase, timeout) {
+  showGamePhase(phase, timeout, color = "black", isFlashing = false) {
     const gamePhaseElement = document.getElementById("game-phase");
     const gamePhaseText = gamePhaseElement.querySelector("span");
 
     gamePhaseText.innerText = phase;
+    gamePhaseText.style.color = color;
+
+    if (isFlashing) {
+      gamePhaseElement.classList.add("flashing");
+    } else {
+      gamePhaseElement.classList.remove("flashing");
+    }
+
     gamePhaseElement.style.display = "block";
     gamePhaseElement.style.opacity = 1;
     gamePhaseElement.style.transition = "opacity 0.5s ease-in-out";
