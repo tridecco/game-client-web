@@ -959,13 +959,23 @@ class GameUI {
   /**
    * Show game phase.
    * @param {string} phase - The game phase.
-   * @param {number} timeout - The phase timeout.
+   * @param {number} timeout - The phase timeout in milliseconds.
+   * @param {string} color - The text color (default is 'black').
+   * @param {boolean} isFlashing - Whether the phase text should flash (default is false).
    */
-  showGamePhase(phase, timeout) {
+  showGamePhase(phase, timeout, color = "black", isFlashing = false) {
     const gamePhaseElement = document.getElementById("game-phase");
     const gamePhaseText = gamePhaseElement.querySelector("span");
 
     gamePhaseText.innerText = phase;
+    gamePhaseText.style.color = color;
+
+    if (isFlashing) {
+      gamePhaseElement.classList.add("flashing");
+    } else {
+      gamePhaseElement.classList.remove("flashing");
+    }
+
     gamePhaseElement.style.display = "block";
     gamePhaseElement.style.opacity = 1;
     gamePhaseElement.style.transition = "opacity 0.5s ease-in-out";
@@ -1908,20 +1918,14 @@ class Game {
    */
   _addNetworkListeners() {
     const timeRemainingListener = (data) => {
-      if (data.timeRemaining === 10) {
-        this.ui.showGamePhase("10 Seconds Remaining", 1000);
-
+      if (data.timeRemaining === 15) {
+        this.ui.showGamePhase("15 seconds remaining", 2000);
+      } else if (data.timeRemaining === 10) {
         this.audio.play("countdown");
       } else if (data.timeRemaining === 5) {
-        this.ui.showGamePhase("5 Seconds Remaining", 1000);
-      } else if (data.timeRemaining === 3) {
-        this.ui.showGamePhase("3 Seconds Remaining", 1000);
-      } else if (data.timeRemaining === 2) {
-        this.ui.showGamePhase("2 Seconds Remaining", 1000);
-      } else if (data.timeRemaining === 1) {
-        this.ui.showGamePhase("1 Second Remaining", 1000);
+        this.ui.showGamePhase("5 seconds remaining", 4500, "red", true);
       } else if (data.timeRemaining === 0) {
-        this.ui.showGamePhase("Time's Up", 1000);
+        this.ui.showGamePhase("Time's up!", 1500, "red");
 
         this.network.removeListener(
           "game:timeRemaining",

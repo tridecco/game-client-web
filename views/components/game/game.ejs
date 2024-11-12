@@ -1,6 +1,24 @@
 <div id="game-phase" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center space-y-4 z-10 pointer-events-none">
     <span class="font-bold text-2xl text-center drop-shadow" style="text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);"></span>
 </div>
+<style>
+    /* Flashing effect */
+    @keyframes flashing {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    #game-phase.flashing {
+        animation: flashing 1s infinite;
+    }
+</style>
 <div id="game-players" class="fixed top-5 left-5 flex space-x-4"></div>
 <div id="game-next-player" class="hidden fixed top-5 right-5 flex flex-col items-center space-x-2">
     <span class="text-white text-sm font-semibold mb-1">Next Player</span>
