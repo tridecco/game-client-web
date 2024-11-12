@@ -1437,6 +1437,46 @@ class GameUI {
 }
 
 /**
+ * Game Audio class.
+ * @module js/game/audio
+ */
+class GameAudio {
+  /**
+   * Create a game audio.
+   * @param {string} audioPath - The audio path.
+   */
+  constructor(audioPath) {
+    this.audioPath = audioPath;
+    this.audios = {
+      gem1: new Audio(`${audioPath}/gem-1.mp3`),
+      gem2: new Audio(`${audioPath}/gem-2.mp3`),
+      gem3: new Audio(`${audioPath}/gem-3.mp3`),
+      pieceGain: new Audio(`${audioPath}/piece-gain.mp3`),
+      popUps: new Audio(`${audioPath}/pop-ups.mp3`),
+      countdown: new Audio(`${audioPath}/countdown.mp3`),
+      confetti: new Audio(`${audioPath}/confetti.mp3`),
+    };
+  }
+
+  /**
+   * Play the audio.
+   * @param {string} audio - The audio name.
+   */
+  play(audio) {
+    this.audios[audio].play();
+  }
+
+  /**
+   * Stop the audio.
+   * @param {string} audio - The audio name.
+   */
+  stop(audio) {
+    this.audios[audio].pause();
+    this.audios[audio].currentTime = 0;
+  }
+}
+
+/**
  * Game Renderer class.
  * @module js/game/renderer
  */
@@ -1849,7 +1889,15 @@ class Game {
     });
 
     this._addNetworkListeners();
+    this._initAudio();
     this._initRenderer();
+  }
+
+  /**
+   * Initialize the game audio. (Private)
+   */
+  async _initAudio() {
+    this.audio = new GameAudio("/audio");
   }
 
   /**
@@ -1872,6 +1920,8 @@ class Game {
     const timeRemainingListener = (data) => {
       if (data.timeRemaining === 15) {
         this.ui.showGamePhase("15 seconds remaining", 2000);
+      } else if (data.timeRemaining === 10) {
+        this.audio.play("countdown");
       } else if (data.timeRemaining === 5) {
         this.ui.showGamePhase("5 seconds remaining", 4500, "red", true);
       } else if (data.timeRemaining === 0) {
@@ -1888,6 +1938,19 @@ class Game {
       if (!this.pieces.length) {
         // First time pieces are received
         this.ui.showPlayerPiecesOnHover(data.players, () => this.pieces);
+      }
+
+      for (const player of data.players) {
+        if (
+          player.id === this.network.userId &&
+          (this.pieces.length === 0 ||
+            player.pieces.length >
+              this.pieces[this.pieces.findIndex((p) => p.id === player.id)]
+                .pieces.length)
+        ) {
+          this.audio.play("pieceGain");
+          break;
+        }
       }
 
       this.pieces = data.players;
@@ -2038,6 +2101,8 @@ class Game {
             true
           );
         }
+
+        this.audio.play("popUps");
       }
 
       this.ui.showGamePhase("Turn Start", 2000);
@@ -2082,6 +2147,8 @@ class Game {
           this.ui.hideTradeRequest();
         }
       );
+
+      this.audio.play("popUps");
     });
 
     this.network.addListener("game:trade", (data) => {
@@ -2115,6 +2182,8 @@ class Game {
         formedHexagonsMessage = `Formed ${formedHexagons} Hexagon${
           formedHexagons > 1 ? "s" : ""
         }, `;
+
+        this.audio.play(`gem${Math.min(formedHexagons, 3)}`);
       }
 
       switch (nextTurnType) {
@@ -2146,6 +2215,8 @@ class Game {
           this.ui.showGamePhase(formedHexagonsMessage + "Turn End", 2000);
           break;
       }
+
+      this.audio.stop("countdown");
     });
 
     this.network.addListener("game:playerRoundEnd", (data) => {
@@ -2168,6 +2239,8 @@ class Game {
       });
 
       this.ui.showRoundSummary(roundsRemaining, winners);
+
+      this.audio.play("popUps");
 
       setTimeout(() => {
         this.ui.hideRoundSummary();
@@ -2245,10 +2318,14 @@ class Game {
               )
             );
           }, 250);
+
+          this.audio.play("confetti");
         }
       }, 2000);
 
       this.ui.stopPreventSleep();
+
+      this.audio.stop("countdown");
     });
   }
 }
