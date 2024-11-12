@@ -104,12 +104,12 @@
         document.getElementById("start-game-single").addEventListener("click", () => {
             const playerCount = document.getElementById("player-count-single").value;
             const gameMode = `classic-${playerCount}-single`;
-            window.location.href = `/game?type=queue&gameMode=${gameMode}`;
+            window.location.href = `/game?type=queue&gameMode=${encodeURIComponent(gameMode)}`;
         });
         document.getElementById("start-game-multi").addEventListener("click", () => {
             const playerCount = document.getElementById("player-count-multi").value;
             const gameMode = `classic-${playerCount}`;
-            window.location.href = `/game?type=queue&gameMode=${gameMode}`;
+            window.location.href = `/game?type=queue&gameMode=${encodeURIComponent(gameMode)}`;
         });
     </script>
 </body>

@@ -116,21 +116,21 @@
     
         // Handle Join Room
         document.getElementById("join-room").addEventListener("click", () => {
-            const roomId = encodeURIComponent(document.getElementById("room-id").value);
-            window.location.href = `/game?type=join&roomId=${roomId}`;
+            const roomId = document.getElementById("room-id").value;
+            window.location.href = `/game?type=join&roomId=${encodeURIComponent(roomId)}`;
         });
     
         // Create Room event listeners
         document.getElementById("create-room-single").addEventListener("click", () => {
             const playerCount = document.getElementById("player-count-single").value;
             const gameMode = `classic-${playerCount}-single`;
-            window.location.href = `/game?type=create&gameMode=${gameMode}`;
+            window.location.href = `/game?type=create&gameMode=${encodeURIComponent(gameMode)}`;
         });
     
         document.getElementById("create-room-multi").addEventListener("click", () => {
             const playerCount = document.getElementById("player-count-multi").value;
             const gameMode = `classic-${playerCount}`;
-            window.location.href = `/game?type=create&gameMode=${gameMode}`;
+            window.location.href = `/game?type=create&gameMode=${encodeURIComponent(gameMode)}`;
         });    
 
         // Initialize GameNetwork (Socket.IO)
