@@ -3,7 +3,9 @@
 
 <head>
     <%- include("../components/head") %>
-    <meta name="description" content="Begin a new game on Tridecco. Select your game mode, join a room, and start playing your favorite board game.">
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="/js/game.js"></script>
+    <meta name="description" content="Join or create a room on Tridecco. Enter a room ID to join an existing game or select game mode and player count to create a new room. Start your game with friends now!">
     <title>Tridecco | Start Game</title>
     <script>
         (async () => {
@@ -21,38 +23,273 @@
     <%- include("../components/main-header", { currentPage: "home" }) %>
     <main>
         <div class="container mx-auto p-4">
-            <h1 class="text-2xl font-bold text-center mb-6">Select Game Mode</h1>
             <div class="space-y-4">
-                <!-- Classic Mode -->
+                <!-- Join Room Block -->
                 <div class="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
-                    <h2 class="text-lg font-semibold">Classic Mode</h2>
-                    <p class="text-gray-600 mb-2">Select player count for classic mode.</p>
-                    <select id="player-count" class="w-full p-2 border border-gray-300 rounded mb-4">
-                        <option value="2p">2-Player</option>
-                        <option value="3p">3-Player</option>
-                        <option value="4p">4-Player</option>
-                    </select>
-                    <button id="start-game-classic" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
-                        Start Game
+                    <h1 class="text-2xl font-bold mb-4">Join Custom Room</h1>
+                    <input type="text" id="room-id" placeholder="Enter Room ID" class="w-full p-2 border border-gray-300 rounded mb-4" />
+                    <button id="join-room" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
+                        Join Room
                     </button>
+                </div>
+    
+                <!-- Create Room Block with Toggle Switch for Rounds -->
+                <div class="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50">
+                    <h1 class="text-2xl font-bold mb-4">Create Room</h1>
+                    
+                    <!-- Toggle Switch for Rounds -->
+                    <div class="flex justify-center mb-6">
+                        <div class="relative w-60 h-10">
+                            <div id="toggle-container" class="relative bg-gray-300 rounded-full h-full w-full flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-rounds" class="sr-only" />
+                                <div class="absolute left-0 h-full w-1/2 flex items-center justify-center">
+                                    <span class="text-gray-700 text-xs font-semibold">Single Round</span>
+                                </div>
+                                <div id="slider" class="absolute left-0 h-10 w-1/2 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out flex items-center justify-center">
+                                    <span id="slider-text" class="text-gray-700 text-xs font-semibold">Single Round</span>
+                                </div>
+                                <div class="absolute right-0 h-full w-1/2 flex items-center justify-center">
+                                    <span class="text-gray-700 text-xs font-semibold">Multiple Rounds</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Single Round Mode -->
+                    <div id="single-round" class="space-y-4">
+                        <select id="player-count-single" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="2p">2-Player</option>
+                            <option value="3p">3-Player</option>
+                            <option value="4p">4-Player</option>
+                        </select>
+                        <button id="create-room-single" class="w-full py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-700">
+                            Create Single Round Room
+                        </button>
+                    </div>
+    
+                    <!-- Multiple Round Mode (Hidden initially) -->
+                    <div id="multiple-round" class="space-y-4 hidden">
+                        <select id="player-count-multi" class="w-full p-2 border border-gray-300 rounded">
+                            <option value="2p">2-Player</option>
+                            <option value="3p">3-Player</option>
+                            <option value="4p">4-Player</option>
+                        </select>
+                        <button id="create-room-multi" class="w-full py-2 bg-green-500 text-white font-bold rounded hover:bg-green-700">
+                            Create Multiple Rounds Room
+                        </button>
+                    </div>
+                </div>
+    
+                <!-- Room List Block -->
+                <div id="room-list-container" class="hidden space-y-6 mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Available Rooms</h2>
+                    <div id="room-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
             </div>
         </div>
     </main>
     <script>
-        // Handle Start Game Classic
-        document.getElementById("start-game-classic").addEventListener("click", () => {
-            const playerCount = document.getElementById("player-count").value;
-            let gameMode;
-            if (playerCount === "2p") {
-                gameMode = "classic-2p";
-            } else if (playerCount === "3p") {
-                gameMode = "classic-3p";
-            } else if (playerCount === "4p") {
-                gameMode = "classic-4p";
+        // Toggle switch functionality
+        const toggleRoundsCheckbox = document.getElementById("toggle-rounds");
+        const singleRoundSection = document.getElementById("single-round");
+        const multipleRoundSection = document.getElementById("multiple-round");
+        const slider = document.getElementById("slider");
+        const sliderText = document.getElementById("slider-text");
+    
+        document.getElementById("toggle-container").addEventListener("click", () => {
+            toggleRoundsCheckbox.checked = !toggleRoundsCheckbox.checked;
+    
+            if (toggleRoundsCheckbox.checked) {
+                // Multiple Rounds selected
+                slider.style.transform = "translateX(100%)";
+                sliderText.textContent = "Multiple Rounds";
+                singleRoundSection.classList.add("hidden");
+                multipleRoundSection.classList.remove("hidden");
+            } else {
+                // Single Round selected
+                slider.style.transform = "translateX(0)";
+                sliderText.textContent = "Single Round";
+                multipleRoundSection.classList.add("hidden");
+                singleRoundSection.classList.remove("hidden");
             }
-            window.location.href = `/game?type=queue&gameMode=${gameMode}`;
         });
+    
+        // Handle Join Room
+        document.getElementById("join-room").addEventListener("click", () => {
+            const roomId = document.getElementById("room-id").value;
+            window.location.href = `/game?type=join&roomId=${encodeURIComponent(roomId)}`;
+        });
+    
+        // Create Room event listeners
+        document.getElementById("create-room-single").addEventListener("click", () => {
+            const playerCount = document.getElementById("player-count-single").value;
+            const gameMode = `classic-${playerCount}-single`;
+            window.location.href = `/game?type=create&gameMode=${encodeURIComponent(gameMode)}`;
+        });
+    
+        document.getElementById("create-room-multi").addEventListener("click", () => {
+            const playerCount = document.getElementById("player-count-multi").value;
+            const gameMode = `classic-${playerCount}`;
+            window.location.href = `/game?type=create&gameMode=${encodeURIComponent(gameMode)}`;
+        });    
+
+        // Initialize GameNetwork (Socket.IO)
+        const gameNetwork = new GameNetwork(app.socketUrl);
+
+        // Room counter
+        let roomCount = 0;
+
+        (async () => {
+            const roomList = document.getElementById("room-list");
+
+            // Authenticate the user
+            try {
+                const session = await app.session.check();
+                await gameNetwork.authenticate(session.userId, session.sessionId);
+            } catch (error) {
+                roomList.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        ${error.message}
+                    </div>
+                `;
+                document.getElementById("room-list-container").classList.remove("hidden");
+                return;
+            }
+
+            // Get available rooms
+            gameNetwork._sendEvent("joinCustomRoomList", null).then((data) => {
+                // Update room count
+                roomCount = data.rooms.length;
+
+                if (roomCount > 0) {
+                    document.getElementById("room-list-container").classList.remove("hidden");
+                }
+
+                // Render available rooms
+                data.rooms.forEach((room) => {
+                    const roomItem = document.createElement("div");
+                    roomItem.id = `room-${room.roomId}`;
+                    roomItem.classList.add("p-4", "border", "border-gray-300", "rounded-lg", "shadow-lg", "bg-white", "relative");
+                    roomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${room.players.length}/${room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: room.maxPlayers - room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 ${room.players.length === room.maxPlayers ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'} text-white font-bold rounded" ${room.players.length === room.maxPlayers ? 'disabled' : `onclick="window.location.href = '/game?type=join&roomId=${room.roomId}'"`}>
+                            ${room.players.length === room.maxPlayers ? 'Room Full' : 'Join'}
+                        </button>
+                    `;
+                    roomList.appendChild(roomItem);
+                });
+            });
+
+            // Listen for room list updates
+            gameNetwork.addListener("customRoomListUpdate", (data) => {
+                const roomItem = document.getElementById(`room-${data.room.roomId}`);
+                if (data.type === "create") {
+                    const newRoomItem = document.createElement("div");
+                    newRoomItem.id = `room-${data.room.roomId}`;
+                    newRoomItem.classList.add("p-4", "border", "border-gray-300", "rounded-lg", "shadow-lg", "bg-white", "relative");
+                    newRoomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${data.room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${data.room.players.length}/${data.room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${data.room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: data.room.maxPlayers - data.room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 ${data.room.players.length === data.room.maxPlayers ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'} text-white font-bold rounded" ${data.room.players.length === data.room.maxPlayers ? 'disabled' : `onclick="window.location.href = '/game?type=join&roomId=${data.room.roomId}'"`}>
+                            ${data.room.players.length === data.room.maxPlayers ? 'Room Full' : 'Join'}
+                        </button>
+                    `;
+                    roomList.insertBefore(newRoomItem, roomList.firstChild);
+
+                    // Update room count
+                    roomCount++;
+                } else if (data.type === "update") {
+                    roomItem.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-semibold text-gray-700">${data.room.gameMode}</span>
+                            <span class="text-sm text-gray-500">Players: ${data.room.players.length}/${data.room.maxPlayers}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${data.room.players.map((player) => `
+                                <div class="flex items-center space-x-3">
+                                    <img src="${player.profile.avatar || "/img/default-avatar.png"}" alt="Player Avatar" class="w-12 h-12 rounded-full border border-gray-300 shadow-sm">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">${player.username}</p>
+                                        <p class="text-xs text-gray-500">${player.email}</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                            ${Array.from({ length: data.room.maxPlayers - data.room.players.length }, (_, index) => `
+                                <div class="flex items-center space-x-3 opacity-50">
+                                    <div class="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">+${index + 1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Empty Slot</p>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                        <button class="absolute bottom-4 right-4 py-2 px-4 ${data.room.players.length === data.room.maxPlayers ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'} text-white font-bold rounded" ${data.room.players.length === data.room.maxPlayers ? 'disabled' : `onclick="window.location.href = '/game?type=join&roomId=${data.room.roomId}'"`}>
+                            ${data.room.players.length === data.room.maxPlayers ? 'Room Full' : 'Join'}
+                        </button>
+                    `;
+                } else if (data.type === "delete") {
+                    roomItem.remove();
+
+                    // Update room count
+                    roomCount--;
+                }
+
+                if (roomCount > 0) {
+                    document.getElementById("room-list-container").classList.remove("hidden");
+                } else {
+                    document.getElementById("room-list-container").classList.add("hidden");
+                }
+            });
+        })();
     </script>
 </body>
 

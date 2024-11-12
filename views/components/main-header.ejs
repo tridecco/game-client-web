@@ -1,6 +1,6 @@
 <header class="text-gray-600 body-font">
     <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-        <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+        <a href="https://tridecco.com" class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
             <img src="/favicon.ico" class="w-10 h-10 rounded-full" alt="Logo">
             <span class="ml-3 text-xl">Tridecco</span>
         </a>
@@ -8,12 +8,10 @@
             class="md:mr-auto md:ml-4 md:py-1 md:pl-4 md:border-l md:border-gray-400 flex flex-wrap items-center text-base justify-center">
             <a href="/" class="mr-5 <%= currentPage === 'home' ? 'text-gray-900' : 'hover:text-gray-900' %>">Start
                 Game</a>
-            <a href="/rooms"
-                class="mr-5 <%= currentPage === 'rooms' ? 'text-gray-900' : 'hover:text-gray-900' %>">Invite/Join</a>
+            <a href="/play"
+                class="mr-5 <%= currentPage === 'play-now' ? 'text-gray-900' : 'hover:text-gray-900' %>">Play Now</a>
             <a href="/leaderboard"
                 class="mr-5 <%= currentPage === 'leaderboard' ? 'text-gray-900' : 'hover:text-gray-900' %>">Leaderboard</a>
-            <a href="/support"
-                class="mr-5 <%= currentPage === 'support' ? 'text-gray-900' : 'hover:text-gray-900' %>">Help/Support</a>
         </nav>
         <button onclick="window.location.href = '/my'"
             class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">My
