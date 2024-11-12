@@ -1427,6 +1427,46 @@ class GameUI {
 }
 
 /**
+ * Game Audio class.
+ * @module js/game/audio
+ */
+class GameAudio {
+  /**
+   * Create a game audio.
+   * @param {string} audioPath - The audio path.
+   */
+  constructor(audioPath) {
+    this.audioPath = audioPath;
+    this.audios = {
+      gem1: new Audio(`${audioPath}/gem-1.mp3`),
+      gem2: new Audio(`${audioPath}/gem-2.mp3`),
+      gem3: new Audio(`${audioPath}/gem-3.mp3`),
+      pieceGain: new Audio(`${audioPath}/piece-gain.mp3`),
+      popUps: new Audio(`${audioPath}/pop-ups.mp3`),
+      countdown: new Audio(`${audioPath}/countdown.mp3`),
+      confetti: new Audio(`${audioPath}/confetti.mp3`),
+    };
+  }
+
+  /**
+   * Play the audio.
+   * @param {string} audio - The audio name.
+   */
+  play(audio) {
+    this.audios[audio].play();
+  }
+
+  /**
+   * Stop the audio.
+   * @param {string} audio - The audio name.
+   */
+  stop(audio) {
+    this.audios[audio].pause();
+    this.audios[audio].currentTime = 0;
+  }
+}
+
+/**
  * Game Renderer class.
  * @module js/game/renderer
  */
