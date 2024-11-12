@@ -1879,7 +1879,15 @@ class Game {
     });
 
     this._addNetworkListeners();
+    this._initAudio();
     this._initRenderer();
+  }
+
+  /**
+   * Initialize the game audio. (Private)
+   */
+  async _initAudio() {
+    this.audio = new GameAudio("/audio");
   }
 
   /**
@@ -1902,6 +1910,8 @@ class Game {
     const timeRemainingListener = (data) => {
       if (data.timeRemaining === 10) {
         this.ui.showGamePhase("10 Seconds Remaining", 1000);
+
+        this.audio.play("countdown");
       } else if (data.timeRemaining === 5) {
         this.ui.showGamePhase("5 Seconds Remaining", 1000);
       } else if (data.timeRemaining === 3) {
@@ -1924,6 +1934,19 @@ class Game {
       if (!this.pieces.length) {
         // First time pieces are received
         this.ui.showPlayerPiecesOnHover(data.players, () => this.pieces);
+      }
+
+      for (const player of data.players) {
+        if (
+          player.id === this.network.userId &&
+          (this.pieces.length === 0 ||
+            player.pieces.length >
+              this.pieces[this.pieces.findIndex((p) => p.id === player.id)]
+                .pieces.length)
+        ) {
+          this.audio.play("pieceGain");
+          break;
+        }
       }
 
       this.pieces = data.players;
@@ -2074,6 +2097,8 @@ class Game {
             true
           );
         }
+
+        this.audio.play("popUps");
       }
 
       this.ui.showGamePhase("Turn Start", 2000);
@@ -2118,6 +2143,8 @@ class Game {
           this.ui.hideTradeRequest();
         }
       );
+
+      this.audio.play("popUps");
     });
 
     this.network.addListener("game:trade", (data) => {
@@ -2151,6 +2178,8 @@ class Game {
         formedHexagonsMessage = `Formed ${formedHexagons} Hexagon${
           formedHexagons > 1 ? "s" : ""
         }, `;
+
+        this.audio.play(`gem${Math.min(formedHexagons, 3)}`);
       }
 
       switch (nextTurnType) {
@@ -2182,6 +2211,8 @@ class Game {
           this.ui.showGamePhase(formedHexagonsMessage + "Turn End", 2000);
           break;
       }
+
+      this.audio.stop("countdown");
     });
 
     this.network.addListener("game:playerRoundEnd", (data) => {
@@ -2204,6 +2235,8 @@ class Game {
       });
 
       this.ui.showRoundSummary(roundsRemaining, winners);
+
+      this.audio.play("popUps");
 
       setTimeout(() => {
         this.ui.hideRoundSummary();
@@ -2281,10 +2314,14 @@ class Game {
               )
             );
           }, 250);
+
+          this.audio.play("confetti");
         }
       }, 2000);
 
       this.ui.stopPreventSleep();
+
+      this.audio.stop("countdown");
     });
   }
 }
