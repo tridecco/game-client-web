@@ -7,6 +7,16 @@
     <script src="/js/users.js"></script>
     <meta name="description" content="Tridecco leaderboard page, where users can view the top players and their scores.">
     <title>Tridecco | Leaderboard</title>
+    <script>
+        (async () => {
+            const sessionStatus = await app.session.check();
+            if (sessionStatus.authenticated === true && sessionStatus.twoFactorAuthenticated === false) {
+                window.location.href = "/two-factor-authentication";
+            } else if (sessionStatus.authenticated === false) {
+                window.location.href = "/login";
+            }
+        })();
+    </script>
     <style>
         .leaderboard-card {
             transition: transform 0.3s;
