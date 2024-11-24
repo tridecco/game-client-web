@@ -23,6 +23,11 @@ router.use("/leaderboard", (req, res) => {
   res.render("pages/leaderboard");
 });
 
+// Load the instructions route
+router.use("/instructions", (req, res) => {
+  res.render("pages/instructions");
+});
+
 // Load the game route
 router.use("/game", (req, res) => {
   res.render("pages/game");

@@ -12,8 +12,8 @@
                 class="mr-5 <%= currentPage === 'play-now' ? 'text-gray-900' : 'hover:text-gray-900' %>">Play Now</a>
             <a href="/leaderboard"
                 class="mr-5 <%= currentPage === 'leaderboard' ? 'text-gray-900' : 'hover:text-gray-900' %>">Leaderboard</a>
-            <a href="https://tridecco.com/instructions" 
-                target="_blank" class="mr-5 hover:text-gray-900">How to Play</a>
+            <a href="/instructions"
+                class="mr-5 <%= currentPage === 'instructions' ? 'text-gray-900' : 'hover:text-gray-900' %>">How to Play</a>
         </nav>
         <button onclick="window.location.href = '/my'"
             class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">My

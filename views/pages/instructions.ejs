@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include("../components/head") %>
+    <meta name="description" content="Learn how to play Tridecco online. Create or join rooms, use matchmaking, and view your game records.">
+    <title>Tridecco | How to Play</title>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <%- include("../components/main-header", { currentPage: "instructions" }) %>
+
+    <header class="bg-indigo-600 text-white py-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <h1 class="text-3xl font-bold">How to Play Tridecco (Online)</h1>
+            <a href="/" class="text-white hover:text-gray-200">← Return to Home</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6">
+        <!-- Game Start Section -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Getting Started</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Option 1: Create or Join a Room</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        From the home page, you can either create a new room or join an existing one. If you create a room, you will receive a unique room code that other players can use to join. Alternatively, browse the room list to find and join a public room.
+                    </p>
+                </div>
+                <img src="/img/instructions/room-creation.webp" alt="Create or Join Room" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Option 2: Use Matchmaking</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        Head to the <strong>Play Now</strong> page to enter the matchmaking queue. Once enough players are gathered, the game will start automatically. This is a quick and easy way to find opponents.
+                    </p>
+                </div>
+                <img src="/img/instructions/matchmaking.webp" alt="Matchmaking Queue" class="rounded-lg shadow-md">
+            </div>
+        </section>
+
+        <!-- Game Rules Section -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Game Rules</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Objective</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        On your turn, place tiles at diﬀerent positions on the board. To win, get rid of all of your tiles before the other players do.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Game Modes</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        Choose between single round and multiple round modes, and select the number of players for each game. Single round games are quick and intense, while multiple round games allow for more strategic play.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Starting the Game</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        At the start of a basic game, the ﬁrst player tosses one of their tiles into the air. Where it lands determines their starting placement. Play continues clockwise.
+                    </p>
+                </div>
+                <img src="/img/instructions/game-start.webp" alt="Game Start" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Tile Placement</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        Each player places a tile adjacent to any other tile on the board.
+                    </p>
+                </div>
+                <img src="/img/instructions/tile-placement.webp" alt="Tile Placement" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Forming a Hexagon Gem</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        If a player places a tile in a way that forms a hexagon gem of a single color, that player can play another tile. Otherwise, it’s the next player’s turn.
+                    </p>
+                </div>
+                <img src="/img/instructions/hexagon-gem.webp" alt="Hexagon Gem Formation" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Winning the Game</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        The ﬁrst player to get rid of all their tiles wins the game.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Advanced Rules: To Trade</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        Each player has the option to trade every turn. If the other players reject the trade, the player can place a tile or offer a new trade with a diﬀerent player.
+                    </p>
+                </div>
+                <img src="/img/instructions/trade.webp" alt="Trading Tiles" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Advanced Rules: Ending a Turn</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        A turn ends when the player places a tile that does not form a gem or when the player completes a trade.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Advanced Rules: Forming 2 Hexagons</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        After the player forms two gems, they can force trade with another layer (opponent cannot decline) <b>AND</b> can place another tile.
+                    </p>
+                </div>
+                <img src="/img/instructions/two-hexagons.webp" alt="Forming 2 Hexagons" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Advanced Rules: Forming 3 Hexagons</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        At any time, when three gems are formed in one placement, the player wins the round immediately.
+                    </p>
+                </div>
+                <img src="/img/instructions/three-hexagons.webp" alt="Forming 3 Hexagons" class="rounded-lg shadow-md">
+            </div>
+        </section>
+
+        <!-- Endgame and Progression Section -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Endgame and Player Progression</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Experience Points and Ranking</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        At the end of each game, players earn experience points based on their rank. These points contribute to your leaderboard position, allowing you to climb the ranks and showcase your skills.
+                    </p>
+                </div>
+                <img src="/img/instructions/leaderboard.webp" alt="Leaderboard Rankings" class="rounded-lg shadow-md">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center mt-8">
+                <div>
+                    <h3 class="text-lg font-medium text-indigo-500">Replays and Game History</h3>
+                    <p class="text-gray-700 mt-2 leading-relaxed">
+                        All your game records, including detailed replays, are available on your profile. Use this feature to analyze your strategies and improve your gameplay.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <img src="/img/instructions/profile-replays.webp" alt="Profile with Game History" class="rounded-lg shadow-md">
+                    <img src="/img/instructions/replay.webp" alt="Game Replay" class="rounded-lg shadow-md">
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-600">
+            <p>Tridecco © 2024 | Play online at <a href="http://play.tridecco.com" class="text-indigo-500 hover:underline">play.tridecco.com</a></p>
+        </footer>
+    </main>
+</body>
+
+</html>
