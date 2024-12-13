@@ -44,6 +44,7 @@
                             alt="User Avatar">
                         <div class="ml-4 relative">
                             <h3 id="username" class="text-xl font-semibold text-gray-900">Loading...</h3>
+                            <p id="user-email" class="text-sm text-gray-500">Loading...</p>
                         </div>
                     </div>
 
@@ -107,6 +108,7 @@
 
             // Display username, email
             document.getElementById("username").textContent = userData.username;
+            document.getElementById("user-email").textContent = userData.email;
 
             // Display user gender (SVG icons)
             if (userData.profile.gender !== null) {
