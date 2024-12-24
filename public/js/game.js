@@ -2341,6 +2341,8 @@ class Game {
         }
       }, 2000);
 
+      this.network.removeAllListeners();
+
       this.ui.stopPreventSleep();
 
       this.audio.stop("countdown");
