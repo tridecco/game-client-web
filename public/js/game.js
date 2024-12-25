@@ -169,6 +169,18 @@ class GameNetwork {
   removeListener(event, listener) {
     this.socket.off(event, listener);
   }
+
+  /**
+   * Remove all listeners.
+   * @param {string} [event] - The event name. (Optional)
+   */
+  removeAllListeners(event) {
+    if (event) {
+      this.socket.removeAllListeners(event);
+    } else {
+      this.socket.removeAllListeners();
+    }
+  }
 }
 
 /**
@@ -2328,6 +2340,8 @@ class Game {
           this.audio.play("confetti");
         }
       }, 2000);
+
+      this.network.removeAllListeners();
 
       this.ui.stopPreventSleep();
 
