@@ -410,9 +410,6 @@ class GameUI {
     this._renderPlayers("room-players", players);
 
     const startButton = document.getElementById("room-start-game");
-    startButton.disabled = false;
-    startButton.classList.remove("cursor-not-allowed");
-    startButton.innerText = "Start Game";
 
     startButton.onclick = () => {
       startButton.disabled = true;
