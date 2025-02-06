@@ -470,7 +470,9 @@ class GameUI {
         player.color.h ? player.color.h : player.color[1].a
       }-500 text-white text-xs px-1 rounded-full">P${index + 1}</span>
         <span class="absolute bottom-0 left-0 bg-white text-gray-800 text-xs px-1 w-50 rounded-full truncate text-center">${
-          player.name
+          player.name.length > 10
+            ? player.name.slice(0, 8) + "..."
+            : player.name
         } <span id="game-player-${
         player.id
       }-points" class="font-semibold text-blue-600">(0)</span><span id="game-player-${
@@ -793,8 +795,12 @@ class GameUI {
     playerElement.id = `room-player-${player.id}`;
     playerElement.className = "flex flex-col items-center mb-4";
     playerElement.innerHTML = `
-    <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${player.avatar}" alt="${player.name}">
-    <span class="mt-2 text-sm">${player.name}</span>
+    <img class="w-16 h-16 rounded-full border-2 border-gray-300" src="${
+      player.avatar
+    }" alt="${player.name}">
+    <span class="mt-2 text-sm">${
+      player.name.length > 10 ? player.name.slice(0, 8) + "..." : player.name
+    }</span>
   `;
     playersElement.appendChild(playerElement);
 
