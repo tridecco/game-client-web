@@ -193,6 +193,8 @@ class GameUI {
    * @param {string} background - The background image.
    */
   constructor(background) {
+    this.pieceSelectionSlot = null;
+
     Object.assign(document.body.style, {
       backgroundImage: `url(${background})`,
       backgroundPosition: "center",
