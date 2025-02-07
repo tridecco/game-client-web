@@ -193,7 +193,7 @@ class GameUI {
    * @param {string} background - The background image.
    */
   constructor(background) {
-    this.pieceSelectionSlot = null;
+    this.pieceSelectionSlots = new Set();
 
     Object.assign(document.body.style, {
       backgroundImage: `url(${background})`,
@@ -1007,6 +1007,14 @@ class GameUI {
         gamePhaseElement.style.display = "none";
       }, 500);
     }, timeout);
+  }
+
+  /**
+   * Add a piece selection slot.
+   * @param {string} piece - The piece object.
+   */
+  _addPieceSelectionSlot(piece) {
+    this.pieceSelectionSlots.add(piece);
   }
 
   /**
