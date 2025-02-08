@@ -193,7 +193,7 @@ class GameUI {
    * @param {string} background - The background image.
    */
   constructor(background) {
-    this.pieceSelectionSlots = new Set();
+    this.pieceSelectionSlotsColors = new Set();
 
     Object.assign(document.body.style, {
       backgroundImage: `url(${background})`,
@@ -1011,10 +1011,10 @@ class GameUI {
 
   /**
    * Add a piece selection slot.
-   * @param {string} piece - The piece object.
+   * @param {string} pieceColor - The piece color.
    */
-  _addPieceSelectionSlot(piece) {
-    this.pieceSelectionSlots.add(piece);
+  _addPieceSelectionSlot(pieceColor) {
+    this.pieceSelectionSlotsColors.add(pieceColor);
   }
 
   /**
@@ -1041,6 +1041,7 @@ class GameUI {
     piecesElementList.innerHTML = "";
 
     const pieceCountMap = pieces.reduce((acc, piece, i) => {
+      this._addPieceSelectionSlot(`${piece.a.color}-${piece.h.color}`);
       const key = `${piece.a.color}-${piece.h.color}`;
       if (!acc[key]) {
         acc[key] = { piece, count: 0, index: i };
@@ -1049,38 +1050,65 @@ class GameUI {
       return acc;
     }, {});
 
-    Object.values(pieceCountMap).forEach(({ piece, count, index }) => {
-      const pieceContainer = document.createElement("div");
-      pieceContainer.className = "relative w-12 cursor-pointer";
+    this.pieceSelectionSlotsColors.forEach((pieceColor) => {
+      let found = false;
+      Object.values(pieceCountMap).forEach(({ piece, count, index }) => {
+        if (`${piece.a.color}-${piece.h.color}` === pieceColor && count > 0) {
+          found = true;
 
-      const pieceElement = document.createElement("img");
-      pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
-      pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
-      pieceElement.className = "w-12";
+          const pieceContainer = document.createElement("div");
+          pieceContainer.className = "relative w-12 cursor-pointer";
 
-      const countBadge = document.createElement("span");
-      countBadge.className =
-        "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
-      countBadge.innerText = count;
+          const pieceElement = document.createElement("img");
+          pieceElement.src = `/img/game/pieces/${piece.a.color}-${piece.h.color}.png`;
+          pieceElement.alt = `${piece.a.color}-${piece.h.color}`;
+          pieceElement.className = "w-12";
 
-      pieceContainer.appendChild(pieceElement);
-      pieceContainer.appendChild(countBadge);
+          const countBadge = document.createElement("span");
+          countBadge.className =
+            "absolute top-0 left-0 bg-red-500 text-white text-xs rounded-full px-1";
+          countBadge.innerText = count;
 
-      pieceContainer.addEventListener("click", () => {
-        if (this.selectedPieceFromListElement) {
-          this.selectedPieceFromListElement.style.transform = "";
-          this.selectedPieceFromListElement.style.filter = "";
+          pieceContainer.appendChild(pieceElement);
+          pieceContainer.appendChild(countBadge);
+
+          pieceContainer.addEventListener("click", () => {
+            if (this.selectedPieceFromListElement) {
+              this.selectedPieceFromListElement.style.transform = "";
+              this.selectedPieceFromListElement.style.filter = "";
+            }
+
+            pieceElement.style.transform = "scale(1.1)";
+            pieceElement.style.filter =
+              "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
+
+            this.selectedPieceFromListElement = pieceElement;
+            clickHandler(index);
+          });
+
+          piecesElementList.appendChild(pieceContainer);
         }
-
-        pieceElement.style.transform = "scale(1.1)";
-        pieceElement.style.filter =
-          "drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.8))";
-
-        this.selectedPieceFromListElement = pieceElement;
-        clickHandler(index);
       });
 
-      piecesElementList.appendChild(pieceContainer);
+      if (!found) {
+        const pieceContainer = document.createElement("div");
+        pieceContainer.className = "relative w-12";
+
+        const pieceElement = document.createElement("img");
+        pieceElement.src = `/img/game/pieces/${pieceColor}.png`;
+        pieceElement.alt = `${pieceColor}`;
+        pieceElement.className = "w-12 grayscale opacity-50";
+
+        const countBadge = document.createElement("span");
+        countBadge.className =
+          "absolute top-0 left-0 bg-gray-500 text-white text-xs rounded-full px-1";
+        countBadge.innerText = "0";
+
+        pieceContainer.appendChild(pieceElement);
+        pieceContainer.appendChild(countBadge);
+
+        piecesElementList.appendChild(pieceContainer);
+      }
     });
   }
 
