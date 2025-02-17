@@ -28,4 +28,4 @@ For detailed setup instructions, including environment requirements, configuring
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the AGPL-3.0 License - See the [LICENSE](LICENSE) file for details.
