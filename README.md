@@ -1,6 +1,6 @@
 # Tridecco Game Client (Web)
 
-Tridecco Game Client is a frontend application designed to support Tridecco games. It provides user interface rendering, user interaction handling, dynamic content loading, and communication with the backend server.
+Tridecco Game Client is a frontend application designed to support Tridecco game. It provides user interface rendering, user interaction handling, dynamic content loading, and communication with the backend server.
 
 ## Features
 
@@ -9,7 +9,8 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 - **Game Replayability**: The client allows users to replay games by fetching game data from the backend server.
 - **Authentication**: The client supports user authentication with JWT and OAuth 2.0.
 - **Responsive Design**: The client is designed to be responsive and work on various devices and screen sizes.
-- **Admin Panel**: The client provides an admin panel for managing users, games, and game records, etc.
+- **Admin Panel**: The client provides an admin panel for managing users, statistics, and game records, etc.
+- **Offline Support**: The client can work offline by caching game data and assets.
 
 ## Tech Stack
 
@@ -23,6 +24,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 
 - Node.js
 - Tridecco Game Server (backend)
+- Tridecco Game Match Server (backend)
 - Google OAuth 2.0 client ID
 - Nginx (for reverse proxy) (optional)
 - PM2 (for process management) (optional)
