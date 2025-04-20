@@ -5,7 +5,7 @@
     "format": "prettier --write .",
     "start": "node server.js",
     "build": "npm run build:css",
-    "build:css": "postcss src/css/styles.css -o dist/css/styles.css"
+    "build:css": "postcss src/styles/styles.css -o dist/css/styles.css"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.10",
