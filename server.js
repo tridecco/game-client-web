@@ -8,6 +8,7 @@ require('dotenv').config();
 
 // Load required modules
 const express = require('express');
+const routes = require('./src/routes');
 
 const DEFAULT_PORT = 3000;
 const port = process.env.PORT || DEFAULT_PORT;
@@ -21,6 +22,9 @@ app.use(express.static('public'));
 // Load the renderer (EJS)
 app.set('views', './src/views');
 app.set('view engine', 'ejs');
+
+// Routes setup
+app.use('/', routes);
 
 // Start the server
 app.listen(port, host, () => {
