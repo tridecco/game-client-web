@@ -16,6 +16,9 @@ const host = process.env.HOST || 'localhost';
 
 const app = express();
 
+// Set up environment variables for views
+app.locals.env = process.env;
+
 // Load public files
 app.use(express.static('public'));
 
