@@ -48,7 +48,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
    ```env
    PORT=3000 # Port number for the server (default: 3000)
    HOST=localhost # Host address for the server (default: localhost)
-   CDN_URL=/ # CDN URL for static assets (default: /)
+   CDN_URL= # CDN URL for static assets (default: empty)
    API_URL=/api # API URL for the backend server (default: /api)
    GOOGLE_CLIENT_ID=client_id # Google OAuth 2.0 client ID
    ```
