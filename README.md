@@ -50,7 +50,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
    HOST=localhost # Host address for the server (default: localhost)
    BASE_URL=/ # Base URL for the application (default: /)
    CDN_URL=/ # CDN URL for static assets (default: /)
-   API_URL=/api # API URL for the backend (default: /api)
+   API_URL=/api # API URL for the backend server (default: /api)
    GOOGLE_CLIENT_ID=client_id # Google OAuth 2.0 client ID
    ```
 
@@ -68,7 +68,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 
 6. The server should be running on `http://localhost:3000`.
 
-> **Note**: The configuration to connect to the backend server is already set in the frontend application. If you want to change the backend server address, configure the server URL in the `public/js/app.js` file (Default: `/api`). Use a reverse proxy (e.g., Nginx) to serve the server on a public domain (`/` -> `http://localhost:3000`). Use a process manager (e.g., PM2) to keep the server running in the background.
+> **Note**: Use a reverse proxy (e.g., Nginx) to serve the server on a public domain (`/` -> `http://localhost:3000`). Use a process manager (e.g., PM2) to keep the server running in the background.
 
 ## License
 

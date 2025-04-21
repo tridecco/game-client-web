@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # Tailwind CSS
-frontend/public/css/styles.css
+public/css/styles.css
