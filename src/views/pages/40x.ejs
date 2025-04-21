@@ -39,7 +39,7 @@
   <%- include("../libs/tridecco-board.ejs") %>
 </head>
 
-<body class="h-screen flex items-center justify-center overflow-hidden" style="background: url('/img/backgrounds/tridecco.jpg') center center / cover no-repeat;">
+<body class="h-screen flex items-center justify-center overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/tridecco.jpg') center center / cover no-repeat;">
   <div class="relative">
 
     <div id="board-container" class="w-96 h-96 md:w-[32rem] md:h-[32rem] rounded-2xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
