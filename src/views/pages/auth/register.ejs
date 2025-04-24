@@ -6,6 +6,7 @@
   <title>Tridecco | Register</title>
   <%- include("../../libs/tridecco-board.ejs") %>
   <%- include("../../libs/google-oauth.ejs") %>
+  <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
 
 <body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
@@ -19,13 +20,13 @@
   <div class="fixed inset-0 flex items-center justify-center">
     <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-xl w-96 max-w-sm backdrop-filter backdrop-blur-md">
       <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Create an Account</h2>
-      <form method="POST" action="/register"> <%# Adjust action URL as needed %>
+      <form id="auth-form" class="space-y-4">
         <div class="mb-4">
           <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
           <input type="email" id="email" name="email" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your email">
         </div>
         <div class="flex items-center justify-between">
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
+          <button id="register" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
             Register
           </button>
         </div>
@@ -41,6 +42,40 @@
   </div>
 
   <script>
+    // Initialize authentication module
+    const auth = new Authentication(app);
+    const registerButton = document.getElementById("register");
+
+    // Add click event listener to the register button
+    registerButton.addEventListener("click", async (event) => {
+      registerButton.disabled = true; // Disable button during processing
+      event.preventDefault(); // Prevent form submission
+
+      const email = document.getElementById("email").value; // Get entered email
+
+      // Attempt to register
+      const response = await auth.register(email);
+      if (response.status === "success") {
+        document.getElementById("auth-form").innerHTML = ""; // Clear form on success
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          document.getElementById("auth-form"),
+          "register"
+        );
+      } else {
+        registerButton.disabled = false; // Re-enable button on error
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          document.getElementById("auth-form"),
+          "register"
+        );
+      }
+    });
+
     const EMPTY_PICTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBAp9lXxkAAAAASUVORK5CYII=';
 
     window.addEventListener('load', () => {
