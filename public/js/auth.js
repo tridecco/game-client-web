@@ -34,4 +34,25 @@ class Authentication {
 
     return data;
   }
+
+  /**
+   * @method completeRegistration - Completes the registration of a user.
+   * @param {string} token - The registration token.
+   * @param {string} username - The username of the user.
+   * @param {string} password - The password of the user.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async completeRegistration(token, username, password) {
+    const response = await fetch(`${this.apiURL}/auth/complete-registration`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, username, password }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
 }
