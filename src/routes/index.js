@@ -6,6 +6,10 @@
 const express = require('express');
 const router = express.Router();
 
+const authRoutes = require('./authRoutes');
+
+router.use('/', authRoutes);
+
 router.get('/404', (req, res) => {
   return res.render('pages/404', { path: req.query.path || '/' });
 });

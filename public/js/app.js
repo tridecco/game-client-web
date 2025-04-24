@@ -343,7 +343,7 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/leaderboard'].includes(route);
+    return ['/', '/404', '/403', '/leaderboard'].includes(route);
   }
 
   /**
@@ -374,7 +374,13 @@ class Location {
    * @returns {boolean} - True if the route is authentication required, false otherwise.
    */
   isAuthRoute(route) {
-    return ['/login', '/register', '/reset-password'].includes(route);
+    return [
+      '/login',
+      '/register',
+      '/register/complete',
+      '/password-reset',
+      '/password-reset/complete',
+    ].includes(route);
   }
 
   /**
@@ -626,6 +632,7 @@ class App {
    */
   constructor(cdnURL, apiURL) {
     this.cdnURL = cdnURL;
+    this.baseURL = window.location.origin;
     this.apiURL = apiURL;
 
     this.data = new Data(this);

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../components/head.ejs") %>
+  <title>Tridecco | Complete Registration</title>
+  <script src="<%= env.CDN_URL %>/js/auth.js"></script>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Auth Form Container -->
+  <div class="fixed inset-0 flex items-center justify-center">
+    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-xl w-96 max-w-sm backdrop-filter backdrop-blur-md">
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Complete Registration</h2>
+      <form id="auth-form" class="space-y-4">
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+          <input type="text" id="username" name="username" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your username">
+        </div>
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+          <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your password">
+        </div>
+        <div class="flex items-center justify-between">
+          <button id="complete-registration" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
+            Complete Registration
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center text-gray-600 text-xs mt-4">
+        Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/login">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize authentication module
+    const auth = new Authentication(app);
+    const completeRegistrationButton = document.getElementById("complete-registration");
+
+    // Add click event listener to the registration button
+    completeRegistrationButton.addEventListener("click", async (event) => {
+      completeRegistrationButton.disabled = true; // Disable button during processing
+      event.preventDefault(); // Prevent form submission
+
+      const token = "<%= token %>"; // Get token for registration
+      const username = document.getElementById("username").value; // Get entered username
+      const password = document.getElementById("password").value; // Get entered password
+
+      // Attempt to complete registration
+      const response = await auth.completeRegistration(token, username, password);
+      if (response.status === "success") {
+        document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          document.getElementById("auth-form"),
+          "register"
+        );
+
+        setTimeout(() => {
+          app.location.redirect("/login"); // Redirect to login after a short delay
+        }, 2000);
+      } else {
+        completeRegistrationButton.disabled = false; // Re-enable button on error
+        // Handle specific errors for invalid username and password
+        if (response.error.code === "INVALID_USERNAME") {
+          app.ui.notification(
+            "list",
+            [
+              "Username must be at least 3 characters long",
+              "Username can only contain letters, numbers, underscores, and hyphens",
+            ],
+            "error",
+            document.getElementById("auth-form"),
+            "register"
+          );
+          return;
+        } else if (response.error.code === "INVALID_PASSWORD") {
+          app.ui.notification(
+            "list",
+            [
+              "Password must be at least 8 characters long",
+              "Password must contain at least one uppercase letter",
+              "Password must contain at least one lowercase letter",
+              "Password must contain at least one number",
+              "Password must contain at least one special character",
+            ],
+            "error",
+            document.getElementById("auth-form"),
+            "register"
+          );
+          return;
+        }
+        // General error notification
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          document.getElementById("auth-form"),
+          "register"
+        );
+      }
+    });
+  </script>
+
+  <%- include("../../components/tridecco-board-animator.ejs") %>
+</body>
+
+</html>

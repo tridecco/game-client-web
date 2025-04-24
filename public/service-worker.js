@@ -16,6 +16,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+
+  if (req.method !== 'GET') {
+    return;
+  }
+
   const url = new URL(req.url);
 
   if (url.hostname === 'cdn.jsdelivr.net') {
@@ -39,7 +44,9 @@ self.addEventListener('fetch', (event) => {
     fetch(req)
       .then((networkRes) => {
         return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(req, networkRes.clone());
+          if (req.url.startsWith('http')) {
+            cache.put(req, networkRes.clone());
+          }
           return networkRes;
         });
       })
