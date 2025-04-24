@@ -378,7 +378,7 @@ class Location {
       '/login',
       '/register',
       '/register/complete',
-      '/reset-password',
+      '/password-reset',
     ].includes(route);
   }
 
