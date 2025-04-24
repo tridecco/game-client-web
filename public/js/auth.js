@@ -75,4 +75,25 @@ class Authentication {
 
     return data;
   }
+
+  /**
+   * @method resetPassword - Sends a password reset email.
+   * @param {string} email - The email address of the user.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async resetPassword(email) {
+    const callbackUrl = `${this.baseURL}/password-reset/complete`;
+
+    const response = await fetch(`${this.apiURL}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, callbackUrl }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
 }
