@@ -21,4 +21,11 @@ router.get('/register/complete', (req, res) => {
   });
 });
 
+router.get('/login', (req, res) => {
+  return res.render('pages/auth/login', {
+    redirect: req.query.redirect,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+  });
+});
+
 module.exports = router;
