@@ -28,4 +28,8 @@ router.get('/login', (req, res) => {
   });
 });
 
+router.get('/password-reset', (req, res) => {
+  return res.render('pages/auth/password-reset');
+});
+
 module.exports = router;
