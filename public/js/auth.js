@@ -119,4 +119,23 @@ class Authentication {
 
     return data;
   }
+
+  /**
+   * @method oauthAuth - Initiates the OAuth authentication process. (Google)
+   * @param {string} token - The OAuth token.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async oauthAuth(token) {
+    const response = await fetch(`${this.apiURL}/auth/oauth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
 }
