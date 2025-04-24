@@ -44,7 +44,9 @@ self.addEventListener('fetch', (event) => {
     fetch(req)
       .then((networkRes) => {
         return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(req, networkRes.clone());
+          if (req.url.startsWith('http')) {
+            cache.put(req, networkRes.clone());
+          }
           return networkRes;
         });
       })
