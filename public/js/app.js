@@ -343,7 +343,7 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/leaderboard'].includes(route);
+    return ['/', '/404', '/403', '/leaderboard'].includes(route);
   }
 
   /**
