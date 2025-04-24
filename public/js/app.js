@@ -374,7 +374,12 @@ class Location {
    * @returns {boolean} - True if the route is authentication required, false otherwise.
    */
   isAuthRoute(route) {
-    return ['/login', '/register', '/reset-password'].includes(route);
+    return [
+      '/login',
+      '/register',
+      '/register/complete',
+      '/reset-password',
+    ].includes(route);
   }
 
   /**
