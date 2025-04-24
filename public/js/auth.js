@@ -96,4 +96,27 @@ class Authentication {
 
     return data;
   }
+
+  /**
+   * @method completePasswordReset - Completes the password reset process.
+   * @param {string} token - The password reset token.
+   * @param {string} password - The new password.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async completePasswordReset(token, password) {
+    const response = await fetch(
+      `${this.apiURL}/auth/complete-reset-password`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, password }),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
