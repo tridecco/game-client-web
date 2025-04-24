@@ -5,7 +5,6 @@
   <%- include("../../components/head.ejs") %>
   <title>Tridecco | Complete Registration</title>
   <%- include("../../libs/tridecco-board.ejs") %>
-  <%- include("../../libs/google-oauth.ejs") %>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
 
@@ -35,9 +34,6 @@
           </button>
         </div>
       </form>
-
-      <!-- Google OAuth button -->
-      <div id="g_id_onload" data-client_id="<%= googleClientId %>" data-auto_prompt="false"></div>
 
       <p class="text-center text-gray-600 text-xs mt-4">
         Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/login">Sign in</a>
