@@ -12,4 +12,10 @@ router.get('/register', (req, res) => {
   });
 });
 
+router.get('/register/complete', (req, res) => {
+  return res.render('pages/auth/complete-registration', {
+    token: req.query.token,
+  });
+});
+
 module.exports = router;
