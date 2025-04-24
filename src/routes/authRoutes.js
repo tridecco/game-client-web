@@ -32,4 +32,13 @@ router.get('/password-reset', (req, res) => {
   return res.render('pages/auth/password-reset');
 });
 
+router.get('/password-reset/complete', (req, res) => {
+  if (!req.query.token) {
+    return res.redirect('/password-reset');
+  }
+  return res.render('pages/auth/complete-password-reset', {
+    token: req.query.token,
+  });
+});
+
 module.exports = router;
