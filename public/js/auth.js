@@ -55,4 +55,24 @@ class Authentication {
 
     return data;
   }
+
+  /**
+   * @method login - Logs in a user.
+   * @param {string} identifier - The email or username of the user.
+   * @param {string} password - The password of the user.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async login(identifier, password) {
+    const response = await fetch(`${this.apiURL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ identifier, password }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  }
 }
