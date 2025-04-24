@@ -7,7 +7,9 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/register', (req, res) => {
-  return res.render('pages/auth/register');
+  return res.render('pages/auth/register', {
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+  });
 });
 
 module.exports = router;
