@@ -33,7 +33,7 @@
       </form>
 
       <!-- Google OAuth button -->
-      <div id="g_id_onload" data-client_id="<%= googleClientId %>" data-auto_prompt="false"></div>
+      <div id="g_id_onload" class="mt-4" data-client_id="<%= googleClientId %>" data-auto_prompt="false"></div>
 
       <p class="text-center text-gray-600 text-xs mt-4">
         Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/login">Sign in</a>
@@ -74,6 +74,42 @@
           "register"
         );
       }
+    });
+
+    // Google OAuth (Get the JWT token, and send it to the server)
+    window.addEventListener('load', () => {
+      google.accounts.id.initialize({
+        client_id: "<%= googleClientId %>",
+        callback: async (response) => {
+          if (response.credential) {
+            const token = response.credential;
+            const loginResponse = await auth.oauthAuth(token);
+            if (loginResponse.status === "success") {
+              app.auth.set(loginResponse.data.user.id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
+              app.location.redirect("/"); // Redirect on success
+            } else {
+              app.ui.notification(
+                "alert",
+                loginResponse.message,
+                "error",
+                document.getElementById("auth-form"),
+                "register"
+              );
+            }
+          }
+        }
+      });
+
+      // Render the Google OAuth button
+      google.accounts.id.renderButton(
+        document.getElementById("g_id_onload"), {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          width: "auto",
+        }
+      );
     });
 
     const EMPTY_PICTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBAp9lXxkAAAAASUVORK5CYII=';
