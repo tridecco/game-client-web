@@ -3,8 +3,9 @@
 
 <head>
   <%- include("../../components/head.ejs") %>
-  <title>Tridecco | Complete Registration</title>
+  <title>Tridecco | Login</title>
   <%- include("../../libs/tridecco-board.ejs") %>
+  <%- include("../../libs/google-oauth.ejs") %>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
 
@@ -18,25 +19,32 @@
   <!-- Centered Auth Form Container -->
   <div class="fixed inset-0 flex items-center justify-center">
     <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-xl w-96 max-w-sm backdrop-filter backdrop-blur-md">
-      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Complete Registration</h2>
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
       <form id="auth-form" class="space-y-4">
         <div class="mb-4">
-          <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-          <input type="text" id="username" name="username" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your username">
+          <label for="identifier" class="block text-gray-700 text-sm font-bold mb-2">Email or Username</label>
+          <input type="text" id="identifier" name="text" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your email or username">
         </div>
         <div class="mb-4">
           <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
           <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your password">
         </div>
         <div class="flex items-center justify-between">
-          <button id="complete-registration" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
-            Complete Registration
+          <button id="login" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
+            Login
           </button>
         </div>
       </form>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/login">Sign in</a>
+        <a class="text-blue-600 hover:text-blue-800" href="/password-reset">Forgot your password?</a>
+      </p>
+
+      <!-- Google OAuth button -->
+      <div id="g_id_onload" class="mt-4" data-client_id="<%= googleClientId %>" data-auto_prompt="false"></div>
+
+      <p class="text-center text-gray-600 text-xs mt-4">
+        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/register">Register</a>
       </p>
     </div>
   </div>
@@ -44,72 +52,67 @@
   <script>
     // Initialize authentication module
     const auth = new Authentication(app);
-    const completeRegistrationButton = document.getElementById("complete-registration");
+    const loginButton = document.getElementById("login");
 
-    // Add click event listener to the registration button
-    completeRegistrationButton.addEventListener("click", async (event) => {
-      completeRegistrationButton.disabled = true; // Disable button during processing
+    // Add click event listener to the login button
+    loginButton.addEventListener("click", async (event) => {
+      loginButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
 
-      const token = "<%= token %>"; // Get token for registration
-      const username = document.getElementById("username").value; // Get entered username
+      const identifier = document.getElementById("identifier").value; // Get entered identifier (username or email)
       const password = document.getElementById("password").value; // Get entered password
 
-      // Attempt to complete registration
-      const response = await auth.completeRegistration(token, username, password);
+      // Attempt to log in
+      const response = await auth.login(identifier, password);
       if (response.status === "success") {
-        document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          document.getElementById("auth-form"),
-          "register"
-        );
-
-        setTimeout(() => {
-          app.location.redirect("/login"); // Redirect to login after a short delay
-        }, 2000);
+        app.auth.set(response.data.user._id, response.data.accessToken, response.data.refreshToken, response.data.user.identities);
+        app.location.redirect("<%= redirect %>" || "/"); // Redirect on success
       } else {
-        completeRegistrationButton.disabled = false; // Re-enable button on error
-        // Handle specific errors for invalid username and password
-        if (response.error.code === "INVALID_USERNAME") {
-          app.ui.notification(
-            "list",
-            [
-              "Username must be at least 3 characters long",
-              "Username can only contain letters, numbers, underscores, and hyphens",
-            ],
-            "error",
-            document.getElementById("auth-form"),
-            "register"
-          );
-          return;
-        } else if (response.error.code === "INVALID_PASSWORD") {
-          app.ui.notification(
-            "list",
-            [
-              "Password must be at least 8 characters long",
-              "Password must contain at least one uppercase letter",
-              "Password must contain at least one lowercase letter",
-              "Password must contain at least one number",
-              "Password must contain at least one special character",
-            ],
-            "error",
-            document.getElementById("auth-form"),
-            "register"
-          );
-          return;
-        }
-        // General error notification
+        loginButton.disabled = false; // Re-enable button on error
         app.ui.notification(
           "alert",
           response.message,
           "error",
           document.getElementById("auth-form"),
-          "register"
+          "login"
         );
       }
+    });
+
+    // Google OAuth (Get the JWT token, and send it to the server)
+    window.addEventListener('load', () => {
+      google.accounts.id.initialize({
+        client_id: "<%= googleClientId %>",
+        callback: async (response) => {
+          if (response.credential) {
+            const token = response.credential;
+            const loginResponse = await auth.oauthAuth(token);
+            if (loginResponse.status === "success") {
+              app.auth.set(loginResponse.data.user.id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
+              app.location.redirect("<%= redirect %>" || "/"); // Redirect on success
+            } else {
+              app.ui.notification(
+                "alert",
+                loginResponse.message,
+                "error",
+                document.getElementById("auth-form"),
+                "login"
+              );
+            }
+          }
+        }
+      });
+
+      // Render the Google OAuth button
+      google.accounts.id.renderButton(
+        document.getElementById("g_id_onload"), {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          width: "auto",
+        }
+      );
     });
 
     const EMPTY_PICTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBAp9lXxkAAAAASUVORK5CYII=';
