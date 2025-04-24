@@ -626,6 +626,7 @@ class App {
    */
   constructor(cdnURL, apiURL) {
     this.cdnURL = cdnURL;
+    this.baseURL = window.location.origin;
     this.apiURL = apiURL;
 
     this.data = new Data(this);
