@@ -633,6 +633,7 @@ class Utils {
   static getRank(score) {
     const TRIDECCO_SUPREME = 8400;
     const TRIDECCO_DIVISION = 300;
+    const ONE_HUNDRED = 100;
 
     const tiers = [
       { name: 'Iron', divisions: ['I'] },
@@ -648,9 +649,15 @@ class Utils {
     ];
 
     if (score >= TRIDECCO_SUPREME) {
-      const stars =
-        Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
-      return { name: `Tridecco Supreme ★${stars}`, tier: 7, division: stars };
+      const stars = Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
+      return {
+        name: `Tridecco Supreme ★${stars}`,
+        tier: 7,
+        division: stars,
+        nextRankElo: TRIDECCO_SUPREME + (stars * TRIDECCO_DIVISION),
+        eloToNextRank: TRIDECCO_DIVISION - (score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION,
+        progress: ((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION * ONE_HUNDRED,
+      };
     }
 
     let base = 0;
@@ -660,16 +667,21 @@ class Utils {
       if (score < base + range) {
         const divisionIndex = Math.floor((score - base) / TRIDECCO_DIVISION);
         const division = divisions - divisionIndex;
+        const currentTierMaxElo = base + range;
+
         return {
           name: `${tiers[i].name} ${tiers[i].divisions[divisions - division]}`,
           tier: i,
           division: division,
+          nextRankElo: currentTierMaxElo,
+          eloToNextRank: currentTierMaxElo - score,
+          progress: ((score - base) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION * ONE_HUNDRED,
         };
       }
       base += range;
     }
 
-    return { name: 'Unranked', tier: -1, division: 0 };
+    return { name: 'Unranked', tier: -1, division: 0, nextRankElo: 0, eloToNextRank: 0, progress: 0 };
   }
 
   /**
