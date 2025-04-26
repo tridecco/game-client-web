@@ -10,6 +10,10 @@ const authRoutes = require('./authRoutes');
 
 router.use('/', authRoutes);
 
+router.get('/', (req, res) => {
+  return res.render('pages/home', { path: '/' });
+});
+
 router.get('/404', (req, res) => {
   return res.render('pages/404', { path: req.query.path || '/' });
 });
