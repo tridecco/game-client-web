@@ -680,6 +680,8 @@ class Utils {
   static getLevel(xp) {
     const BASE_XP = 100;
     const EXPONENTIAL_FACTOR = 2;
+    const LEVELS = 50;
+    const TITLE_UP = 5;
 
     const levelThresholds = (n) => BASE_XP * Math.pow(n, EXPONENTIAL_FACTOR);
 
@@ -697,23 +699,22 @@ class Utils {
       { title: 'Ascendant', color: 'Agate', code: '#A8C3BC' },
     ];
 
-    for (let i = 1; i <= levels.length; i++) {
-      const requiredXP = levelThresholds(i);
-      if (xp < requiredXP) {
-        return {
-          level: i - 1,
-          title: levels[i - 1].title,
-          color: levels[i - 1].color,
-          colorCode: levels[i - 1].code,
-        };
+    let level = 1;
+    for (let i = 1; i <= LEVELS; i++) {
+      if (xp < levelThresholds(i)) {
+        level = i - 1;
+        break;
       }
     }
 
+    const titleIndex = Math.floor(level / TITLE_UP);
+    const levelTitle = levels[titleIndex];
+
     return {
-      level: levels.length,
-      title: levels[levels.length - 1].title,
-      color: levels[levels.length - 1].color,
-      colorCode: levels[levels.length - 1].code,
+      level: level,
+      title: levelTitle.title,
+      color: levelTitle.color,
+      colorCode: levelTitle.code,
     };
   }
 }
