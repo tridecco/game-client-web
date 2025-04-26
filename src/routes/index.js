@@ -9,6 +9,9 @@ const router = express.Router();
 const authRoutes = require('./authRoutes');
 const userRoutes = require('./userRoutes');
 
+const NOT_FOUND = 404;
+const FORBIDDEN = 403;
+
 router.use('/', authRoutes);
 router.use('/user', userRoutes);
 
@@ -17,10 +20,12 @@ router.get('/', (req, res) => {
 });
 
 router.get('/404', (req, res) => {
+  res.status(NOT_FOUND);
   return res.render('pages/404', { path: req.query.path || '/' });
 });
 
 router.get('/403', (req, res) => {
+  res.status(FORBIDDEN);
   return res.render('pages/403', { path: req.query.path || '/' });
 });
 
