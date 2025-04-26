@@ -143,4 +143,27 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method updatePassword - Updates the password of the user.
+   * @param {string} currentPassword - The current password.
+   * @param {string} newPassword - The new password.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async updatePassword(currentPassword, newPassword) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/password`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
