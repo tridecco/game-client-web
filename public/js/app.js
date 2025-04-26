@@ -649,14 +649,19 @@ class Utils {
     ];
 
     if (score >= TRIDECCO_SUPREME) {
-      const stars = Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
+      const stars =
+        Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
       return {
         name: `Tridecco Supreme ★${stars}`,
         tier: 7,
         division: stars,
-        nextRankElo: TRIDECCO_SUPREME + (stars * TRIDECCO_DIVISION),
-        eloToNextRank: TRIDECCO_DIVISION - (score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION,
-        progress: ((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION * ONE_HUNDRED,
+        nextRankElo: TRIDECCO_SUPREME + stars * TRIDECCO_DIVISION,
+        eloToNextRank:
+          TRIDECCO_DIVISION - ((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION),
+        progress:
+          (((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION) /
+            TRIDECCO_DIVISION) *
+          ONE_HUNDRED,
       };
     }
 
@@ -675,13 +680,22 @@ class Utils {
           division: division,
           nextRankElo: currentTierMaxElo,
           eloToNextRank: currentTierMaxElo - score,
-          progress: ((score - base) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION * ONE_HUNDRED,
+          progress:
+            (((score - base) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION) *
+            ONE_HUNDRED,
         };
       }
       base += range;
     }
 
-    return { name: 'Unranked', tier: -1, division: 0, nextRankElo: 0, eloToNextRank: 0, progress: 0 };
+    return {
+      name: 'Unranked',
+      tier: -1,
+      division: 0,
+      nextRankElo: 0,
+      eloToNextRank: 0,
+      progress: 0,
+    };
   }
 
   /**
@@ -721,9 +735,23 @@ class Utils {
       }
     }
 
+    if (level >= LEVELS) {
+      const levelTitle = levels[levels.length - 1];
+      return {
+        level: LEVELS,
+        title: levelTitle.title,
+        color: levelTitle.color,
+        colorCode: levelTitle.code,
+        nextLevelXp: 'Max Level Reached',
+        xpToNextLevel: 0,
+        progress: 100,
+      };
+    }
+
     const nextLevelXp = levelThresholds(level + 1);
     const currentLevelXp = levelThresholds(level);
-    const progress = (xp - currentLevelXp) / (nextLevelXp - currentLevelXp) * ONE_HUNDRED;
+    const progress =
+      ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * ONE_HUNDRED;
     const xpToNextLevel = nextLevelXp - xp;
 
     const titleIndex = Math.floor(level / TITLE_UP);
