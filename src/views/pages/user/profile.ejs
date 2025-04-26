@@ -33,7 +33,7 @@
         <form id="profile-form" class="space-y-6 hidden">
           <!-- Avatar Section -->
           <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-            <img id="avatar-preview" src="<%= env.CDN_URL %>/img/avatars/default.png" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 shadow-md flex-shrink-0">
+            <img id="avatar-preview" src="<%= env.CDN_URL %>/img/default-avatar.svg" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 shadow-md flex-shrink-0">
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
               <div>
                 <label for="avatar-upload" class="inline-block cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200 whitespace-nowrap">
@@ -61,8 +61,8 @@
           <div>
             <label class="block text-amber-800 text-sm font-bold mb-2">Gender</label>
             <div id="gender-selector" class="bg-gray-200 p-1 rounded-md inline-flex gap-1">
-              <button type="button" id="gender-input-f" class="bg-transparent p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-pink-500" data-gender="female" title="Female">♀</button>
-              <button type="button" id="gender-input-m" class="bg-transparent p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-blue-500" data-gender="male" title="Male">♂</button>
+              <button type="button" id="gender-input-f" class="p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-pink-500" data-gender="female" title="Female">♀</button>
+              <button type="button" id="gender-input-m" class="p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-blue-500" data-gender="male" title="Male">♂</button>
             </div>
             <input type="hidden" id="gender-input" name="gender">
           </div>
@@ -71,7 +71,7 @@
           <div>
             <label class="block text-amber-800 text-sm font-bold mb-2">Rank / Elo</label>
             <div class="flex items-center space-x-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
-              <img id="rank-icon" alt="Rank" class="w-6 h-6 rounded object-contain">
+              <img id="rank-icon" alt="Rank" class="w-10 h-10 rounded object-contain">
               <span id="elo-rating" class="font-semibold text-lg text-amber-800">--</span>
               <span class="text-sm text-gray-600">(Not editable)</span>
             </div>
@@ -129,7 +129,7 @@
             <button type="button" id="cancel-changes" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-md transition duration-200 text-sm">
               Cancel
             </button>
-            <button type="submit" id="save-profile" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm">
+            <button id="save-profile" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm">
               Save Changes
             </button>
           </div>
@@ -161,11 +161,81 @@
     const genderInput = document.getElementById("gender-input");
     const rankIcon = document.getElementById("rank-icon");
     const eloRating = document.getElementById("elo-rating");
+    const userLevel = document.getElementById("user-level");
+    const xpText = document.getElementById("xp-text");
+    const xpProgressBar = document.getElementById("xp-progress-bar");
+    const xpProgressBarContainer = document.querySelector("#xp-progress-bar").parentElement;
+    const xpProgressBarContainerWidth = xpProgressBarContainer.offsetWidth;
     const locationInput = document.getElementById("location");
     const birthdayInput = document.getElementById("birthday");
     const bioInput = document.getElementById("bio");
     const customUrlsContainer = document.getElementById("custom-urls-container");
     const addUrlButton = document.getElementById("add-url-button");
+
+    // Initialize user module
+    const user = new User(app);
+
+    // Fetch user data on page load
+    user.getUser().then((response) => {
+      if (response.status === "success") {
+        const user = response.data;
+        const profile = user.profile;
+
+        avatarPreview.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
+        displayNameInput.value = profile.name;
+        user.identities.forEach(role => {
+          if (userRoleBadges[role]) {
+            userRoleBadges[role].classList.remove("hidden");
+          }
+        });
+        switch (profile.gender) {
+          case false:
+            genderButtons[0].classList.add("bg-pink-100");
+            break;
+          case true:
+            genderButtons[1].classList.add("bg-blue-100");
+            break;
+          default:
+            genderButtons[0].classList.remove("bg-pink-100");
+            genderButtons[1].classList.remove("bg-blue-100");
+        }
+        const eloRank = app.utils.getRank(user.elo.rating);
+        rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${eloRank.name.split(" ")[0].toLowerCase()}.png`;
+        eloRating.textContent = `${user.elo.rating} (${eloRank.name})`;
+        const level = app.utils.getLevel(user.experience);
+        userLevel.textContent = `${level.level} (${level.title})`;
+        userLevel.style.color = level.color;
+        xpText.textContent = `XP: ${user.experience} / ${level.nextLevelXp}`;
+        xpProgressBar.style.width = `${level.progress}%`;
+        xpProgressBar.style.backgroundColor = level.color;
+        locationInput.value = profile.location || "";
+        birthdayInput.value = profile.birthday || "";
+        bioInput.value = profile.bio || "";
+        if (profile.customizeUrls) {
+          profile.customizeUrls.forEach(url => {
+            const urlDiv = document.createElement("div");
+            urlDiv.className = "flex items-center space-x-2";
+            const urlInput = document.createElement("input");
+            urlInput.type = "text";
+            urlInput.value = url;
+            urlInput.className = "shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent";
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "text-red-600 hover:text-red-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-red-100";
+            removeButton.textContent = "Remove";
+            removeButton.addEventListener("click", () => {
+              customUrlsContainer.removeChild(urlDiv);
+            });
+            urlDiv.appendChild(urlInput);
+            urlDiv.appendChild(removeButton);
+            customUrlsContainer.appendChild(urlDiv);
+          });
+        }
+
+        loadingIndicator.classList.add("hidden");
+        profileForm.classList.remove("hidden");
+      }
+    });
   </script>
 </body>
 
