@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../components/head.ejs") %>
+  <title>Tridecco | Profile</title>
+  <script src="<%= env.CDN_URL %>/js/user.js"></script>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Content Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
+    <!-- Main Content Box -->
+    <div class="bg-white bg-opacity-90 p-6 md:p-8 rounded-xl shadow-xl w-full max-w-4xl backdrop-filter backdrop-blur-md overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
+      <!-- Navigation Sidebar -->
+      <%- include("../../components/user-sidebar.ejs", { page: "profile" }) %>
+
+      <!-- Profile Content Area -->
+      <div class="w-full md:w-3/4 lg:w-4/5 md:pl-6 overflow-y-auto" style="max-height: calc(90vh - 4rem);">
+        <h2 class="text-2xl font-bold mb-6 text-amber-900">Profile Settings</h2>
+
+        <!-- Loading Indicator Placeholder -->
+        <div id="loading-indicator" class="text-center p-10 text-amber-700">
+          Loading profile...
+        </div>
+
+        <form id="profile-form" class="space-y-6 hidden">
+          <!-- Avatar Section -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <img id="avatar-preview" src="<%= env.CDN_URL %>/img/avatars/default.png" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-2 border-amber-600 shadow-md flex-shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div>
+                <label for="avatar-upload" class="inline-block cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200 whitespace-nowrap">
+                  Upload New Avatar
+                </label>
+                <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg, image/gif" class="hidden">
+              </div>
+              <button type="button" id="remove-avatar-button" class="text-red-600 hover:text-red-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-red-100" title="Remove Avatar (use default)">Remove</button>
+            </div>
+            <input type="hidden" id="remove-avatar-flag" name="removeAvatar" value="false">
+          </div>
+
+          <!-- Display Name & Role -->
+          <div>
+            <label for="display-name" class="block text-amber-800 text-sm font-bold mb-2">
+              <span id="user-role-badge-founder" class="hidden inline-block bg-amber-600 text-white text-xs font-bold px-1.5 py-0.5 rounded mr-2 align-middle">Founder</span>
+              <span id="user-role-badge-developer" class="hidden inline-block bg-gray-600 text-white text-xs font-bold px-1.5 py-0.5 rounded mr-2 align-middle">Developer</span>
+              <span id="user-role-badge-admin" class="hidden inline-block bg-purple-600 text-white text-xs font-bold px-1.5 py-0.5 rounded mr-2 align-middle">Admin</span>
+              Display Name
+            </label>
+            <input type="text" id="display-name" name="displayName" required class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Your display name">
+          </div>
+
+          <!-- Gender -->
+          <div>
+            <label class="block text-amber-800 text-sm font-bold mb-2">Gender</label>
+            <div id="gender-selector" class="bg-gray-200 p-1 rounded-md inline-flex gap-1">
+              <button type="button" id="gender-input-f" class="bg-transparent p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-pink-500" data-gender="female" title="Female">♀</button>
+              <button type="button" id="gender-input-m" class="bg-transparent p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-blue-500" data-gender="male" title="Male">♂</button>
+            </div>
+            <input type="hidden" id="gender-input" name="gender">
+          </div>
+
+          <!-- Elo / Rank -->
+          <div>
+            <label class="block text-amber-800 text-sm font-bold mb-2">Rank / Elo</label>
+            <div class="flex items-center space-x-2 p-2 bg-amber-50 border border-amber-200 rounded-md">
+              <img id="rank-icon" alt="Rank" class="w-6 h-6 rounded object-contain">
+              <span id="elo-rating" class="font-semibold text-lg text-amber-800">--</span>
+              <span class="text-sm text-gray-600">(Not editable)</span>
+            </div>
+          </div>
+
+          <!-- Level / Experience -->
+          <div class="mt-4">
+            <label class="block text-amber-800 text-sm font-bold mb-2">Level / Experience</label>
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-md space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-lg text-blue-800">Level <span id="user-level">--</span></span>
+                <span id="xp-text" class="text-sm text-blue-600">XP: -- / --</span>
+              </div>
+              <!-- Experience Progress Bar -->
+              <div class="w-full bg-blue-200 rounded-full h-2.5 overflow-hidden">
+                <div id="xp-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+              </div>
+              <span class="text-xs text-gray-500 block text-right">(Not editable)</span>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div>
+            <label for="location" class="block text-amber-800 text-sm font-bold mb-2">Location</label>
+            <input type="text" id="location" name="location" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="City, Country">
+          </div>
+
+          <!-- Birthday -->
+          <div>
+            <label for="birthday" class="block text-amber-800 text-sm font-bold mb-2">Birthday</label>
+            <input type="date" id="birthday" name="birthday" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+          </div>
+
+          <!-- Bio / About Me -->
+          <div>
+            <label for="bio" class="block text-amber-800 text-sm font-bold mb-2">About Me (Optional)</label>
+            <textarea id="bio" name="bio" rows="3" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Tell others a little about yourself..."></textarea>
+          </div>
+
+          <!-- Custom URLs -->
+          <div>
+            <label class="block text-amber-800 text-sm font-bold mb-2">Custom Links</label>
+            <div id="custom-urls-container" class="space-y-2">
+            </div>
+            <button type="button" id="add-url-button" class="mt-2 text-sm text-amber-700 hover:text-amber-900 hover:underline font-medium flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+              Add Link
+            </button>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex items-center justify-end space-x-3 pt-6 border-t border-amber-700 border-opacity-30 mt-8">
+            <button type="button" id="cancel-changes" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-md transition duration-200 text-sm">
+              Cancel
+            </button>
+            <button type="submit" id="save-profile" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include Tridecco Animator -->
+  <%- include("../../components/tridecco-board-animator.ejs") %>
+
+  <script>
+    const profileForm = document.getElementById("profile-form");
+    const loadingIndicator = document.getElementById("loading-indicator");
+    const saveButton = document.getElementById("save-profile");
+    const cancelButton = document.getElementById("cancel-changes");
+    const avatarPreview = document.getElementById("avatar-preview");
+    const avatarUploadInput = document.getElementById("avatar-upload");
+    const removeAvatarButton = document.getElementById("remove-avatar-button");
+    const removeAvatarFlag = document.getElementById("remove-avatar-flag");
+    const displayNameInput = document.getElementById("display-name");
+    const userRoleBadges = {
+      founder: document.getElementById("user-role-badge-founder"),
+      developer: document.getElementById("user-role-badge-developer"),
+      admin: document.getElementById("user-role-badge-admin")
+    };
+    const genderSelector = document.getElementById("gender-selector");
+    const genderButtons = document.querySelectorAll("#gender-selector button");
+    const genderInput = document.getElementById("gender-input");
+    const rankIcon = document.getElementById("rank-icon");
+    const eloRating = document.getElementById("elo-rating");
+    const locationInput = document.getElementById("location");
+    const birthdayInput = document.getElementById("birthday");
+    const bioInput = document.getElementById("bio");
+    const customUrlsContainer = document.getElementById("custom-urls-container");
+    const addUrlButton = document.getElementById("add-url-button");
+  </script>
+</body>
+
+</html>
