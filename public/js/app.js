@@ -682,6 +682,8 @@ class Utils {
     const EXPONENTIAL_FACTOR = 2;
     const LEVELS = 50;
     const TITLE_UP = 5;
+    const TO_FIXED = 2;
+    const ONE_HUNDRED = 100;
 
     const levelThresholds = (n) => BASE_XP * Math.pow(n, EXPONENTIAL_FACTOR);
 
@@ -707,6 +709,11 @@ class Utils {
       }
     }
 
+    const nextLevelXp = levelThresholds(level + 1);
+    const currentLevelXp = levelThresholds(level);
+    const progress = (xp - currentLevelXp) / (nextLevelXp - currentLevelXp) * ONE_HUNDRED;
+    const xpToNextLevel = nextLevelXp - xp;
+
     const titleIndex = Math.floor(level / TITLE_UP);
     const levelTitle = levels[titleIndex];
 
@@ -715,6 +722,9 @@ class Utils {
       title: levelTitle.title,
       color: levelTitle.color,
       colorCode: levelTitle.code,
+      nextLevelXp: nextLevelXp,
+      xpToNextLevel: xpToNextLevel,
+      progress: progress.toFixed(TO_FIXED),
     };
   }
 }
