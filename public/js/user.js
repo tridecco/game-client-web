@@ -166,4 +166,26 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method updateProfile - Updates the profile of the user.
+   * @param {Object} profileData - The profile data.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async updateProfile(profileData) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/profile`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
