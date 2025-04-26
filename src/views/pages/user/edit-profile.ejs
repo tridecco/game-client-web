@@ -312,7 +312,7 @@
         location: locationInput.value.trim(),
         birthday: birthdayInput.value || null,
         bio: bioInput.value.trim(),
-        customUrls: Array.from(customUrlsContainer.children).map(child => child.querySelector("input").value.trim())
+        customizeUrls: Array.from(customUrlsContainer.children).map(child => child.querySelector("input").value.trim())
       };
 
       const response = await user.updateProfile(profileData);
