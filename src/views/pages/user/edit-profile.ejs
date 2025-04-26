@@ -279,7 +279,11 @@
     // Handle custom URL addition
     addUrlButton.addEventListener("click", () => {
       if (customUrlsContainer.children.length >= 5) {
-        alert("You can only add up to 5 custom links.");
+        app.ui.alert(
+          "You can only add up to 5 custom URLs.",
+          "warning",
+          3000,
+        );
         return;
       }
       const urlDiv = document.createElement("div");
