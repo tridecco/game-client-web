@@ -121,4 +121,26 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method completeEmailUpdate - Completes the email update of the user.
+   * @param {string} token - The email update token.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async completeEmailUpdate(token) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/email/complete`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
