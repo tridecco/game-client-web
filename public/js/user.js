@@ -188,4 +188,26 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method updateSettings - Updates the settings of the user.
+   * @param {Object} settingsData - The settings data.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async updateSettings(settingsData) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/settings`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settingsData),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
