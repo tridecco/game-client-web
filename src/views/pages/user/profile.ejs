@@ -236,6 +236,111 @@
         profileForm.classList.remove("hidden");
       }
     });
+
+    // Handle avatar upload
+    avatarUploadInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          avatarPreview.src = e.target.result;
+          removeAvatarFlag.value = "false";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle gender selection
+    genderButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const isSelected = button.classList.contains("bg-pink-100") || button.classList.contains("bg-blue-100");
+        genderButtons.forEach(btn => btn.classList.remove("bg-pink-100", "bg-blue-100"));
+        if (isSelected) {
+          genderInput.value = null;
+        } else {
+          const selectedGender = button.dataset.gender;
+          if (selectedGender === "female") {
+            button.classList.add("bg-pink-100");
+            genderInput.value = false;
+          } else if (selectedGender === "male") {
+            button.classList.add("bg-blue-100");
+            genderInput.value = true;
+          }
+        }
+      });
+    });
+
+    // Handle avatar removal
+    removeAvatarButton.addEventListener("click", () => {
+      avatarPreview.src = "<%= env.CDN_URL %>/img/default-avatar.svg";
+      removeAvatarFlag.value = "true";
+    });
+
+    // Handle custom URL addition
+    addUrlButton.addEventListener("click", () => {
+      if (customUrlsContainer.children.length >= 5) {
+        alert("You can only add up to 5 custom links.");
+        return;
+      }
+      const urlDiv = document.createElement("div");
+      urlDiv.className = "flex items-center space-x-2";
+      const urlInput = document.createElement("input");
+      urlInput.type = "text";
+      urlInput.placeholder = "https://example.com";
+      urlInput.className = "shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent";
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "text-red-600 hover:text-red-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-red-100";
+      removeButton.textContent = "Remove";
+      removeButton.addEventListener("click", () => {
+        customUrlsContainer.removeChild(urlDiv);
+      });
+      urlDiv.appendChild(urlInput);
+      urlDiv.appendChild(removeButton);
+      customUrlsContainer.appendChild(urlDiv);
+    });
+
+    // Handle profile save
+    saveButton.addEventListener("click", async () => {
+      saveButton.disabled = true; // Disable button during processing
+      event.preventDefault(); // Prevent form submission
+
+      const profileData = {
+        avatar: removeAvatarFlag.value === "true" ? null : avatarPreview.src,
+        displayName: displayNameInput.value.trim(),
+        gender: genderInput.value === "" ? null : genderInput.value === "true",
+        location: locationInput.value.trim(),
+        birthday: birthdayInput.value || null,
+        bio: bioInput.value.trim(),
+        customUrls: Array.from(customUrlsContainer.children).map(child => child.querySelector("input").value.trim())
+      };
+
+      const response = await user.updateProfile(profileData);
+      if (response.status === "success") {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          profileForm,
+          "profile",
+          true
+        );
+
+        setTimeout(() => {
+          app.location.redirect("/user");
+        }, 2000);
+      } else {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          profileForm,
+          "profile",
+          true
+        );
+        saveButton.disabled = false; // Re-enable button on error
+      }
+    });
   </script>
 </body>
 
