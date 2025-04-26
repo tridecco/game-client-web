@@ -492,6 +492,7 @@ class UI {
    * @param {string} status - The status of the notification.
    * @param {HTMLElement} parentElement - The parent element to append the notification to.
    * @param {string} messageGroup - The message group, auto-removes when a new message is added to the group.
+   * @param {boolean} scrollTo - Whether to scroll to the notification.
    * @returns {HTMLElement} The notification element.
    */
   notification(
@@ -500,6 +501,7 @@ class UI {
     status = 'info',
     parentElement,
     messageGroup,
+    scrollTo = false,
   ) {
     const alert = document.createElement('div');
 
@@ -614,6 +616,13 @@ class UI {
       }
 
       this.notifications.set(messageGroup, alert);
+    }
+
+    if (scrollTo) {
+      alert.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      });
     }
 
     return alert;
