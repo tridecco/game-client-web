@@ -97,4 +97,28 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method updateEmail - Updates the email of the user.
+   * @param {string} email - The new email.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async updateEmail(email) {
+    const callbackUrl = `${this.baseURL}/user/account/complete-email-update`;
+
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, callbackUrl }),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
