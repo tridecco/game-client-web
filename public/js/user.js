@@ -75,4 +75,26 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method updateUsername - Updates the username of the user.
+   * @param {string} username - The new username.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async updateUsername(username) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/username`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
