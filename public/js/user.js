@@ -31,4 +31,24 @@ class User {
 
     return data;
   }
+
+  /**
+   * @method getSettings - Gets the user settings.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async getSettings() {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/settings`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
 }
