@@ -3,6 +3,8 @@
  * @description User class to send user requests to the backend.
  */
 
+const DEFAULT_SAFETY_RECORDS_LIMIT = 10; // Default number of safety records to return
+
 class User {
   /**
    * @constructor - Initializes the User class.
@@ -39,6 +41,28 @@ class User {
   async getSettings() {
     const response = await fetch(
       `${this.apiURL}/users/${this.app.auth.userId}/settings`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
+
+  /**
+   * @method getSafetyRecords - Gets the user safety records.
+   * @param {number} limit - The number of records to return.
+   * @param {number} offset - The number of records to skip.
+   * @returns {Promise<Object>} - The response object.
+   */
+  async getSafetyRecords(limit = DEFAULT_SAFETY_RECORDS_LIMIT, offset = 0) {
+    const response = await fetch(
+      `${this.apiURL}/users/${this.app.auth.userId}/safety-records?limit=${limit}&offset=${offset}`,
       {
         method: 'GET',
         headers: {
