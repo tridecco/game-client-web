@@ -671,6 +671,51 @@ class Utils {
 
     return { name: 'Unranked', tier: -1, division: 0 };
   }
+
+  /**
+   * @method getLevel - Gets the level of the user based on their experience points.
+   * @param {number} xp - The experience points of the user.
+   * @returns {Object} - The level of the user.
+   */
+  static getLevel(xp) {
+    const BASE_XP = 100;
+    const EXPONENTIAL_FACTOR = 2;
+
+    const levelThresholds = (n) => BASE_XP * Math.pow(n, EXPONENTIAL_FACTOR);
+
+    const levels = [
+      { title: 'Novice', color: 'Gray', code: '#808080' },
+      { title: 'Initiate', color: 'Bronze', code: '#CD7F32' },
+      { title: 'Apprentice', color: 'Silver', code: '#C0C0C0' },
+      { title: 'Journeyman', color: 'Gold', code: '#FFD700' },
+      { title: 'Adept', color: 'Emerald', code: '#50C878' },
+      { title: 'Expert', color: 'Sapphire', code: '#0F52BA' },
+      { title: 'Master', color: 'Amethyst', code: '#9966CC' },
+      { title: 'Grandmaster', color: 'Ruby', code: '#E0115F' },
+      { title: 'Legend', color: 'Platinum', code: '#E5E4E2' },
+      { title: 'Mythic', color: 'Diamond', code: '#B9F2FF' },
+      { title: 'Ascendant', color: 'Agate', code: '#A8C3BC' },
+    ];
+
+    for (let i = 1; i <= levels.length; i++) {
+      const requiredXP = levelThresholds(i);
+      if (xp < requiredXP) {
+        return {
+          level: i - 1,
+          title: levels[i - 1].title,
+          color: levels[i - 1].color,
+          colorCode: levels[i - 1].code,
+        };
+      }
+    }
+
+    return {
+      level: levels.length,
+      title: levels[levels.length - 1].title,
+      color: levels[levels.length - 1].color,
+      colorCode: levels[levels.length - 1].code,
+    };
+  }
 }
 
 /**
