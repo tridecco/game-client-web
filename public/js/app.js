@@ -621,6 +621,59 @@ class UI {
 }
 
 /**
+ * @class Utils
+ * @description Utility functions for the application.
+ */
+class Utils {
+  /**
+   * @method getRank - Gets the rank of the user based on their elo score.
+   * @param {number} score - The elo score of the user.
+   * @returns {Object} - The rank of the user.
+   */
+  static getRank(score) {
+    const TRIDECCO_SUPREME = 8400;
+    const TRIDECCO_DIVISION = 300;
+
+    const tiers = [
+      { name: 'Iron', divisions: ['I'] },
+      { name: 'Bronze', divisions: ['II', 'I'] },
+      { name: 'Silver', divisions: ['III', 'II', 'I'] },
+      { name: 'Gold', divisions: ['IV', 'III', 'II', 'I'] },
+      { name: 'Platinum', divisions: ['V', 'IV', 'III', 'II', 'I'] },
+      { name: 'Diamond', divisions: ['VI', 'V', 'IV', 'III', 'II', 'I'] },
+      {
+        name: 'Tridecco',
+        divisions: ['VII', 'VI', 'V', 'IV', 'III', 'II', 'I'],
+      },
+    ];
+
+    if (score >= TRIDECCO_SUPREME) {
+      const stars =
+        Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
+      return { name: `Tridecco Supreme ★${stars}`, tier: 7, division: stars };
+    }
+
+    let base = 0;
+    for (let i = 0; i < tiers.length; i++) {
+      const divisions = tiers[i].divisions.length;
+      const range = divisions * TRIDECCO_DIVISION;
+      if (score < base + range) {
+        const divisionIndex = Math.floor((score - base) / TRIDECCO_DIVISION);
+        const division = divisions - divisionIndex;
+        return {
+          name: `${tiers[i].name} ${tiers[i].divisions[divisions - division]}`,
+          tier: i,
+          division: division,
+        };
+      }
+      base += range;
+    }
+
+    return { name: 'Unranked', tier: -1, division: 0 };
+  }
+}
+
+/**
  * @class App
  * @description Main application class.
  */
@@ -640,6 +693,7 @@ class App {
     this.auth = new Auth(this);
     this.location = new Location(this);
     this.ui = new UI(this);
+    this.utils = Utils;
 
     this.init();
   }
