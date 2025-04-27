@@ -178,8 +178,14 @@ class Auth {
     window.fetch = async function fetchWithAuth(url, options = {}) {
       const currentOrigin = window.location.origin;
 
-      // Only add Authorization header for same-origin requests
-      if (url.startsWith(currentOrigin) && this.accessToken) {
+      let targetOrigin;
+      try {
+        targetOrigin = new URL(url).origin;
+      } catch (error) {
+        targetOrigin = '';
+      }
+
+      if (targetOrigin === currentOrigin && this.accessToken) {
         options.headers = {
           ...options.headers,
           Authorization: `Bearer ${this.accessToken}`,
@@ -190,7 +196,7 @@ class Auth {
         try {
           await this.authenticate();
 
-          if (url.startsWith(currentOrigin)) {
+          if (targetOrigin === currentOrigin) {
             options.headers.Authorization = `Bearer ${this.accessToken}`;
           }
 
