@@ -27,4 +27,8 @@ router.get('/account/complete-email-update', (req, res) => {
   }
 });
 
+router.get('/settings', (req, res) => {
+  return res.render('pages/user/settings');
+});
+
 module.exports = router;
