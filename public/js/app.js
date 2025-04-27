@@ -630,6 +630,45 @@ class UI {
 }
 
 /**
+ * @class Network
+ * @description Handles network requests.
+ */
+class Network {
+  /**
+   * @constructor - Initializes the Network class.
+   * @param {Object} app - The App class instance.
+   */
+  constructor(app) {
+    this.app = app;
+
+    this.online = navigator.onLine;
+    this.app.online = this.init();
+  }
+
+  /**
+   * @method init - Initializes the Network class.
+   * @returns {boolean} - True if the user is online, false otherwise.
+   */
+  init() {
+    window.addEventListener('online', () => {
+      this.app.online = true;
+      this.app.ui.alert('You are back online!', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+      this.app.online = false;
+      this.app.ui.alert('You are offline!', 'error');
+    });
+
+    if (!this.online) {
+      this.app.ui.alert('You are offline!', 'error');
+    }
+
+    return this.online;
+  }
+}
+
+/**
  * @class Utils
  * @description Utility functions for the application.
  */
@@ -798,6 +837,7 @@ class App {
     this.auth = new Auth(this);
     this.location = new Location(this);
     this.ui = new UI(this);
+    this.network = new Network(this);
     this.utils = Utils;
 
     this.init();
