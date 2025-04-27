@@ -184,11 +184,7 @@
       if (!dateString) return null;
       try {
         const date = new Date(dateString);
-        return date.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric"
-        });
+        return date.toISOString().split("T")[0]
       } catch (e) {
         return dateString;
       }
