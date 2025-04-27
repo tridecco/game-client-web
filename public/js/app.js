@@ -206,7 +206,12 @@ class Auth {
           return response;
         }
       } catch (error) {
-        return await refreshToken();
+        if (this.app.online) {
+          const RETRY_WAIT_TIME = 1000;
+          setTimeout(async () => {
+            return await refreshToken();
+          }, RETRY_WAIT_TIME);
+        }
       }
     }.bind(this);
   }
