@@ -167,6 +167,46 @@
 
       saveUsernameButton.disabled = false; // Re-enable button after processing
     });
+
+    // Handle email update
+    saveEmailButton.addEventListener("click", async (event) => {
+      event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      saveEmailButton.disabled = true; // Disable button during processing
+
+      const newEmail = emailInput.value;
+
+      // Attempt to update email
+      const response = await user.updateEmail(newEmail);
+      if (response.status === "success") {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          emailForm,
+          "email",
+          true);
+      } else {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          emailForm,
+          "email",
+          true);
+      }
+
+      saveEmailButton.disabled = false; // Re-enable button after processing
+    });
   </script>
 </body>
 
