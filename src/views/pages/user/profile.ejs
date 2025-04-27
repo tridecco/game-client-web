@@ -12,7 +12,7 @@
     }
 
     .profile-url-list li::before {
-      content: '🔗';
+      content: "🔗";
       margin-right: 0.5em;
     }
   </style>
@@ -86,8 +86,16 @@
                   <div>Losses: <span id="elo-losses" class="font-medium text-red-700">--</span></div>
                   <div>Draws: <span id="elo-draws" class="font-medium text-gray-600">--</span></div>
                   <div>Win Rate: <span id="elo-winrate" class="font-medium text-amber-800">--</span></div>
-                  <div>Highest: <span id="elo-highest" class="font-medium text-blue-700">--</span></div>
-                  <div>Lowest: <span id="elo-lowest" class="font-medium text-purple-700">--</span></div>
+                  <div class="flex items-center">
+                    Highest:
+                    <img id="elo-highest-rank-icon" alt="Highest Rank" class="w-4 h-4 rounded object-contain mx-1">
+                    <span id="elo-highest" class="font-medium text-blue-700">--</span>
+                  </div>
+                  <div class="flex items-center">
+                    Lowest:
+                    <img id="elo-lowest-rank-icon" alt="Lowest Rank" class="w-4 h-4 rounded object-contain mx-1">
+                    <span id="elo-lowest" class="font-medium text-purple-700">--</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -159,6 +167,8 @@
     const eloWinrate = document.getElementById("elo-winrate");
     const eloHighest = document.getElementById("elo-highest");
     const eloLowest = document.getElementById("elo-lowest");
+    const eloHighestRankIcon = document.getElementById("elo-highest-rank-icon");
+    const eloLowestRankIcon = document.getElementById("elo-lowest-rank-icon");
     const userLevel = document.getElementById("user-level");
     const xpText = document.getElementById("xp-text");
     const xpProgressBar = document.getElementById("xp-progress-bar");
@@ -173,11 +183,11 @@
     function formatBirthday(dateString) {
       if (!dateString) return null;
       try {
-        const date = new Date(dateString + 'T00:00:00Z');
+        const date = new Date(dateString + "T00:00:00Z");
         return date.toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+          year: "numeric",
+          month: "long",
+          day: "numeric"
         });
       } catch (e) {
         return dateString;
@@ -185,6 +195,10 @@
     }
 
     function setDisplayContent(element, value, placeholderText = "Not specified") {
+      if (!element) {
+        console.warn(`setDisplayContent: Element not found for value "${value}"`);
+        return;
+      }
       if (value !== null && value !== undefined && value !== "") {
         element.textContent = value;
         element.classList.remove("placeholder-text");
@@ -204,7 +218,7 @@
         avatarPreview.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
         setDisplayContent(displayNameDisplay, profile.name, "Unnamed User");
 
-        Object.values(userRoleBadges).forEach(badge => badge.classList.add('hidden'));
+        Object.values(userRoleBadges).forEach(badge => badge.classList.add("hidden"));
         user.identities.forEach(role => {
           if (userRoleBadges[role]) userRoleBadges[role].classList.remove("hidden");
         });
@@ -217,56 +231,77 @@
         setDisplayContent(locationDisplay, profile.location);
         setDisplayContent(birthdayDisplay, formatBirthday(profile.birthday));
 
-        const eloRank = app.utils.getRank(eloData.rating);
-        rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${eloRank.name.split(" ")[0].toLowerCase()}.png`;
-        rankIcon.alt = eloRank.name;
-        setDisplayContent(eloRating, `${eloData.rating} (${eloRank.name})`, "--");
-        setDisplayContent(eloWins, eloData.wins, '0');
-        setDisplayContent(eloLosses, eloData.losses, '0');
-        setDisplayContent(eloDraws, eloData.draw, '0');
-        const winRatePercent = eloData.winRate !== undefined ? `${(eloData.winRate * 100).toFixed(1)}%` : '--';
-        setDisplayContent(eloWinrate, winRatePercent, '--');
-        setDisplayContent(eloHighest, eloData.highestRating, '--');
-        setDisplayContent(eloLowest, eloData.lowestRating, '--');
+        const currentEloRank = app.utils.getRank(eloData.rating);
+        if (rankIcon) {
+          rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          rankIcon.alt = currentEloRank.name;
+        }
+        setDisplayContent(eloRating, `${eloData.rating} (${currentEloRank.name})`, "--");
+
+        setDisplayContent(eloWins, eloData.wins, "0");
+        setDisplayContent(eloLosses, eloData.losses, "0");
+        setDisplayContent(eloDraws, eloData.draw, "0");
+        const winRatePercent = eloData.winRate !== undefined ? `${(eloData.winRate * 100).toFixed(1)}%` : "--";
+        setDisplayContent(eloWinrate, winRatePercent, "--");
+
+        setDisplayContent(eloHighest, eloData.highestRating, "--");
+        const highestEloRank = app.utils.getRank(eloData.highestRating);
+        if (eloHighestRankIcon) { // Check if element exists before setting src/alt/title
+          eloHighestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${highestEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          eloHighestRankIcon.alt = highestEloRank.name;
+          eloHighestRankIcon.title = `Highest Rank: ${highestEloRank.name}`;
+        }
+
+        setDisplayContent(eloLowest, eloData.lowestRating, "--");
+        const lowestEloRank = app.utils.getRank(eloData.lowestRating);
+        if (eloLowestRankIcon) { // Check if element exists before setting src/alt/title
+          eloLowestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${lowestEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          eloLowestRankIcon.alt = lowestEloRank.name;
+          eloLowestRankIcon.title = `Lowest Rank: ${lowestEloRank.name}`;
+        }
+
 
         const level = app.utils.getLevel(user.experience);
         setDisplayContent(userLevel, `${level.level} (${level.title})`, "--");
-        userLevel.style.color = level.color || 'inherit';
+        if (userLevel) userLevel.style.color = level.color || "inherit";
         setDisplayContent(xpText, `XP: ${user.experience} / ${level.nextLevelXp}`, "XP: -- / --");
-        xpProgressBar.style.width = `${level.progress || 0}%`;
-        xpProgressBar.style.backgroundColor = level.color || '#4B5563';
+        if (xpProgressBar) {
+          xpProgressBar.style.width = `${level.progress || 0}%`;
+          xpProgressBar.style.backgroundColor = level.color || "#4B5563";
+        }
+
 
         setDisplayContent(bioDisplay, profile.bio, "Nothing written yet.");
-        if (profile.bio) bioDisplay.classList.remove("placeholder-text");
+        if (bioDisplay && profile.bio) bioDisplay.classList.remove("placeholder-text");
 
-        customUrlsContainer.innerHTML = '';
+        if (customUrlsContainer) customUrlsContainer.innerHTML = "";
         if (profile.customizeUrls && profile.customizeUrls.length > 0) {
-          noLinksPlaceholder.classList.add('hidden');
+          if (noLinksPlaceholder) noLinksPlaceholder.classList.add("hidden");
           profile.customizeUrls.forEach(url => {
             if (!url) return;
             const listItem = document.createElement("li");
             const link = document.createElement("a");
             link.href = url;
-            link.textContent = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+            link.textContent = url.replace(/^(https?:\/\/)?(www\.)?/, "").split("/")[0];
             link.className = "text-blue-600 hover:text-blue-800 hover:underline break-all";
             link.target = "_blank";
             link.rel = "noopener noreferrer";
             listItem.appendChild(link);
-            customUrlsContainer.appendChild(listItem);
+            if (customUrlsContainer) customUrlsContainer.appendChild(listItem);
           });
         } else {
-          noLinksPlaceholder.classList.remove('hidden');
+          if (noLinksPlaceholder) noLinksPlaceholder.classList.remove("hidden");
         }
 
-        loadingIndicator.classList.add("hidden");
-        profileDisplayArea.classList.remove("hidden");
+        if (loadingIndicator) loadingIndicator.classList.add("hidden");
+        if (profileDisplayArea) profileDisplayArea.classList.remove("hidden");
 
       } else {
-        loadingIndicator.textContent = "Failed to load profile.";
+        if (loadingIndicator) loadingIndicator.textContent = "Failed to load profile.";
         console.error("Error fetching user data:", response.message);
       }
     }).catch(error => {
-      loadingIndicator.textContent = "Error loading profile.";
+      if (loadingIndicator) loadingIndicator.textContent = "Error loading profile.";
       console.error("Exception fetching user data:", error);
     });
   </script>
