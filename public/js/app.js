@@ -213,6 +213,8 @@ class Auth {
           }, RETRY_WAIT_TIME);
         }
       }
+
+      return undefined;
     }.bind(this);
   }
 
