@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../components/head.ejs") %>
+  <title>Tridecco | Profile</title>
+  <script src="<%= env.CDN_URL %>/js/user.js"></script>
+  <style>
+    .placeholder-text {
+      color: #9CA3AF;
+      font-style: italic;
+    }
+
+    .profile-url-list li::before {
+      content: '🔗';
+      margin-right: 0.5em;
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Content Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
+    <!-- Main Content Box -->
+    <div class="bg-white bg-opacity-90 p-6 md:p-8 rounded-xl shadow-xl w-full max-w-4xl backdrop-filter backdrop-blur-md overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
+      <!-- Navigation Sidebar -->
+      <%- include("../../components/user-sidebar.ejs", { page: "profile" }) %>
+
+      <!-- Profile Content Area -->
+      <div class="w-full md:w-3/4 lg:w-4/5 md:pl-6 overflow-y-auto" style="max-height: calc(90vh - 4rem);">
+        <h2 class="text-2xl font-bold mb-6 text-amber-900">User Profile</h2>
+
+        <!-- Loading Indicator -->
+        <div id="loading-indicator" class="text-center p-10 text-amber-700">
+          Loading profile...
+        </div>
+
+        <!-- Profile Display Area -->
+        <div id="profile-display-area" class="space-y-6 hidden">
+
+          <!-- Avatar & Basic Info Section -->
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 pb-4 border-b border-amber-200">
+            <img id="avatar-preview" src="<%= env.CDN_URL %>/img/default-avatar.svg" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-4 border-amber-500 shadow-lg flex-shrink-0">
+            <div class="flex-grow text-center sm:text-left">
+              <h3 class="text-xl font-semibold text-amber-900 mb-1 flex items-center justify-center sm:justify-start flex-wrap gap-x-2 gap-y-1">
+                <span id="user-role-badge-founder" class="hidden inline-block bg-amber-600 text-white text-xs font-bold px-1.5 py-0.5 rounded align-middle">Founder</span>
+                <span id="user-role-badge-developer" class="hidden inline-block bg-gray-600 text-white text-xs font-bold px-1.5 py-0.5 rounded align-middle">Developer</span>
+                <span id="user-role-badge-admin" class="hidden inline-block bg-purple-600 text-white text-xs font-bold px-1.5 py-0.5 rounded align-middle">Admin</span>
+                <span id="display-name">--</span>
+              </h3>
+              <p class="text-sm text-gray-600 mb-1">Gender: <span id="gender-display" class="font-medium text-gray-700 placeholder-text">Not specified</span></p>
+              <p class="text-sm text-gray-600 mb-1">
+                <svg class="w-4 h-4 inline-block mr-1 align-text-bottom text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span id="location-display" class="font-medium text-gray-700 placeholder-text">Not specified</span>
+              </p>
+              <p class="text-sm text-gray-600 mb-1">
+                <svg class="w-4 h-4 inline-block mr-1 align-text-bottom text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span id="birthday-display" class="font-medium text-gray-700 placeholder-text">Not specified</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Stats Section (Elo & Level) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Elo / Rank Column -->
+            <div class="space-y-3">
+              <label class="block text-amber-800 text-sm font-bold">Rank / Elo</label>
+              <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm">
+                <div class="flex items-center space-x-3 mb-3">
+                  <img id="rank-icon" alt="Rank" class="w-12 h-12 rounded object-contain flex-shrink-0">
+                  <span id="elo-rating" class="font-bold text-xl text-amber-900 whitespace-nowrap">--</span>
+                </div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700 border-t border-amber-100 pt-3">
+                  <div>Wins: <span id="elo-wins" class="font-medium text-green-700">--</span></div>
+                  <div>Losses: <span id="elo-losses" class="font-medium text-red-700">--</span></div>
+                  <div>Draws: <span id="elo-draws" class="font-medium text-gray-600">--</span></div>
+                  <div>Win Rate: <span id="elo-winrate" class="font-medium text-amber-800">--</span></div>
+                  <div>Highest: <span id="elo-highest" class="font-medium text-blue-700">--</span></div>
+                  <div>Lowest: <span id="elo-lowest" class="font-medium text-purple-700">--</span></div>
+                </div>
+              </div>
+            </div>
+            <!-- Level / Experience Column -->
+            <div class="space-y-3">
+              <label class="block text-blue-800 text-sm font-bold">Level / Experience</label>
+              <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="font-semibold text-lg text-blue-800">Level <span id="user-level">--</span></span>
+                  <span id="xp-text" class="text-sm text-blue-600">XP: -- / --</span>
+                </div>
+                <div class="w-full bg-blue-200 rounded-full h-3 overflow-hidden" title="XP Progress">
+                  <div id="xp-progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio / About Me -->
+          <div>
+            <label class="block text-amber-800 text-sm font-bold mb-2">About Me</label>
+            <p id="bio-display" class="text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-200 min-h-[4em] whitespace-pre-wrap placeholder-text">Nothing written yet.</p>
+          </div>
+
+          <!-- Custom URLs -->
+          <div>
+            <label class="block text-amber-800 text-sm font-bold mb-2">Links</label>
+            <ul id="custom-urls-container" class="space-y-1 list-inside profile-url-list">
+              <li id="no-links-placeholder" class="placeholder-text">No links added.</li>
+            </ul>
+          </div>
+
+          <!-- Edit Profile Button -->
+          <div class="flex justify-center pt-6 border-t border-amber-700 border-opacity-30 mt-8">
+            <a href="/user/edit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm inline-flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+              Edit Profile
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include Tridecco Animator -->
+  <%- include("../../components/tridecco-board-animator.ejs") %>
+
+  <script>
+    const profileDisplayArea = document.getElementById("profile-display-area");
+    const loadingIndicator = document.getElementById("loading-indicator");
+    const avatarPreview = document.getElementById("avatar-preview");
+    const displayNameDisplay = document.getElementById("display-name");
+    const userRoleBadges = {
+      founder: document.getElementById("user-role-badge-founder"),
+      developer: document.getElementById("user-role-badge-developer"),
+      admin: document.getElementById("user-role-badge-admin")
+    };
+    const genderDisplay = document.getElementById("gender-display");
+    const locationDisplay = document.getElementById("location-display");
+    const birthdayDisplay = document.getElementById("birthday-display");
+    const rankIcon = document.getElementById("rank-icon");
+    const eloRating = document.getElementById("elo-rating");
+    const eloWins = document.getElementById("elo-wins");
+    const eloLosses = document.getElementById("elo-losses");
+    const eloDraws = document.getElementById("elo-draws");
+    const eloWinrate = document.getElementById("elo-winrate");
+    const eloHighest = document.getElementById("elo-highest");
+    const eloLowest = document.getElementById("elo-lowest");
+    const userLevel = document.getElementById("user-level");
+    const xpText = document.getElementById("xp-text");
+    const xpProgressBar = document.getElementById("xp-progress-bar");
+    const bioDisplay = document.getElementById("bio-display");
+    const customUrlsContainer = document.getElementById("custom-urls-container");
+    const noLinksPlaceholder = document.getElementById("no-links-placeholder");
+
+    // Initialize user module
+    const userModule = new User(app);
+
+    // Helper Functions
+    function formatBirthday(dateString) {
+      if (!dateString) return null;
+      try {
+        const date = new Date(dateString + 'T00:00:00Z');
+        return date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function setDisplayContent(element, value, placeholderText = "Not specified") {
+      if (value !== null && value !== undefined && value !== "") {
+        element.textContent = value;
+        element.classList.remove("placeholder-text");
+      } else {
+        element.textContent = placeholderText;
+        element.classList.add("placeholder-text");
+      }
+    }
+
+    // Fetch and Display User Data
+    userModule.getUser().then((response) => {
+      if (response.status === "success") {
+        const user = response.data;
+        const profile = user.profile;
+        const eloData = user.elo;
+
+        avatarPreview.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
+        setDisplayContent(displayNameDisplay, profile.name, "Unnamed User");
+
+        Object.values(userRoleBadges).forEach(badge => badge.classList.add('hidden'));
+        user.identities.forEach(role => {
+          if (userRoleBadges[role]) userRoleBadges[role].classList.remove("hidden");
+        });
+
+        let genderText = "Not specified";
+        if (profile.gender === false) genderText = "Female";
+        else if (profile.gender === true) genderText = "Male";
+        setDisplayContent(genderDisplay, genderText);
+
+        setDisplayContent(locationDisplay, profile.location);
+        setDisplayContent(birthdayDisplay, formatBirthday(profile.birthday));
+
+        const eloRank = app.utils.getRank(eloData.rating);
+        rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${eloRank.name.split(" ")[0].toLowerCase()}.png`;
+        rankIcon.alt = eloRank.name;
+        setDisplayContent(eloRating, `${eloData.rating} (${eloRank.name})`, "--");
+        setDisplayContent(eloWins, eloData.wins, '0');
+        setDisplayContent(eloLosses, eloData.losses, '0');
+        setDisplayContent(eloDraws, eloData.draw, '0');
+        const winRatePercent = eloData.winRate !== undefined ? `${(eloData.winRate * 100).toFixed(1)}%` : '--';
+        setDisplayContent(eloWinrate, winRatePercent, '--');
+        setDisplayContent(eloHighest, eloData.highestRating, '--');
+        setDisplayContent(eloLowest, eloData.lowestRating, '--');
+
+        const level = app.utils.getLevel(user.experience);
+        setDisplayContent(userLevel, `${level.level} (${level.title})`, "--");
+        userLevel.style.color = level.color || 'inherit';
+        setDisplayContent(xpText, `XP: ${user.experience} / ${level.nextLevelXp}`, "XP: -- / --");
+        xpProgressBar.style.width = `${level.progress || 0}%`;
+        xpProgressBar.style.backgroundColor = level.color || '#4B5563';
+
+        setDisplayContent(bioDisplay, profile.bio, "Nothing written yet.");
+        if (profile.bio) bioDisplay.classList.remove("placeholder-text");
+
+        customUrlsContainer.innerHTML = '';
+        if (profile.customizeUrls && profile.customizeUrls.length > 0) {
+          noLinksPlaceholder.classList.add('hidden');
+          profile.customizeUrls.forEach(url => {
+            if (!url) return;
+            const listItem = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = url;
+            link.textContent = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+            link.className = "text-blue-600 hover:text-blue-800 hover:underline break-all";
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            listItem.appendChild(link);
+            customUrlsContainer.appendChild(listItem);
+          });
+        } else {
+          noLinksPlaceholder.classList.remove('hidden');
+        }
+
+        loadingIndicator.classList.add("hidden");
+        profileDisplayArea.classList.remove("hidden");
+
+      } else {
+        loadingIndicator.textContent = "Failed to load profile.";
+        console.error("Error fetching user data:", response.message);
+      }
+    }).catch(error => {
+      loadingIndicator.textContent = "Error loading profile.";
+      console.error("Exception fetching user data:", error);
+    });
+  </script>
+</body>
+
+</html>
