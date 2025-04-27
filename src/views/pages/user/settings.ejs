@@ -207,20 +207,20 @@
       if (gameSettings.hotkey) {
         hotkeyInputs.forEach(input => {
           const keyName = input.name.split('.').pop();
-          if (gameSettings.hotkey[keyName]) {
-            input.value = formatKeyDisplay(gameSettings.hotkey[keyName]);
-            input.dataset.key = gameSettings.hotkey[keyName];
-          } else {
-            input.value = '';
-            input.dataset.key = '';
-          }
+          const keyValue = gameSettings.hotkey[keyName] || '';
+          input.value = formatKeyDisplay(keyValue);
+          input.dataset.key = keyValue;
         });
       }
     }
 
     // Format key names for display (e.g., 'ArrowRight' -> '→')
-    function formatKeyDisplay(key) {
-      if (!key) return ''; // Handle empty key
+    function formatKeyDisplay(keyString) {
+      if (!keyString) return '';
+      const parts = keyString.split('+');
+      const mainKey = parts.pop();
+      const modifiers = parts;
+
       const map = {
         'ArrowUp': '↑',
         'ArrowDown': '↓',
@@ -229,7 +229,19 @@
         ' ': 'Space',
         'Escape': 'Esc'
       };
-      return map[key] || key; // Use mapped value or original key
+
+      const formattedMainKey = map[mainKey] || mainKey;
+      return [...modifiers, formattedMainKey].join('+');
+    }
+
+    function isDuplicateHotkey(hotkeyString, currentInput) {
+      if (!hotkeyString) return false;
+      for (const otherInput of hotkeyInputs) {
+        if (otherInput !== currentInput && otherInput.dataset.key === hotkeyString) {
+          return true; // Found duplicate in another input field
+        }
+      }
+      return false;
     }
 
     // Initialize the mini-board renderer
@@ -244,18 +256,10 @@
         miniBoardRenderer = null;
       }
 
-      if (!Tridecco || !Tridecco.Board || !Tridecco.Renderer || !Tridecco.Piece) {
-        console.error("Tridecco library not loaded correctly.");
-        miniBoardLoading.textContent = "Preview Error";
-        app.ui.alert("Failed to load board preview library.", "error", 5000);
-        return;
-      }
-
       try {
-        // Create a minimal dummy board instance for rendering
         const dummyBoard = new Tridecco.Board();
         const Piece = Tridecco.Piece;
-
+        const rendererMap = Tridecco.maps.renderer.default;
         const textureUrl = getTextureUrl(boardSettings.texture, boardSettings.colorBlindness);
         const backgroundUrl = getBackgroundUrl(boardSettings.background);
         const gridUrl = getGridUrl(boardSettings.grid);
@@ -340,9 +344,12 @@
         input.classList.add('ring-2', 'ring-amber-500'); // Indicate active input
       });
 
-      input.addEventListener('blur', () => {
-        if (input.value === 'Press key...') {
-          input.value = formatKeyDisplay(input.dataset.key || '');
+      input.addEventListener('blur', (event) => {
+        const relatedTarget = event.relatedTarget;
+        if (!settingsForm.contains(relatedTarget)) {
+          if (input.value.endsWith('...') || input.value === 'Press key...') {
+            input.value = formatKeyDisplay(input.dataset.key || '');
+          }
         }
         input.classList.remove('ring-2', 'ring-amber-500');
       });
@@ -353,16 +360,37 @@
         const key = event.key;
         const code = event.code;
 
-        // Basic validation: Don't allow modifier keys alone (Shift, Ctrl, Alt, Meta)
-        if (['Shift', 'Control', 'Alt', 'Meta'].includes(key)) {
-          input.value = formatKeyDisplay(input.dataset.key || ''); // Revert to old value
-          app.ui.alert('Modifier keys (Shift, Ctrl, Alt) cannot be used alone as hotkeys.', 'warning', 3000);
-          return;
-        }
+        const isModifierKey = ['Control', 'Shift', 'Alt', 'Meta'].includes(key);
 
-        input.value = formatKeyDisplay(key);
-        input.dataset.key = key;
-        input.blur(); // Remove focus after setting
+        if (!isModifierKey) {
+          let modifiers = [];
+          if (event.ctrlKey) modifiers.push('Ctrl');
+          if (event.shiftKey) modifiers.push('Shift');
+          if (event.altKey) modifiers.push('Alt');
+          if (event.metaKey) modifiers.push('Meta');
+
+          // Use the actual key pressed as the main key
+          const mainKey = key;
+          const finalKeyString = [...modifiers.sort(), mainKey].join('+');
+
+          if (isDuplicateHotkey(finalKeyString, input)) {
+            app.ui.alert(`Hotkey "${formatKeyDisplay(finalKeyString)}" is already assigned.`, 'error', 4000);
+            input.value = formatKeyDisplay(input.dataset.key || ''); // Revert display
+            // Keep focus, do not blur
+          } else {
+            input.value = formatKeyDisplay(finalKeyString);
+            input.dataset.key = finalKeyString;
+            input.blur(); // Set successfully, remove focus
+          }
+        } else {
+          // Only modifier key pressed, show intermediate state
+          let currentModifiers = [];
+          if (event.ctrlKey) currentModifiers.push('Ctrl');
+          if (event.shiftKey) currentModifiers.push('Shift');
+          if (event.altKey) currentModifiers.push('Alt');
+          if (event.metaKey) currentModifiers.push('Meta');
+          input.value = currentModifiers.sort().join('+') + '+...';
+        }
       });
     });
 
@@ -376,6 +404,36 @@
           "warning",
           3000
         );
+        return;
+      }
+
+      // Final duplicate check before saving
+      let duplicatesFound = false;
+      const currentHotkeys = {};
+      const assignedValues = new Set();
+
+      hotkeyInputs.forEach(input => {
+        const keyName = input.name.split('.').pop();
+        const hotkeyValue = input.dataset.key || '';
+        currentHotkeys[keyName] = hotkeyValue;
+        if (hotkeyValue && assignedValues.has(hotkeyValue)) {
+          duplicatesFound = true;
+          input.classList.add('border-red-500', 'ring-red-500');
+          hotkeyInputs.forEach(otherInput => {
+            if (otherInput !== input && otherInput.dataset.key === hotkeyValue) {
+              otherInput.classList.add('border-red-500', 'ring-red-500');
+            }
+          });
+        } else if (hotkeyValue) {
+          assignedValues.add(hotkeyValue);
+          input.classList.remove('border-red-500', 'ring-red-500');
+        } else {
+          input.classList.remove('border-red-500', 'ring-red-500');
+        }
+      });
+
+      if (duplicatesFound) {
+        app.ui.alert("Duplicate hotkeys detected. Please ensure each hotkey is unique.", "error", 5000);
         return;
       }
 
