@@ -207,6 +207,65 @@
 
       saveEmailButton.disabled = false; // Re-enable button after processing
     });
+
+    // Handle password update
+    savePasswordButton.addEventListener("click", async (event) => {
+      event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      savePasswordButton.disabled = true; // Disable button during processing
+
+      const currentPassword = currentPasswordInput.value;
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      // Attempt to update password
+      const response = await user.updatePassword(currentPassword, newPassword, confirmPassword);
+      if (response.status === "success") {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          passwordForm,
+          "password",
+          true);
+      } else {
+        if (response.error.code === "INVALID_PASSWORD") {
+          app.ui.notification(
+            "list",
+            [
+              "Password must be at least 8 characters long",
+              "Password must contain at least one uppercase letter",
+              "Password must contain at least one lowercase letter",
+              "Password must contain at least one number",
+              "Password must contain at least one special character",
+            ],
+            "error",
+            passwordForm,
+            "password",
+            true
+          );
+        } else {
+          app.ui.notification(
+            "alert",
+            response.message,
+            "error",
+            passwordForm,
+            "password",
+            true);
+        }
+      }
+
+      savePasswordButton.disabled = false; // Re-enable button after processing
+    });
   </script>
 </body>
 
