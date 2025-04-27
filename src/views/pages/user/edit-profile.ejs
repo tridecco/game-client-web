@@ -199,6 +199,7 @@
             genderButtons[0].classList.remove("bg-pink-100");
             genderButtons[1].classList.remove("bg-blue-100");
         }
+        genderInput.value = profile.gender;
         const eloRank = app.utils.getRank(user.elo.rating);
         rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${eloRank.name.split(" ")[0].toLowerCase()}.png`;
         eloRating.textContent = `${user.elo.rating} (${eloRank.name})`;
@@ -209,7 +210,7 @@
         xpProgressBar.style.width = `${level.progress}%`;
         xpProgressBar.style.backgroundColor = level.color;
         locationInput.value = profile.location || "";
-        birthdayInput.value = profile.birthday || "";
+        birthdayInput.value = profile.birthday ? new Date(profile.birthday).toISOString().split("T")[0] : "";
         bioInput.value = profile.bio || "";
         if (profile.customizeUrls) {
           profile.customizeUrls.forEach(url => {
