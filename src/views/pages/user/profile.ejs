@@ -177,7 +177,7 @@
     const noLinksPlaceholder = document.getElementById("no-links-placeholder");
 
     // Initialize user module
-    const userModule = new User(app);
+    const user = new User(app);
 
     // Helper Functions
     function formatBirthday(dateString) {
@@ -209,7 +209,7 @@
     }
 
     // Fetch and Display User Data
-    userModule.getUser().then((response) => {
+    user.getUser().then((response) => {
       if (response.status === "success") {
         const user = response.data;
         const profile = user.profile;
