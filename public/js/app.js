@@ -151,6 +151,15 @@ class Auth {
    * @returns {boolean} - True if the user is authenticated, false otherwise.
    */
   async init() {
+    if (
+      (this.refreshToken || this.accessToken) &&
+      (!this.refreshToken || !this.accessToken || !this.userId)
+    ) {
+      this.destroy();
+      this.app.location.init();
+      return false;
+    }
+
     this.setFetch();
     if (this.accessToken) {
       this.authenticated = true;
