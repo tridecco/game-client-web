@@ -227,8 +227,21 @@
       const newPassword = newPasswordInput.value;
       const confirmPassword = confirmPasswordInput.value;
 
+      // Check if new password and confirm password match
+      if (newPassword !== confirmPassword) {
+        app.ui.notification(
+          "alert",
+          "New password and confirm password do not match.",
+          "error",
+          passwordForm,
+          "password",
+          true);
+        savePasswordButton.disabled = false; // Re-enable button
+        return;
+      }
+
       // Attempt to update password
-      const response = await user.updatePassword(currentPassword, newPassword, confirmPassword);
+      const response = await user.updatePassword(currentPassword, newPassword);
       if (response.status === "success") {
         app.ui.notification(
           "alert",
