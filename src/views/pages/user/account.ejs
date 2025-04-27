@@ -123,6 +123,11 @@
         usernameInput.value = user.username;
         emailInput.value = user.email;
 
+        if (user.password === null) {
+          currentPasswordInput.parentElement.classList.add("hidden");
+          savePasswordButton.textContent = "Create Password";
+        }
+
         loadingIndicator.classList.add("hidden");
         accountArea.classList.remove("hidden");
       }
@@ -243,6 +248,11 @@
       // Attempt to update password
       const response = await user.updatePassword(currentPassword, newPassword);
       if (response.status === "success") {
+        if (savePasswordButton.textContent === "Create Password") {
+          savePasswordButton.textContent = "Update Password";
+          currentPasswordInput.parentElement.classList.remove("hidden");
+        }
+
         app.ui.notification(
           "alert",
           response.message,
@@ -251,7 +261,7 @@
           "password",
           true);
       } else {
-        if (response.error.code === "INVALID_PASSWORD") {
+        if (response.error.code === "INVALID_NEW_PASSWORD") {
           app.ui.notification(
             "list",
             [
