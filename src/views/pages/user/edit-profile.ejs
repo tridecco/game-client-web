@@ -306,7 +306,7 @@
     });
 
     // Handle profile save
-    saveButton.addEventListener("click", async () => {
+    saveButton.addEventListener("click", async (event) => {
       event.preventDefault(); // Prevent form submission
 
       if (!app.online) {
