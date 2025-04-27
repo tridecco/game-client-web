@@ -255,8 +255,6 @@
         // Create a minimal dummy board instance for rendering
         const dummyBoard = new Tridecco.Board();
         const Piece = Tridecco.Piece;
-        // Use default renderer map or provide a specific one if needed
-        const rendererMap = Tridecco.maps.renderer.default;
 
         const textureUrl = getTextureUrl(boardSettings.texture, boardSettings.colorBlindness);
         const backgroundUrl = getBackgroundUrl(boardSettings.background);
@@ -395,7 +393,18 @@
       newSettings.game.volume.bgm = parseInt(volumeBgmSlider.value, 10);
       newSettings.game.volume.sfx = parseInt(volumeSfxSlider.value, 10);
       newSettings.game.board.texture = boardTextureSelect.value;
-      newSettings.game.board.colorBlindness = boardColorBlindnessSelect.value;
+      newSettings.game.board.colorBlindness = (() => {
+        switch (boardColorBlindnessSelect.value) {
+          case 'none':
+            return 'none';
+          case 'rgbblind':
+            return 'rgb';
+          case 'monochrome':
+            return 'mono';
+          default:
+            return 'none';
+        }
+      })();
       newSettings.game.board.background = boardBackgroundSelect.value;
       newSettings.game.board.grid = boardGridSelect.value;
       hotkeyInputs.forEach(input => {
@@ -420,7 +429,7 @@
       } else {
         app.ui.notification(
           "alert",
-          response.message || "Failed to update settings.",
+          response.message,
           "error",
           settingsForm,
           null,
@@ -438,6 +447,22 @@
 
       if (response.status === "success") {
         initialSettings = response.data;
+
+        if (initialSettings.game && initialSettings.game.board && initialSettings.game.board.colorBlindness) {
+          initialSettings.game.board.colorBlindness = (() => {
+            switch (initialSettings.game.board.colorBlindness) {
+              case 'none':
+                return 'none';
+              case 'rgb':
+                return 'rgbblind';
+              case 'mono':
+                return 'monochrome';
+              default:
+                return 'none';
+            }
+          })();
+        }
+
         populateForm(initialSettings);
 
         if (initialSettings.game && initialSettings.game.board) {
