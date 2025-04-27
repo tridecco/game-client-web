@@ -39,11 +39,11 @@
                 <label for="avatar-upload" class="inline-block cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200 whitespace-nowrap">
                   Upload New Avatar
                 </label>
-                <input type="file" id="avatar-upload" name="avatar" accept="image/png, image/jpeg, image/gif" class="hidden">
+                <input type="file" id="avatar-upload" accept="image/png, image/jpeg, image/gif" class="hidden">
               </div>
               <button type="button" id="remove-avatar-button" class="text-red-600 hover:text-red-800 text-sm font-medium px-3 py-2 rounded-md hover:bg-red-100" title="Remove Avatar (use default)">Remove</button>
             </div>
-            <input type="hidden" id="remove-avatar-flag" name="removeAvatar" value="false">
+            <input type="hidden" id="remove-avatar-flag" value="false">
           </div>
 
           <!-- Display Name & Role -->
@@ -54,7 +54,7 @@
               <span id="user-role-badge-admin" class="hidden inline-block bg-purple-600 text-white text-xs font-bold px-1.5 py-0.5 rounded mr-2 align-middle">Admin</span>
               Display Name
             </label>
-            <input type="text" id="display-name" name="displayName" required class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Your display name">
+            <input type="text" id="display-name" required class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Your display name">
           </div>
 
           <!-- Gender -->
@@ -64,7 +64,7 @@
               <button type="button" id="gender-input-f" class="p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-pink-500" data-gender="female" title="Female">♀</button>
               <button type="button" id="gender-input-m" class="p-2 rounded-sm transition-colors transition-shadow duration-200 leading-none text-lg text-blue-500" data-gender="male" title="Male">♂</button>
             </div>
-            <input type="hidden" id="gender-input" name="gender">
+            <input type="hidden" id="gender-input">
           </div>
 
           <!-- Elo / Rank -->
@@ -96,19 +96,19 @@
           <!-- Location -->
           <div>
             <label for="location" class="block text-amber-800 text-sm font-bold mb-2">Location</label>
-            <input type="text" id="location" name="location" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="City, Country">
+            <input type="text" id="location" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="City, Country">
           </div>
 
           <!-- Birthday -->
           <div>
             <label for="birthday" class="block text-amber-800 text-sm font-bold mb-2">Birthday</label>
-            <input type="date" id="birthday" name="birthday" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+            <input type="date" id="birthday" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
           </div>
 
           <!-- Bio / About Me -->
           <div>
             <label for="bio" class="block text-amber-800 text-sm font-bold mb-2">About Me (Optional)</label>
-            <textarea id="bio" name="bio" rows="3" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Tell others a little about yourself..."></textarea>
+            <textarea id="bio" rows="3" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" placeholder="Tell others a little about yourself..."></textarea>
           </div>
 
           <!-- Custom URLs -->
@@ -321,7 +321,7 @@
 
       const profileData = {
         avatar: removeAvatarFlag.value === "true" ? null : avatarPreview.src,
-        displayName: displayNameInput.value.trim(),
+        name: displayNameInput.value.trim(),
         gender: genderInput.value === "" ? null : genderInput.value === "true",
         location: locationInput.value.trim(),
         birthday: birthdayInput.value || null,
