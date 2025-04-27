@@ -345,6 +345,11 @@
         saveButton.disabled = false; // Re-enable button on error
       }
     });
+
+    // Handle cancel button
+    cancelButton.addEventListener("click", () => {
+      app.location.redirect("/user");
+    });
   </script>
 </body>
 
