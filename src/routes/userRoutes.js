@@ -14,4 +14,8 @@ router.get('/edit', (req, res) => {
   return res.render('pages/user/edit-profile');
 });
 
+router.get('/account', (req, res) => {
+  return res.render('pages/user/account');
+});
+
 module.exports = router;
