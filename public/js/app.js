@@ -657,11 +657,11 @@ class Network {
 
     window.addEventListener('offline', () => {
       this.app.online = false;
-      this.app.ui.alert('You are offline!', 'error');
+      this.app.ui.alert('You are offline!', 'info');
     });
 
     if (!this.online) {
-      this.app.ui.alert('You are offline!', 'error');
+      this.app.ui.alert('You are offline!', 'info');
     }
 
     return this.online;
