@@ -239,8 +239,6 @@ class Auth {
 
     if (!response.ok) {
       this.authenticated = false;
-      this.removeTokens();
-      this.app.location.init();
       throw new Error('Invalid or expired token.');
     } else {
       const data = (await response.json()).data;
