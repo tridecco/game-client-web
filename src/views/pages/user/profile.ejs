@@ -183,7 +183,7 @@
     function formatBirthday(dateString) {
       if (!dateString) return null;
       try {
-        const date = new Date(dateString + "T00:00:00Z");
+        const date = new Date(dateString);
         return date.toLocaleDateString(undefined, {
           year: "numeric",
           month: "long",
