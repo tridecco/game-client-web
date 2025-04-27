@@ -306,8 +306,18 @@
 
     // Handle profile save
     saveButton.addEventListener("click", async () => {
-      saveButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      saveButton.disabled = true; // Disable button during processing
 
       const profileData = {
         avatar: removeAvatarFlag.value === "true" ? null : avatarPreview.src,
