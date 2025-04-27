@@ -246,7 +246,7 @@
 
         setDisplayContent(eloHighest, eloData.highestRating, "--");
         const highestEloRank = app.utils.getRank(eloData.highestRating);
-        if (eloHighestRankIcon) { // Check if element exists before setting src/alt/title
+        if (eloHighestRankIcon) {
           eloHighestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${highestEloRank.name.split(" ")[0].toLowerCase()}.png`;
           eloHighestRankIcon.alt = highestEloRank.name;
           eloHighestRankIcon.title = `Highest Rank: ${highestEloRank.name}`;
@@ -254,7 +254,7 @@
 
         setDisplayContent(eloLowest, eloData.lowestRating, "--");
         const lowestEloRank = app.utils.getRank(eloData.lowestRating);
-        if (eloLowestRankIcon) { // Check if element exists before setting src/alt/title
+        if (eloLowestRankIcon) {
           eloLowestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${lowestEloRank.name.split(" ")[0].toLowerCase()}.png`;
           eloLowestRankIcon.alt = lowestEloRank.name;
           eloLowestRankIcon.title = `Lowest Rank: ${lowestEloRank.name}`;
