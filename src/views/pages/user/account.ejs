@@ -127,6 +127,46 @@
         accountArea.classList.remove("hidden");
       }
     });
+
+    // Handle username update
+    saveUsernameButton.addEventListener("click", async (event) => {
+      event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      saveUsernameButton.disabled = true; // Disable button during processing
+
+      const newUsername = usernameInput.value;
+
+      // Attempt to update username
+      const response = await user.updateUsername(newUsername);
+      if (response.status === "success") {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "success",
+          usernameForm,
+          "username",
+          true);
+      } else {
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          usernameForm,
+          "username",
+          true);
+      }
+
+      saveUsernameButton.disabled = false; // Re-enable button after processing
+    });
   </script>
 </body>
 
