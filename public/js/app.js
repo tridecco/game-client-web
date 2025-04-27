@@ -178,9 +178,14 @@ class Auth {
     window.fetch = async function fetchWithAuth(url, options = {}) {
       const currentOrigin = window.location.origin;
 
+      let targetUrl = url;
+      if (!url.startsWith('http') && !url.startsWith('https')) {
+        targetUrl = currentOrigin + url;
+      }
+
       let targetOrigin;
       try {
-        targetOrigin = new URL(url).origin;
+        targetOrigin = new URL(targetUrl).origin;
       } catch (error) {
         targetOrigin = '';
       }
