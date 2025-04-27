@@ -244,22 +244,33 @@
         const winRatePercent = eloData.winRate !== undefined ? `${(eloData.winRate * 100).toFixed(1)}%` : "--";
         setDisplayContent(eloWinrate, winRatePercent, "--");
 
-        setDisplayContent(eloHighest, eloData.highestRating, "--");
         const highestEloRank = app.utils.getRank(eloData.highestRating);
         if (eloHighestRankIcon) {
           eloHighestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${highestEloRank.name.split(" ")[0].toLowerCase()}.png`;
           eloHighestRankIcon.alt = highestEloRank.name;
           eloHighestRankIcon.title = `Highest Rank: ${highestEloRank.name}`;
         }
+        setDisplayContent(eloHighest, highestEloRank.name, "--");
+        eloHighest.addEventListener("mouseover", () => {
+          setDisplayContent(eloHighest, eloData.highestRating, "--");
+        });
+        eloHighest.addEventListener("mouseout", () => {
+          setDisplayContent(eloHighest, highestEloRank.name, "--");
+        });
 
-        setDisplayContent(eloLowest, eloData.lowestRating, "--");
         const lowestEloRank = app.utils.getRank(eloData.lowestRating);
         if (eloLowestRankIcon) {
           eloLowestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${lowestEloRank.name.split(" ")[0].toLowerCase()}.png`;
           eloLowestRankIcon.alt = lowestEloRank.name;
           eloLowestRankIcon.title = `Lowest Rank: ${lowestEloRank.name}`;
         }
-
+        setDisplayContent(eloLowest, lowestEloRank.name, "--");
+        eloLowest.addEventListener("mouseover", () => {
+          setDisplayContent(eloLowest, eloData.lowestRating, "--");
+        });
+        eloLowest.addEventListener("mouseout", () => {
+          setDisplayContent(eloLowest, lowestEloRank.name, "--");
+        });
 
         const level = app.utils.getLevel(user.experience);
         setDisplayContent(userLevel, `${level.level} (${level.title})`, "--");
@@ -269,7 +280,6 @@
           xpProgressBar.style.width = `${level.progress || 0}%`;
           xpProgressBar.style.backgroundColor = level.color || "#4B5563";
         }
-
 
         setDisplayContent(bioDisplay, profile.bio, "Nothing written yet.");
         if (bioDisplay && profile.bio) bioDisplay.classList.remove("placeholder-text");
