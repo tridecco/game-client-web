@@ -176,7 +176,10 @@ class Auth {
     window.originalFetch = window.originalFetch || window.fetch;
 
     window.fetch = async function fetchWithAuth(url, options = {}) {
-      if (this.accessToken) {
+      const currentOrigin = window.location.origin;
+
+      // Only add Authorization header for same-origin requests
+      if (url.startsWith(currentOrigin) && this.accessToken) {
         options.headers = {
           ...options.headers,
           Authorization: `Bearer ${this.accessToken}`,
@@ -187,7 +190,9 @@ class Auth {
         try {
           await this.authenticate();
 
-          options.headers.Authorization = `Bearer ${this.accessToken}`;
+          if (url.startsWith(currentOrigin)) {
+            options.headers.Authorization = `Bearer ${this.accessToken}`;
+          }
 
           return await window.originalFetch(url, options);
         } catch (error) {
@@ -301,7 +306,6 @@ class Location {
    * @method init - Initializes the redirect.
    */
   init() {
-    // [public_route, user_route, admin_route, auth_route] * [no_auth, auth_user, auth_admin]
     const HOME = '/';
     const AUTH = '/login';
     const FORBIDDEN = 403;
