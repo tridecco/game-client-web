@@ -116,7 +116,7 @@
             <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2">Hotkeys</h3>
             <p class="text-sm text-gray-600">Click on an input field and press the desired key to set a new hotkey.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <% const hotkeys = { next: 'Next', previous: 'Previous', nextPiece: 'Next Piece', previousPiece: 'Previous Piece', confirm: 'Confirm', cancel: 'Cancel', trade: 'Trade', accept: 'Accept', refuse: 'Refuse' }; %>
+              <% const hotkeys = { next: "Next", previous: "Previous", nextPiece: "Next Piece", previousPiece: "Previous Piece", confirm: "Confirm", cancel: "Cancel", trade: "Trade", accept: "Accept", refuse: "Refuse" }; %>
               <% Object.entries(hotkeys).forEach(([key, label]) => { %>
               <div>
                 <label for="setting-hotkey-<%= key %>" class="block text-amber-800 text-sm font-bold mb-1"><%= label %></label>
@@ -170,7 +170,7 @@
 
     // Construct asset URLs based on settings
     function getTextureUrl(texture, colorBlindness) {
-      const cbPath = colorBlindness === 'none' ? 'normal' : colorBlindness;
+      const cbPath = colorBlindness === "none" ? "normal" : colorBlindness;
       return `${TRIDECCO_BOARD_ASSETS_URL}/textures/${texture}/${cbPath}`;
     }
 
@@ -197,41 +197,41 @@
 
       // Board
       if (gameSettings.board) {
-        boardTextureSelect.value = gameSettings.board.texture ?? 'classic';
-        boardColorBlindnessSelect.value = gameSettings.board.colorBlindness ?? 'none';
-        boardBackgroundSelect.value = gameSettings.board.background ?? 'wooden-board';
-        boardGridSelect.value = gameSettings.board.grid ?? 'black';
+        boardTextureSelect.value = gameSettings.board.texture ?? "classic";
+        boardColorBlindnessSelect.value = gameSettings.board.colorBlindness ?? "none";
+        boardBackgroundSelect.value = gameSettings.board.background ?? "wooden-board";
+        boardGridSelect.value = gameSettings.board.grid ?? "black";
       }
 
       // Hotkeys
       if (gameSettings.hotkey) {
         hotkeyInputs.forEach(input => {
-          const keyName = input.name.split('.').pop();
-          const keyValue = gameSettings.hotkey[keyName] || '';
+          const keyName = input.name.split(".").pop();
+          const keyValue = gameSettings.hotkey[keyName] || "";
           input.value = formatKeyDisplay(keyValue);
           input.dataset.key = keyValue;
         });
       }
     }
 
-    // Format key names for display (e.g., 'ArrowRight' -> '→')
+    // Format key names for display (e.g., "ArrowRight" -> "→")
     function formatKeyDisplay(keyString) {
-      if (!keyString) return '';
-      const parts = keyString.split('+');
+      if (!keyString) return "";
+      const parts = keyString.split("+");
       const mainKey = parts.pop();
       const modifiers = parts;
 
       const map = {
-        'ArrowUp': '↑',
-        'ArrowDown': '↓',
-        'ArrowLeft': '←',
-        'ArrowRight': '→',
-        ' ': 'Space',
-        'Escape': 'Esc'
+        "ArrowUp": "↑",
+        "ArrowDown": "↓",
+        "ArrowLeft": "←",
+        "ArrowRight": "→",
+        " ": "Space",
+        "Escape": "Esc"
       };
 
       const formattedMainKey = map[mainKey] || mainKey;
-      return [...modifiers, formattedMainKey].join('+');
+      return [...modifiers, formattedMainKey].join("+");
     }
 
     function isDuplicateHotkey(hotkeyString, currentInput) {
@@ -246,7 +246,7 @@
 
     // Initialize the mini-board renderer
     function initializeMiniBoard(boardSettings) {
-      miniBoardLoading.style.display = 'flex';
+      miniBoardLoading.style.display = "flex";
       if (miniBoardRenderer) {
         try {
           miniBoardRenderer.destroy();
@@ -272,11 +272,11 @@
           gridUrl: gridUrl,
         }, () => {
           const pieceColorList = [
-            ['blue', 'white'],
-            ['red', 'blue'],
-            ['red', 'yellow'],
-            ['white', 'red'],
-            ['yellow', 'blue']
+            ["blue", "white"],
+            ["red", "blue"],
+            ["red", "yellow"],
+            ["white", "red"],
+            ["yellow", "blue"]
           ];
 
           // Fill the board initially
@@ -286,11 +286,11 @@
             dummyBoard.place(i, piece);
           }
 
-          miniBoardLoading.style.display = 'none';
+          miniBoardLoading.style.display = "none";
         });
       } catch (error) {
         console.error("Error creating Mini Board Renderer:", error);
-        miniBoardLoading.style.display = 'flex';
+        miniBoardLoading.style.display = "flex";
         miniBoardLoading.textContent = "Preview Error";
         app.ui.alert("Error creating board preview.", "error", 5000);
       }
@@ -307,14 +307,14 @@
       const backgroundUrl = getBackgroundUrl(background);
       const gridUrl = getGridUrl(grid);
 
-      miniBoardLoading.style.display = 'flex';
-      miniBoardLoading.textContent = 'Updating Preview...';
+      miniBoardLoading.style.display = "flex";
+      miniBoardLoading.textContent = "Updating Preview...";
 
       try {
         await miniBoardRenderer.updateTextures(textureUrl);
         await miniBoardRenderer.updateBackground(backgroundUrl);
         await miniBoardRenderer.updateGrid(gridUrl);
-        miniBoardLoading.style.display = 'none';
+        miniBoardLoading.style.display = "none";
       } catch (error) {
         app.ui.alert("Failed to update preview.", "warning", 3000);
         miniBoardLoading.textContent = "Update Error";
@@ -339,43 +339,43 @@
 
     // Handle Hotkey Input
     hotkeyInputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        input.value = 'Press key...';
-        input.classList.add('ring-2', 'ring-amber-500'); // Indicate active input
+      input.addEventListener("focus", () => {
+        input.value = "Press key...";
+        input.classList.add("ring-2", "ring-amber-500"); // Indicate active input
       });
 
-      input.addEventListener('blur', (event) => {
+      input.addEventListener("blur", (event) => {
         const relatedTarget = event.relatedTarget;
         if (!settingsForm.contains(relatedTarget)) {
-          if (input.value.endsWith('...') || input.value === 'Press key...') {
-            input.value = formatKeyDisplay(input.dataset.key || '');
+          if (input.value.endsWith("...") || input.value === "Press key...") {
+            input.value = formatKeyDisplay(input.dataset.key || "");
           }
         }
-        input.classList.remove('ring-2', 'ring-amber-500');
+        input.classList.remove("ring-2", "ring-amber-500");
       });
 
-      input.addEventListener('keydown', (event) => {
+      input.addEventListener("keydown", (event) => {
         event.preventDefault(); // Prevent typing the key character
 
         const key = event.key;
         const code = event.code;
 
-        const isModifierKey = ['Control', 'Shift', 'Alt', 'Meta'].includes(key);
+        const isModifierKey = ["Control", "Shift", "Alt", "Meta"].includes(key);
 
         if (!isModifierKey) {
           let modifiers = [];
-          if (event.ctrlKey) modifiers.push('Ctrl');
-          if (event.shiftKey) modifiers.push('Shift');
-          if (event.altKey) modifiers.push('Alt');
-          if (event.metaKey) modifiers.push('Meta');
+          if (event.ctrlKey) modifiers.push("Ctrl");
+          if (event.shiftKey) modifiers.push("Shift");
+          if (event.altKey) modifiers.push("Alt");
+          if (event.metaKey) modifiers.push("Meta");
 
           // Use the actual key pressed as the main key
           const mainKey = key;
-          const finalKeyString = [...modifiers.sort(), mainKey].join('+');
+          const finalKeyString = [...modifiers.sort(), mainKey].join("+");
 
           if (isDuplicateHotkey(finalKeyString, input)) {
-            app.ui.alert(`Hotkey "${formatKeyDisplay(finalKeyString)}" is already assigned.`, 'error', 4000);
-            input.value = formatKeyDisplay(input.dataset.key || ''); // Revert display
+            app.ui.alert(`Hotkey "${formatKeyDisplay(finalKeyString)}" is already assigned.`, "error", 4000);
+            input.value = formatKeyDisplay(input.dataset.key || ""); // Revert display
             // Keep focus, do not blur
           } else {
             input.value = formatKeyDisplay(finalKeyString);
@@ -385,11 +385,11 @@
         } else {
           // Only modifier key pressed, show intermediate state
           let currentModifiers = [];
-          if (event.ctrlKey) currentModifiers.push('Ctrl');
-          if (event.shiftKey) currentModifiers.push('Shift');
-          if (event.altKey) currentModifiers.push('Alt');
-          if (event.metaKey) currentModifiers.push('Meta');
-          input.value = currentModifiers.sort().join('+') + '+...';
+          if (event.ctrlKey) currentModifiers.push("Ctrl");
+          if (event.shiftKey) currentModifiers.push("Shift");
+          if (event.altKey) currentModifiers.push("Alt");
+          if (event.metaKey) currentModifiers.push("Meta");
+          input.value = currentModifiers.sort().join("+") + "+...";
         }
       });
     });
@@ -413,22 +413,22 @@
       const assignedValues = new Set();
 
       hotkeyInputs.forEach(input => {
-        const keyName = input.name.split('.').pop();
-        const hotkeyValue = input.dataset.key || '';
+        const keyName = input.name.split(".").pop();
+        const hotkeyValue = input.dataset.key || "";
         currentHotkeys[keyName] = hotkeyValue;
         if (hotkeyValue && assignedValues.has(hotkeyValue)) {
           duplicatesFound = true;
-          input.classList.add('border-red-500', 'ring-red-500');
+          input.classList.add("border-red-500", "ring-red-500");
           hotkeyInputs.forEach(otherInput => {
             if (otherInput !== input && otherInput.dataset.key === hotkeyValue) {
-              otherInput.classList.add('border-red-500', 'ring-red-500');
+              otherInput.classList.add("border-red-500", "ring-red-500");
             }
           });
         } else if (hotkeyValue) {
           assignedValues.add(hotkeyValue);
-          input.classList.remove('border-red-500', 'ring-red-500');
+          input.classList.remove("border-red-500", "ring-red-500");
         } else {
-          input.classList.remove('border-red-500', 'ring-red-500');
+          input.classList.remove("border-red-500", "ring-red-500");
         }
       });
 
@@ -438,7 +438,7 @@
       }
 
       saveSettingsButton.disabled = true;
-      saveSettingsButton.textContent = 'Saving...';
+      saveSettingsButton.textContent = "Saving...";
 
       // Gather all settings from the form into the structure expected by the API
       const newSettings = {
@@ -453,21 +453,21 @@
       newSettings.game.board.texture = boardTextureSelect.value;
       newSettings.game.board.colorBlindness = (() => {
         switch (boardColorBlindnessSelect.value) {
-          case 'none':
-            return 'none';
-          case 'rgbblind':
-            return 'rgb';
-          case 'monochrome':
-            return 'mono';
+          case "none":
+            return "none";
+          case "rgbblind":
+            return "rgb";
+          case "monochrome":
+            return "mono";
           default:
-            return 'none';
+            return "none";
         }
       })();
       newSettings.game.board.background = boardBackgroundSelect.value;
       newSettings.game.board.grid = boardGridSelect.value;
       hotkeyInputs.forEach(input => {
-        const keyName = input.name.split('.').pop();
-        newSettings.game.hotkey[keyName] = input.dataset.key || initialSettings?.game?.hotkey?.[keyName] || '';
+        const keyName = input.name.split(".").pop();
+        newSettings.game.hotkey[keyName] = input.dataset.key || initialSettings?.game?.hotkey?.[keyName] || "";
       });
 
       // Attempt to update settings via API using the User class instance
@@ -496,7 +496,7 @@
       }
 
       saveSettingsButton.disabled = false;
-      saveSettingsButton.textContent = 'Save Settings';
+      saveSettingsButton.textContent = "Save Settings";
     });
 
     // Initialize the mini-board renderer and load settings on page load
@@ -509,14 +509,14 @@
         if (initialSettings.game && initialSettings.game.board && initialSettings.game.board.colorBlindness) {
           initialSettings.game.board.colorBlindness = (() => {
             switch (initialSettings.game.board.colorBlindness) {
-              case 'none':
-                return 'none';
-              case 'rgb':
-                return 'rgbblind';
-              case 'mono':
-                return 'monochrome';
+              case "none":
+                return "none";
+              case "rgb":
+                return "rgbblind";
+              case "mono":
+                return "monochrome";
               default:
-                return 'none';
+                return "none";
             }
           })();
         }
@@ -526,7 +526,7 @@
         if (initialSettings.game && initialSettings.game.board) {
           initializeMiniBoard(initialSettings.game.board);
         } else {
-          miniBoardLoading.style.display = 'flex';
+          miniBoardLoading.style.display = "flex";
           miniBoardLoading.textContent = "Settings Error";
         }
 

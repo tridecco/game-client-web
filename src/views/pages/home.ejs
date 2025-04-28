@@ -4,10 +4,308 @@
 <head>
   <%- include("../components/head.ejs") %>
   <title>Tridecco | Home</title>
+  <script src="<%= env.CDN_URL %>/js/user.js"></script>
+  <style>
+    .placeholder-text {
+      color: #9CA3AF;
+      font-style: italic;
+    }
+
+    .tab-button {
+      @apply px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 border-transparent transition duration-150 ease-in-out;
+    }
+
+    .tab-button.active {
+      @apply text-amber-700 border-amber-600 bg-white/10;
+    }
+
+    .tab-button:not(.active) {
+      @apply text-amber-800/70 hover: text-amber-700 hover:border-amber-400;
+    }
+
+    .tab-content {
+      @apply p-4 bg-black/5 rounded-b-lg rounded-tr-lg;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(180, 83, 9, 0.4);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(180, 83, 9, 0.4) transparent;
+    }
+
+    .nav-active {
+      background-color: rgba(217, 119, 6, 0.1);
+      border-left-color: #D97706;
+      color: #92400E;
+      font-weight: 600;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  </style>
 </head>
 
-<body>
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Main Layout Container -->
+  <div class="relative flex flex-col h-screen text-gray-800 z-20">
 
+    <!-- Main Content Flex Container -->
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden z-10">
+
+      <!-- Left Sidebar: Navigation -->
+      <%- include("../components/navigation-bar.ejs", { page: "home" }) %>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Bar: User Info & Actions -->
+        <header class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 md:p-4 flex items-center justify-between mb-3 md:mb-4 flex-shrink-0">
+          <!-- User Info (Rank, Level, Avatar, Name) -->
+          <div class="flex items-center space-x-3 md:space-x-4 flex-grow min-w-0">
+            <a href="/user" class="flex-shrink-0">
+              <img id="user-avatar-top" src="<%= env.CDN_URL %>/img/default-avatar.svg" alt="Avatar" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-amber-500 shadow-md hover:opacity-90 transition-opacity">
+            </a>
+            <div class="flex-grow min-w-0">
+              <!-- Display Name & Badges -->
+              <h3 class="text-sm md:text-base font-semibold text-amber-900 truncate flex items-center flex-wrap gap-x-1.5 gap-y-0.5 mb-0.5">
+                <!-- Role Badges (Loaded via JS) -->
+                <span id="user-role-badge-container-top" class="contents"></span>
+                <span id="display-name-top" class="placeholder-text">Loading...</span>
+              </h3>
+              <!-- Rank & Level -->
+              <div class="flex items-center space-x-2 text-xs md:text-sm text-gray-600">
+                <div class="flex items-center" title="Rank">
+                  <img id="rank-icon-top" src="<%= env.CDN_URL %>/img/ranks/nobg/iron.png" alt="Rank" class="w-4 h-4 md:w-5 md:h-5 object-contain mr-1">
+                  <span id="rank-name-top" class="font-medium text-amber-800 placeholder-text">--</span>
+                </div>
+                <span class="text-gray-400">|</span>
+                <div class="flex items-center" title="Level">
+                  <svg class="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                  </svg>
+                  <span id="user-level-top" class="font-medium text-blue-700 placeholder-text">Lv --</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center space-x-2 md:space-x-3 flex-shrink-0 pl-2">
+            <a href="/user/settings" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200" title="Settings">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </a>
+          </div>
+        </header>
+
+        <!-- Core Content: Lobby View -->
+        <div id="lobby-view" class="flex-1 bg-white/70 backdrop-blur-sm rounded-xl shadow-inner border border-amber-700/20 p-4 md:p-6 overflow-y-auto custom-scrollbar">
+          <!-- Welcome Message -->
+          <h1 class="text-2xl md:text-3xl font-bold text-amber-900 mb-4 md:mb-6">
+            Welcome back, <span id="display-name-main" class="placeholder-text">Player</span>!
+          </h1>
+
+          <!-- Placeholder Content Area -->
+          <div class="text-center text-gray-600 py-10 px-4 border border-dashed border-amber-300 rounded-lg">
+            <p class="text-lg mb-2">Game Lobby</p>
+            <p class="text-sm">Select an option from the left menu to get started.</p>
+            <p class="text-sm mt-1">Check the panel on the right for active rooms.</p>
+          </div>
+
+          <!-- Hidden Room View -->
+          <div id="room-view" class="w-full max-w-xl mx-auto bg-gray-800/80 backdrop-blur-md border border-gray-700 rounded-xl shadow-2xl p-6 md:p-8 flex-col items-center hidden">
+            <!-- Content for Room View (Buttons, Player List) would go here -->
+            <p class="text-white">Room View Placeholder</p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Sidebar: Room Status / List -->
+      <aside class="hidden xl:flex flex-col w-64 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 overflow-hidden">
+        <!-- Tabs -->
+        <div class="flex-shrink-0 border-b border-amber-700/20 px-2 pt-2">
+          <button id="tab-current-room" class="tab-button active" onclick="switchTab('current-room')">Current Room</button>
+          <button id="tab-room-list" class="tab-button" onclick="switchTab('room-list')">Room List</button>
+        </div>
+
+        <!-- Tab Content Area -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <!-- Current Room Content -->
+          <div id="content-current-room" class="tab-content">
+            <p class="text-sm text-gray-600 placeholder-text text-center py-4">You are not currently in a room.</p>
+          </div>
+
+          <!-- Room List Content -->
+          <div id="content-room-list" class="tab-content hidden">
+            <p id="room-list-loading" class="text-sm text-gray-600 placeholder-text text-center py-4">Loading room list...</p>
+            <div id="room-list-container" class="space-y-2"></div>
+            <p id="room-list-empty" class="text-sm text-gray-600 placeholder-text text-center py-4 hidden">No public rooms available.</p>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="h-8 bg-black/30 backdrop-blur-sm border-t border-amber-700/50 z-10 flex items-center justify-between px-4 text-xs text-gray-400 flex-shrink-0">
+      <div id="server-status">Server: <span class="placeholder-text">Connecting...</span></div>
+      <div>Tridecco © <%= new Date().getFullYear() %></div>
+    </footer>
+
+  </div>
+
+  <!-- Mobile Navigation -->
+  <% include("../components/navigation-bar-mobile.ejs", { page: "home" }) %>
+
+  <script>
+    const userAvatarTop = document.getElementById("user-avatar-top");
+    const displayNameTop = document.getElementById("display-name-top");
+    const userRoleBadgeContainerTop = document.getElementById("user-role-badge-container-top");
+    const rankIconTop = document.getElementById("rank-icon-top");
+    const rankNameTop = document.getElementById("rank-name-top");
+    const userLevelTop = document.getElementById("user-level-top");
+    const displayNameMain = document.getElementById("display-name-main");
+    const serverStatus = document.getElementById("server-status");
+
+    const tabCurrentRoom = document.getElementById("tab-current-room");
+    const tabRoomList = document.getElementById("tab-room-list");
+    const contentCurrentRoom = document.getElementById("content-current-room");
+    const contentRoomList = document.getElementById("content-room-list");
+    const roomListLoading = document.getElementById("room-list-loading");
+    const roomListContainer = document.getElementById("room-list-container");
+    const roomListEmpty = document.getElementById("room-list-empty");
+
+    // Function to set display content with placeholder
+    function setDisplayContent(element, value, placeholderText = "--") {
+      if (value !== null && value !== undefined && value !== "") {
+        element.textContent = value;
+        element.classList.remove("placeholder-text");
+      } else {
+        element.textContent = placeholderText;
+        element.classList.add("placeholder-text");
+      }
+    }
+
+    // Function to create role badges
+    function createRoleBadge(role) {
+      const badge = document.createElement("span");
+      badge.className = "inline-block text-white text-xs font-bold px-1 py-0.5 rounded align-middle mr-1";
+      let bgColor = "bg-gray-500";
+      let text = role.charAt(0).toUpperCase() + role.slice(1);
+
+      switch (role) {
+        case "founder":
+          bgColor = "bg-amber-600";
+          break;
+        case "developer":
+          bgColor = "bg-gray-600";
+          break;
+        case "admin":
+          bgColor = "bg-purple-600";
+          break;
+      }
+      badge.classList.add(bgColor);
+      badge.textContent = text;
+      return badge;
+    }
+
+    // Function to load user data
+    function loadUserData() {
+      const user = new User(app);
+
+      user.getUser().then((response) => {
+        if (response.status === "success") {
+          const userData = response.data;
+          const profile = userData.profile || {};
+          const eloData = userData.elo || {};
+          const experience = userData.experience;
+          const identities = userData.identities || [];
+
+          if (userAvatarTop) {
+            userAvatarTop.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
+          }
+          setDisplayContent(displayNameTop, profile.name, "Player");
+
+          if (userRoleBadgeContainerTop) {
+            userRoleBadgeContainerTop.innerHTML = "";
+            identities.forEach(role => {
+              userRoleBadgeContainerTop.appendChild(createRoleBadge(role));
+            });
+          }
+
+          const currentEloRank = app.utils.getRank(eloData.rating);
+          if (rankIconTop) {
+            rankIconTop.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
+            rankIconTop.alt = currentEloRank.name;
+          }
+          setDisplayContent(rankNameTop, currentEloRank.name, "--");
+
+          const levelInfo = app.utils.getLevel(experience);
+          setDisplayContent(userLevelTop, `Lv ${levelInfo.level}`, "Lv --");
+          if (userLevelTop) userLevelTop.style.color = levelInfo.color || "#1D4ED8";
+
+          setDisplayContent(displayNameMain, profile.name, "Player");
+        } else {
+          console.error("Failed to load user data:", response.message);
+          setDisplayContent(displayNameTop, "Error");
+          setDisplayContent(rankNameTop, "N/A");
+          setDisplayContent(userLevelTop, "N/A");
+          setDisplayContent(displayNameMain, "User");
+        }
+      }).catch(error => {
+        console.error("Exception fetching user data:", error);
+        setDisplayContent(displayNameTop, "Error");
+        setDisplayContent(rankNameTop, "N/A");
+        setDisplayContent(userLevelTop, "N/A");
+        setDisplayContent(displayNameMain, "User");
+      });
+    }
+
+    // Function to switch tabs
+    function switchTab(tabId) {
+      if (tabId === "current-room") {
+        tabCurrentRoom.classList.add("active");
+        tabRoomList.classList.remove("active");
+        contentCurrentRoom.classList.remove("hidden");
+        contentRoomList.classList.add("hidden");
+      } else if (tabId === "room-list") {
+        tabCurrentRoom.classList.remove("active");
+        tabRoomList.classList.add("active");
+        contentCurrentRoom.classList.add("hidden");
+        contentRoomList.classList.remove("hidden");
+      }
+    }
+
+    // Function to update server status
+    function updateServerStatus(statusText) {
+      if (serverStatus) {
+        serverStatus.innerHTML = `Server: ${statusText}`;
+        const span = serverStatus.querySelector("span");
+        if (span) span.classList.remove("placeholder-text");
+      }
+    }
+
+    // Load user data when the page is ready
+    document.addEventListener("DOMContentLoaded", () => {
+      loadUserData();
+      switchTab("current-room");
+      setTimeout(() => updateServerStatus('<span class="text-yellow-500">Idle</span>'), 2000);
+    });
+  </script>
 </body>
 
 </html>
