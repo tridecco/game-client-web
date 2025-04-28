@@ -36,9 +36,60 @@
       <div class="w-full md:w-3/4 lg:w-4/5 md:pl-6 overflow-y-auto" style="max-height: calc(90vh - 4rem);">
         <h2 class="text-2xl font-bold mb-6 text-amber-900">User Profile</h2>
 
-        <!-- Loading Indicator -->
-        <div id="loading-indicator" class="text-center p-10 text-amber-700">
-          Loading profile...
+        <!-- Skeleton Loader -->
+        <div id="skeleton-loader" class="space-y-6">
+          <!-- Avatar Skeleton -->
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 pb-4 border-b border-amber-200">
+            <div class="w-24 h-24 rounded-full bg-gray-200 animate-pulse"></div>
+            <div class="flex-grow">
+              <div class="h-6 bg-gray-200 animate-pulse rounded mb-2 w-3/4"></div>
+              <div class="h-4 bg-gray-200 animate-pulse rounded mb-2 w-1/2"></div>
+              <div class="h-4 bg-gray-200 animate-pulse rounded mb-2 w-2/3"></div>
+            </div>
+          </div>
+
+          <!-- Stats Section (Elo & Level) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Elo / Rank Skeleton -->
+            <div class="space-y-3">
+              <div class="h-6 bg-gray-200 animate-pulse rounded w-2/3"></div>
+              <div class="p-3 bg-gray-100 rounded-lg shadow-sm">
+                <div class="flex items-center space-x-3 mb-3">
+                  <div class="w-12 h-12 rounded bg-gray-200 animate-pulse"></div>
+                  <div class="h-6 bg-gray-200 animate-pulse rounded w-1/3"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700 border-t border-amber-100 pt-3">
+                  <div class="h-4 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                  <div class="h-4 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                  <div class="h-4 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                  <div class="h-4 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Level Skeleton -->
+            <div class="space-y-3">
+              <div class="h-6 bg-gray-200 animate-pulse rounded w-2/3"></div>
+              <div class="p-3 bg-gray-100 rounded-lg shadow-sm space-y-2">
+                <div class="h-6 bg-gray-200 animate-pulse rounded w-3/4"></div>
+                <div class="h-2 bg-gray-200 animate-pulse rounded w-full"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio Skeleton -->
+          <div>
+            <div class="h-6 bg-gray-200 animate-pulse rounded w-1/2"></div>
+            <div class="h-20 bg-gray-200 animate-pulse rounded mt-2"></div>
+          </div>
+
+          <!-- Links Skeleton -->
+          <div>
+            <div class="h-6 bg-gray-200 animate-pulse rounded w-2/3"></div>
+            <div class="space-y-2">
+              <div class="h-4 bg-gray-200 animate-pulse rounded w-full"></div>
+              <div class="h-4 bg-gray-200 animate-pulse rounded w-full"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Profile Display Area -->
@@ -148,7 +199,7 @@
 
   <script>
     const profileDisplayArea = document.getElementById("profile-display-area");
-    const loadingIndicator = document.getElementById("loading-indicator");
+    const skeletonLoader = document.getElementById("skeleton-loader");
     const avatarPreview = document.getElementById("avatar-preview");
     const displayNameDisplay = document.getElementById("display-name");
     const userRoleBadges = {
@@ -299,16 +350,13 @@
           if (noLinksPlaceholder) noLinksPlaceholder.classList.remove("hidden");
         }
 
-        if (loadingIndicator) loadingIndicator.classList.add("hidden");
-        if (profileDisplayArea) profileDisplayArea.classList.remove("hidden");
-
-      } else {
-        if (loadingIndicator) loadingIndicator.textContent = "Failed to load profile.";
-        console.error("Error fetching user data:", response.message);
+        skeletonLoader.classList.add("hidden");
+        profileDisplayArea.classList.remove("hidden");
       }
     }).catch(error => {
-      if (loadingIndicator) loadingIndicator.textContent = "Error loading profile.";
-      console.error("Exception fetching user data:", error);
+      console.error("Error fetching user data:", error);
+      skeletonLoader.classList.add("hidden");
+      profileDisplayArea.classList.remove("hidden");
     });
   </script>
 </body>
