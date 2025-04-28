@@ -352,15 +352,19 @@
     // Function to switch tabs
     function switchTab(tabId) {
       if (tabId === "current-room") {
-        tabCurrentRoom.classList.add("active");
-        tabRoomList.classList.remove("active");
+        tabCurrentRoom.classList.add("text-amber-700", "border-amber-600", "bg-white/10");
+        tabCurrentRoom.classList.remove("text-gray-500", "hover:text-amber-600", "hover:border-amber-400");
+        tabRoomList.classList.add("text-gray-500", "hover:text-amber-600", "hover:border-amber-400");
+        tabRoomList.classList.remove("text-amber-700", "border-amber-600", "bg-white/10");
         contentCurrentRoom.classList.remove("hidden");
         contentRoomList.classList.add("hidden");
       } else if (tabId === "room-list") {
-        tabCurrentRoom.classList.remove("active");
-        tabRoomList.classList.add("active");
-        contentCurrentRoom.classList.add("hidden");
+        tabRoomList.classList.add("text-amber-700", "border-amber-600", "bg-white/10");
+        tabRoomList.classList.remove("text-gray-500", "hover:text-amber-600", "hover:border-amber-400");
+        tabCurrentRoom.classList.add("text-gray-500", "hover:text-amber-600", "hover:border-amber-400");
+        tabCurrentRoom.classList.remove("text-amber-700", "border-amber-600", "bg-white/10");
         contentRoomList.classList.remove("hidden");
+        contentCurrentRoom.classList.add("hidden");
       }
     }
 
