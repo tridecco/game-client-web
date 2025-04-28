@@ -804,34 +804,33 @@ class Utils {
       { title: 'Ascendant', color: 'Agate', code: '#A8C3BC' },
     ];
 
-    let level = 1;
-    for (let i = 1; i <= LEVELS; i++) {
-      if (xp < levelThresholds(i)) {
-        level = i - 1;
-        break;
+    const maxXpThreshold = levelThresholds(LEVELS);
+    let level = 0;
+
+    if (xp >= maxXpThreshold) {
+      level = LEVELS;
+    } else {
+      for (let i = 1; i <= LEVELS; i++) {
+        if (xp < levelThresholds(i)) {
+          level = i - 1;
+          break;
+        }
       }
     }
 
-    if (level >= LEVELS) {
-      const levelTitle = levels[levels.length - 1];
-      return {
-        level: LEVELS,
-        title: levelTitle.title,
-        color: levelTitle.color,
-        colorCode: levelTitle.code,
-        nextLevelXp: 'Max Level Reached',
-        xpToNextLevel: 0,
-        progress: 100,
-      };
-    }
+    const isMaxLevel = level === LEVELS;
 
-    const nextLevelXp = levelThresholds(level + 1);
+    const nextLevelXp = isMaxLevel ? null : levelThresholds(level + 1);
     const currentLevelXp = levelThresholds(level);
-    const progress =
-      ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * ONE_HUNDRED;
-    const xpToNextLevel = nextLevelXp - xp;
+    const progress = isMaxLevel
+      ? ONE_HUNDRED
+      : ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * ONE_HUNDRED;
+    const xpToNextLevel = isMaxLevel ? 0 : nextLevelXp - xp;
 
-    const titleIndex = Math.floor(level / TITLE_UP);
+    const titleIndex = Math.min(
+      Math.floor(level / TITLE_UP),
+      levels.length - 1,
+    );
     const levelTitle = levels[titleIndex];
 
     return {
@@ -839,7 +838,7 @@ class Utils {
       title: levelTitle.title,
       color: levelTitle.color,
       colorCode: levelTitle.code,
-      nextLevelXp: nextLevelXp,
+      nextLevelXp: isMaxLevel ? 'Max Level Reached' : nextLevelXp,
       xpToNextLevel: xpToNextLevel,
       progress: progress.toFixed(TO_FIXED),
     };
