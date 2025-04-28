@@ -729,7 +729,7 @@ class Utils {
       const stars =
         Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
       return {
-        name: `Tridecco Supreme ★${stars}`,
+        name: `Tridecco S. ★${stars}`,
         tier: 7,
         division: stars,
         nextRankElo: TRIDECCO_SUPREME + stars * TRIDECCO_DIVISION,
