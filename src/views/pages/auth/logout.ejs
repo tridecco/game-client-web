@@ -41,8 +41,8 @@
 
         app.auth.destroy();
 
-        // Redirect to login page on success
-        app.location.redirect("/login");
+        // Redirect to the home page after logout
+        app.location.redirect("/");
       });
     });
   </script>
