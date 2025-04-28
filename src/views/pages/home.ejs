@@ -309,28 +309,24 @@
           const experience = userData.experience;
           const identities = userData.identities || [];
 
-          if (userAvatarTop) {
-            userAvatarTop.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
-          }
+          userAvatarTop.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
+
           setDisplayContent(displayNameTop, profile.name, "Player");
 
-          if (userRoleBadgeContainerTop) {
-            userRoleBadgeContainerTop.innerHTML = "";
-            identities.forEach(role => {
-              userRoleBadgeContainerTop.appendChild(createRoleBadge(role));
-            });
-          }
+          userRoleBadgeContainerTop.innerHTML = "";
+          identities.forEach(role => {
+            userRoleBadgeContainerTop.appendChild(createRoleBadge(role));
+          });
 
           const currentEloRank = app.utils.getRank(eloData.rating);
-          if (rankIconTop) {
-            rankIconTop.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
-            rankIconTop.alt = currentEloRank.name;
-          }
+          rankIconTop.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          rankIconTop.alt = currentEloRank.name;
+
           setDisplayContent(rankNameTop, currentEloRank.name, "--");
 
           const levelInfo = app.utils.getLevel(experience);
           setDisplayContent(userLevelTop, `Lv ${levelInfo.level}`, "Lv --");
-          if (userLevelTop) userLevelTop.style.color = levelInfo.color || "#1D4ED8";
+          userLevelTop.style.color = levelInfo.color || "#1D4ED8";
 
           setDisplayContent(displayNameMain, profile.name, "Player");
         } else {
@@ -351,30 +347,20 @@
 
     // Function to set UI for guest/unauthenticated users
     function loadGuestData() {
-      if (userAvatarTop) {
-        userAvatarTop.src = "<%= env.CDN_URL %>/img/default-avatar.svg";
-      }
+      userAvatarTop.src = "<%= env.CDN_URL %>/img/default-avatar.svg";
+
       setDisplayContent(displayNameTop, "Guest", "Guest");
-      if (userRoleBadgeContainerTop) {
-        userRoleBadgeContainerTop.innerHTML = "";
-      }
-      if (rankIconTop) {
-        rankIconTop.remove();
-      }
+
+      userRoleBadgeContainerTop.innerHTML = "";
+
+      rankIconTop.remove();
+
       setDisplayContent(rankNameTop, "N/A", "N/A");
       setDisplayContent(userLevelTop, "Lv --", "Lv --");
-      if (userLevelTop) userLevelTop.style.color = "#6B7280";
+      userLevelTop.style.color = "#6B7280";
 
-      setDisplayContent(displayNameMain, "Guest", "Guest");
-
-      const settingsButton = document.querySelector('a[href="/user/settings"]');
-      if (settingsButton) {
-        settingsButton.style.display = 'none';
-      }
       const welcomeHeader = document.querySelector('#lobby-view h1');
-      if (welcomeHeader) {
-        welcomeHeader.innerHTML = 'Welcome, <span class="font-semibold text-amber-800">Guest</span>!';
-      }
+      welcomeHeader.innerHTML = 'Welcome to Tridecco!';
     }
 
     // Function to switch tabs
@@ -398,16 +384,13 @@
 
     // Function to update server status
     function updateServerStatus(statusText) {
-      if (serverStatus) {
-        serverStatus.innerHTML = `Server: ${statusText}`;
-        const span = serverStatus.querySelector("span");
-        if (span) span.classList.remove("placeholder-text");
-      }
+      serverStatus.innerHTML = `Server: ${statusText}`;
+      const span = serverStatus.querySelector("span");
+      span.classList.remove("placeholder-text");
     }
 
     // Function to open right sidebar
     function openRightSidebar() {
-      if (!rightSidebar || !sidebarOverlay) return;
       sidebarOverlay.classList.remove("hidden");
       requestAnimationFrame(() => {
         sidebarOverlay.classList.remove("opacity-0");
@@ -417,7 +400,6 @@
 
     // Function to close right sidebar
     function closeRightSidebar() {
-      if (!rightSidebar || !sidebarOverlay) return;
       sidebarOverlay.classList.add("opacity-0");
       rightSidebar.classList.add("translate-x-full");
       setTimeout(() => {
@@ -426,15 +408,10 @@
     }
 
     // Event Listeners for Sidebar
-    if (toggleRightSidebarButton) {
-      toggleRightSidebarButton.addEventListener("click", openRightSidebar);
-    }
-    if (closeRightSidebarButton) {
-      closeRightSidebarButton.addEventListener("click", closeRightSidebar);
-    }
-    if (sidebarOverlay) {
-      sidebarOverlay.addEventListener("click", closeRightSidebar);
-    }
+    toggleRightSidebarButton.addEventListener("click", openRightSidebar);
+    closeRightSidebarButton.addEventListener("click", closeRightSidebar);
+    sidebarOverlay.addEventListener("click", closeRightSidebar);
+
 
     // Load user data when the page is ready
     document.addEventListener("DOMContentLoaded", () => {
