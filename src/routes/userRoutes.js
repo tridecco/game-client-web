@@ -31,4 +31,8 @@ router.get('/settings', (req, res) => {
   return res.render('pages/user/settings');
 });
 
+router.get('/security', (req, res) => {
+  return res.render('pages/user/security');
+});
+
 module.exports = router;

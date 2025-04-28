@@ -230,7 +230,7 @@
     // Initialize user module
     const user = new User(app);
 
-    // Helper Functions
+    // Function to format birthday
     function formatBirthday(dateString) {
       if (!dateString) return null;
       try {
@@ -241,6 +241,7 @@
       }
     }
 
+    // Function to set display content with placeholder
     function setDisplayContent(element, value, placeholderText = "Not specified") {
       if (!element) {
         console.warn(`setDisplayContent: Element not found for value "${value}"`);
