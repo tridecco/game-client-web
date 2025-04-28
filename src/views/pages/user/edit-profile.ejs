@@ -304,10 +304,6 @@
         skeletonLoader.classList.add("hidden");
         profileForm.classList.remove("hidden");
       }
-    }).catch(error => {
-      console.error("Error fetching user data:", error);
-      skeletonLoader.classList.add("hidden");
-      profileForm.classList.remove("hidden");
     });
 
     // Handle avatar upload

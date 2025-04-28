@@ -353,10 +353,7 @@
         skeletonLoader.classList.add("hidden");
         profileDisplayArea.classList.remove("hidden");
       }
-    }).catch(error => {
-      console.error("Error fetching user data:", error);
-      skeletonLoader.classList.add("hidden");
-      profileDisplayArea.classList.remove("hidden");
+      throw new Error("Failed to fetch user data");
     });
   </script>
 </body>
