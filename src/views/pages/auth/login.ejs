@@ -87,7 +87,7 @@
             const token = response.credential;
             const loginResponse = await auth.oauthAuth(token);
             if (loginResponse.status === "success") {
-              app.auth.set(loginResponse.data.user.id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
+              app.auth.set(loginResponse.data.user._id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
               app.location.redirect("<%= redirect %>" || "/"); // Redirect on success
             } else {
               app.ui.notification(
