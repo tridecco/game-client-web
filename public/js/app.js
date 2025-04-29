@@ -151,6 +151,15 @@ class Auth {
    * @returns {boolean} - True if the user is authenticated, false otherwise.
    */
   async init() {
+    if (
+      (this.refreshToken || this.accessToken) &&
+      (!this.refreshToken || !this.accessToken || !this.userId)
+    ) {
+      this.destroy();
+      this.app.location.init();
+      return false;
+    }
+
     this.setFetch();
     if (this.accessToken) {
       this.authenticated = true;
@@ -176,7 +185,21 @@ class Auth {
     window.originalFetch = window.originalFetch || window.fetch;
 
     window.fetch = async function fetchWithAuth(url, options = {}) {
-      if (this.accessToken) {
+      const currentOrigin = window.location.origin;
+
+      let targetUrl = url;
+      if (!url.startsWith('http') && !url.startsWith('https')) {
+        targetUrl = currentOrigin + url;
+      }
+
+      let targetOrigin;
+      try {
+        targetOrigin = new URL(targetUrl).origin;
+      } catch (error) {
+        targetOrigin = '';
+      }
+
+      if (targetOrigin === currentOrigin && this.accessToken) {
         options.headers = {
           ...options.headers,
           Authorization: `Bearer ${this.accessToken}`,
@@ -187,7 +210,9 @@ class Auth {
         try {
           await this.authenticate();
 
-          options.headers.Authorization = `Bearer ${this.accessToken}`;
+          if (targetOrigin === currentOrigin) {
+            options.headers.Authorization = `Bearer ${this.accessToken}`;
+          }
 
           return await window.originalFetch(url, options);
         } catch (error) {
@@ -206,8 +231,15 @@ class Auth {
           return response;
         }
       } catch (error) {
-        return await refreshToken();
+        if (this.app.online) {
+          const RETRY_WAIT_TIME = 1000;
+          setTimeout(async () => {
+            return await refreshToken();
+          }, RETRY_WAIT_TIME);
+        }
       }
+
+      return undefined;
     }.bind(this);
   }
 
@@ -232,8 +264,6 @@ class Auth {
 
     if (!response.ok) {
       this.authenticated = false;
-      this.removeTokens();
-      this.app.location.init();
       throw new Error('Invalid or expired token.');
     } else {
       const data = (await response.json()).data;
@@ -296,7 +326,6 @@ class Location {
    * @method init - Initializes the redirect.
    */
   init() {
-    // [public_route, user_route, admin_route, auth_route] * [no_auth, auth_user, auth_admin]
     const HOME = '/';
     const AUTH = '/login';
     const FORBIDDEN = 403;
@@ -343,7 +372,7 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/404', '/403', '/leaderboard'].includes(route);
+    return ['/', '/404', '/403', '/leaderboards'].includes(route);
   }
 
   /**
@@ -492,6 +521,7 @@ class UI {
    * @param {string} status - The status of the notification.
    * @param {HTMLElement} parentElement - The parent element to append the notification to.
    * @param {string} messageGroup - The message group, auto-removes when a new message is added to the group.
+   * @param {boolean} scrollTo - Whether to scroll to the notification.
    * @returns {HTMLElement} The notification element.
    */
   notification(
@@ -500,6 +530,7 @@ class UI {
     status = 'info',
     parentElement,
     messageGroup,
+    scrollTo = false,
   ) {
     const alert = document.createElement('div');
 
@@ -616,7 +647,201 @@ class UI {
       this.notifications.set(messageGroup, alert);
     }
 
+    if (scrollTo) {
+      alert.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      });
+    }
+
     return alert;
+  }
+}
+
+/**
+ * @class Network
+ * @description Handles network requests.
+ */
+class Network {
+  /**
+   * @constructor - Initializes the Network class.
+   * @param {Object} app - The App class instance.
+   */
+  constructor(app) {
+    this.app = app;
+
+    this.online = navigator.onLine;
+    this.app.online = this.init();
+  }
+
+  /**
+   * @method init - Initializes the Network class.
+   * @returns {boolean} - True if the user is online, false otherwise.
+   */
+  init() {
+    window.addEventListener('online', () => {
+      this.app.online = true;
+      this.app.ui.alert('You are back online!', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+      this.app.online = false;
+      this.app.ui.alert('You are offline!', 'info');
+    });
+
+    if (!this.online) {
+      this.app.ui.alert('You are offline!', 'info');
+    }
+
+    return this.online;
+  }
+}
+
+/**
+ * @class Utils
+ * @description Utility functions for the application.
+ */
+class Utils {
+  /**
+   * @method getRank - Gets the rank of the user based on their elo score.
+   * @param {number} score - The elo score of the user.
+   * @returns {Object} - The rank of the user.
+   */
+  static getRank(score) {
+    const TRIDECCO_SUPREME = 8400;
+    const TRIDECCO_DIVISION = 300;
+    const ONE_HUNDRED = 100;
+
+    const tiers = [
+      { name: 'Iron', divisions: ['I'] },
+      { name: 'Bronze', divisions: ['II', 'I'] },
+      { name: 'Silver', divisions: ['III', 'II', 'I'] },
+      { name: 'Gold', divisions: ['IV', 'III', 'II', 'I'] },
+      { name: 'Platinum', divisions: ['V', 'IV', 'III', 'II', 'I'] },
+      { name: 'Diamond', divisions: ['VI', 'V', 'IV', 'III', 'II', 'I'] },
+      {
+        name: 'Tridecco',
+        divisions: ['VII', 'VI', 'V', 'IV', 'III', 'II', 'I'],
+      },
+    ];
+
+    if (score >= TRIDECCO_SUPREME) {
+      const stars =
+        Math.floor((score - TRIDECCO_SUPREME) / TRIDECCO_DIVISION) + 1;
+      return {
+        name: `Tridecco S. ★${stars}`,
+        tier: 7,
+        division: stars,
+        nextRankElo: TRIDECCO_SUPREME + stars * TRIDECCO_DIVISION,
+        eloToNextRank:
+          TRIDECCO_DIVISION - ((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION),
+        progress:
+          (((score - TRIDECCO_SUPREME) % TRIDECCO_DIVISION) /
+            TRIDECCO_DIVISION) *
+          ONE_HUNDRED,
+      };
+    }
+
+    let base = 0;
+    for (let i = 0; i < tiers.length; i++) {
+      const divisions = tiers[i].divisions.length;
+      const range = divisions * TRIDECCO_DIVISION;
+      if (score < base + range) {
+        const divisionIndex = Math.floor((score - base) / TRIDECCO_DIVISION);
+        const division = divisions - divisionIndex;
+        const currentTierMaxElo = base + range;
+
+        return {
+          name: `${tiers[i].name} ${tiers[i].divisions[divisions - division]}`,
+          tier: i,
+          division: division,
+          nextRankElo: currentTierMaxElo,
+          eloToNextRank: currentTierMaxElo - score,
+          progress:
+            (((score - base) % TRIDECCO_DIVISION) / TRIDECCO_DIVISION) *
+            ONE_HUNDRED,
+        };
+      }
+      base += range;
+    }
+
+    return {
+      name: 'Unranked',
+      tier: -1,
+      division: 0,
+      nextRankElo: 0,
+      eloToNextRank: 0,
+      progress: 0,
+    };
+  }
+
+  /**
+   * @method getLevel - Gets the level of the user based on their experience points.
+   * @param {number} xp - The experience points of the user.
+   * @returns {Object} - The level of the user.
+   */
+  static getLevel(xp) {
+    const BASE_XP = 100;
+    const EXPONENTIAL_FACTOR = 2;
+    const LEVELS = 50;
+    const TITLE_UP = 5;
+    const TO_FIXED = 2;
+    const ONE_HUNDRED = 100;
+
+    const levelThresholds = (n) => BASE_XP * Math.pow(n, EXPONENTIAL_FACTOR);
+
+    const levels = [
+      { title: 'Novice', color: 'Gray', code: '#808080' },
+      { title: 'Initiate', color: 'Bronze', code: '#CD7F32' },
+      { title: 'Apprentice', color: 'Silver', code: '#C0C0C0' },
+      { title: 'Journeyman', color: 'Gold', code: '#FFD700' },
+      { title: 'Adept', color: 'Emerald', code: '#50C878' },
+      { title: 'Expert', color: 'Sapphire', code: '#0F52BA' },
+      { title: 'Master', color: 'Amethyst', code: '#9966CC' },
+      { title: 'Grandmaster', color: 'Ruby', code: '#E0115F' },
+      { title: 'Legend', color: 'Platinum', code: '#E5E4E2' },
+      { title: 'Mythic', color: 'Diamond', code: '#B9F2FF' },
+      { title: 'Ascendant', color: 'Agate', code: '#A8C3BC' },
+    ];
+
+    const maxXpThreshold = levelThresholds(LEVELS);
+    let level = 0;
+
+    if (xp >= maxXpThreshold) {
+      level = LEVELS;
+    } else {
+      for (let i = 1; i <= LEVELS; i++) {
+        if (xp < levelThresholds(i)) {
+          level = i - 1;
+          break;
+        }
+      }
+    }
+
+    const isMaxLevel = level === LEVELS;
+
+    const nextLevelXp = isMaxLevel ? null : levelThresholds(level + 1);
+    const currentLevelXp = levelThresholds(level);
+    const progress = isMaxLevel
+      ? ONE_HUNDRED
+      : ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * ONE_HUNDRED;
+    const xpToNextLevel = isMaxLevel ? 0 : nextLevelXp - xp;
+
+    const titleIndex = Math.min(
+      Math.floor(level / TITLE_UP),
+      levels.length - 1,
+    );
+    const levelTitle = levels[titleIndex];
+
+    return {
+      level: level,
+      title: levelTitle.title,
+      color: levelTitle.color,
+      colorCode: levelTitle.code,
+      nextLevelXp: isMaxLevel ? 'Max Level Reached' : nextLevelXp,
+      xpToNextLevel: xpToNextLevel,
+      progress: progress.toFixed(TO_FIXED),
+    };
   }
 }
 
@@ -640,6 +865,8 @@ class App {
     this.auth = new Auth(this);
     this.location = new Location(this);
     this.ui = new UI(this);
+    this.network = new Network(this);
+    this.utils = Utils;
 
     this.init();
   }

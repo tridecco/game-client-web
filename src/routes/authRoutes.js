@@ -41,4 +41,8 @@ router.get('/password-reset/complete', (req, res) => {
   });
 });
 
+router.get('/logout', (req, res) => {
+  return res.render('pages/auth/logout');
+});
+
 module.exports = router;
