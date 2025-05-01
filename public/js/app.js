@@ -320,6 +320,9 @@ class Location {
     this.app = app;
 
     this.path = window.location.pathname;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    this.params = Object.fromEntries(searchParams.entries());
   }
 
   /**
