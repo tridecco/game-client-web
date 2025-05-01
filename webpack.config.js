@@ -6,10 +6,10 @@ module.exports = {
   mode: 'production',
   entry: () => {
     const files = fs
-      .readdirSync(path.resolve(__dirname, 'js'))
+      .readdirSync(path.resolve(__dirname, 'src', 'scripts'))
       .filter((file) => file.endsWith('.js'))
       .reduce((entries, file) => {
-        entries[file] = path.resolve(__dirname, 'js', file);
+        entries[file] = path.resolve(__dirname, 'src', 'scripts', file);
         return entries;
       }, {});
 
