@@ -692,10 +692,6 @@ class Network {
       this.app.ui.alert('You are offline!', 'info');
     });
 
-    if (!this.online) {
-      this.app.ui.alert('You are offline!', 'info');
-    }
-
     return this.online;
   }
 }
