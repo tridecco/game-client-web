@@ -591,9 +591,6 @@ class UI {
       alert.appendChild(srOnly);
       alert.appendChild(div);
     } else if (type === 'list') {
-      const messageAfterOne = message.slice(1);
-      const list = messageAfterOne.map((item) => `<li>${item}</li>`).join('');
-
       alert.className = `flex p-4 mt-2 mb-4 text-sm ${colorClasses} rounded-lg`;
       alert.role = 'alert';
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -626,7 +623,7 @@ class UI {
       const ul = document.createElement('ul');
       ul.setAttribute('class', 'mt-1.5 list-disc list-inside');
 
-      messageAfterOne.forEach((item) => {
+      message.forEach((item) => {
         const li = document.createElement('li');
         li.textContent = item;
         ul.appendChild(li);
