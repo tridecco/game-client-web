@@ -161,16 +161,7 @@ class Auth {
     }
 
     this.setFetch();
-    if (this.accessToken) {
-      this.authenticated = true;
-    } else if (this.refreshToken) {
-      try {
-        await this.authenticate();
-        this.authenticated = true;
-      } catch (error) {
-        return false;
-      }
-    }
+    this.authenticated = true;
     return this.authenticated;
   }
 
