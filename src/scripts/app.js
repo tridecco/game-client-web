@@ -150,19 +150,21 @@ class Auth {
    * @method init - Initializes the Auth class.
    * @returns {boolean} - True if the user is authenticated, false otherwise.
    */
-  async init() {
+  init() {
     if (
       (this.refreshToken || this.accessToken) &&
-      (!this.refreshToken || !this.accessToken || !this.userId)
+      !(this.refreshToken && this.accessToken && this.userId)
     ) {
       this.destroy();
-      this.app.location.init();
+      return false;
+    } else if (this.refreshToken && this.accessToken && this.userId) {
+      this.authenticated = true;
+      this.setFetch();
+      return true;
+    } else {
+      this.authenticated = false;
       return false;
     }
-
-    this.setFetch();
-    this.authenticated = true;
-    return this.authenticated;
   }
 
   /**
@@ -862,7 +864,7 @@ class App {
    * @method init - Initializes the App class.
    */
   async init() {
-    await this.auth.init();
+    this.auth.init();
     this.location.init();
   }
 }
