@@ -16,7 +16,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 
 - **Languages**: HTML, CSS, JavaScript
 - **Frameworks**: Express.js + Socket.IO, Tailwind CSS
-- **Authentication**: JWT, OAuth 2.0
+- **Authentication**: JWT, OAuth 2.0 (Google)
 
 ## Getting Started
 
