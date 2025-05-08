@@ -140,10 +140,10 @@ class Auth {
     this.app = app;
 
     this.authenticated = false;
-    this.userId = this.app.data.auth?.userId;
-    this.identities = this.app.data.auth?.identities;
-    this.accessToken = this.app.data.auth?.accessToken;
-    this.refreshToken = this.app.data.auth?.refreshToken;
+    this.userId = this.app.data.auth && this.app.data.auth.userId;
+    this.identities = this.app.data.auth && this.app.data.auth.identities;
+    this.accessToken = this.app.data.auth && this.app.data.auth.accessToken;
+    this.refreshToken = this.app.data.auth && this.app.data.auth.refreshToken;
   }
 
   /**
