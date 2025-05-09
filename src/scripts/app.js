@@ -325,6 +325,7 @@ class Location {
     const HOME = '/';
     const AUTH = '/login';
     const FORBIDDEN = 403;
+
     const actionMatrix = [
       [null, null, null],
       [AUTH, null, null],
