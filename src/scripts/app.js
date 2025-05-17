@@ -875,3 +875,5 @@ const app = new App(
   document.querySelector('meta[name="cdn-url"]').getAttribute('content'),
   document.querySelector('meta[name="api-url"]').getAttribute('content'),
 );
+
+window.app = app;
