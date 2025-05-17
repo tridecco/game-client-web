@@ -5,6 +5,10 @@
 
 require('dotenv').config();
 
+if (process.env.BUILD_MODE === 'local') {
+  process.env.CDN_URL = ''; // No CDN for local builds
+}
+
 const fs = require('fs-extra');
 const path = require('path');
 const ejs = require('ejs');
