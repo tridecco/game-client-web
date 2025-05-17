@@ -34,7 +34,18 @@ if (PROXY_PATH && PROXY_TARGET) {
   );
 }
 
+app.use((req, res, next) => {
+  if (!req.path.endsWith('/') && !path.extname(req.path)) {
+    const htmlFilePath = path.join(STATIC_DIR, req.path + '.html');
+    if (fs.existsSync(htmlFilePath)) {
+      return res.sendFile(htmlFilePath);
+    }
+  }
+  return next();
+});
+
 app.use(express.static(STATIC_DIR, { index: 'index.html' }));
+
 app.use((_req, res) => {
   if (fs.existsSync(NOT_FOUND_PAGE)) {
     res.status(HTTP_STATUS_NOT_FOUND).sendFile(NOT_FOUND_PAGE);
