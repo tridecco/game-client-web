@@ -22,8 +22,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(req.url);
+  const cdnUrl = new URL(
+    document.querySelector('meta[name="cdn-url"]').getAttribute('content'),
+  );
 
-  if (url.hostname === 'cdn.jsdelivr.net') {
+  if (url.hostname === cdnUrl.hostname) {
     event.respondWith(
       caches.match(req).then((cachedRes) => {
         if (cachedRes) {
