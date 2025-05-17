@@ -19,6 +19,10 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist/js'),
     filename: '[name]',
+    library: {
+      type: 'global',
+      name: '[name]',
+    },
   },
 
   optimization: {
