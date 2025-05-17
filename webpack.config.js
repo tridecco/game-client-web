@@ -22,6 +22,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       CDN_URL: JSON.stringify(process.env.CDN_URL),
+      API_URL: JSON.stringify(process.env.API_URL),
     }),
   ],
 

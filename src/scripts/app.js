@@ -871,9 +871,6 @@ class App {
 }
 
 // Initialize the App (Client-side)
-const app = new App(
-  document.querySelector('meta[name="cdn-url"]').getAttribute('content'),
-  document.querySelector('meta[name="api-url"]').getAttribute('content'),
-);
+const app = new App(CDN_URL, API_URL);
 
 window.app = app;
