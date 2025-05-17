@@ -3,6 +3,8 @@
  * @description This script compiles EJS templates into HTML files.
  */
 
+require('dotenv').config();
+
 const fs = require('fs-extra');
 const path = require('path');
 const ejs = require('ejs');
@@ -17,7 +19,7 @@ files.forEach((file) => {
   const relativePath = path.relative(srcDir, file);
   const outPath = path.join(destDir, relativePath.replace(/\.ejs$/, '.html'));
 
-  ejs.renderFile(file, {}, {}, (err, str) => {
+  ejs.renderFile(file, { env: process.env }, {}, (err, str) => {
     if (err) {
       console.error(`Error rendering ${file}:`, err);
     } else {
