@@ -1,6 +1,9 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const fs = require('fs');
+const webpack = require('webpack');
+
+require('dotenv').config();
 
 module.exports = {
   mode: 'production',
@@ -16,9 +19,18 @@ module.exports = {
     return files;
   },
 
+  plugins: [
+    new webpack.DefinePlugin({
+      CDN_URL: JSON.stringify(process.env.CDN_URL),
+    }),
+  ],
+
   output: {
-    path: path.resolve(__dirname, 'dist/js'),
-    filename: '[name]',
+    path: path.resolve(__dirname, 'dist'),
+    filename: (pathData) => {
+      const name = pathData.chunk.name;
+      return name === 'service-worker.js' ? 'service-worker.js' : `js/${name}`;
+    },
     library: {
       type: 'global',
       name: '[name]',
