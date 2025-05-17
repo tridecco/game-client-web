@@ -47,15 +47,15 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
    ```env
    CDN_URL= # CDN URL for static assets (default: empty)
    API_URL=/api # API URL for the backend server (default: /api)
-   GOOGLE_CLIENT_ID=client_id # Google OAuth 2.0 client ID
    BUILD_MODE=web # Build mode (default: web, can be web or local)
+   GOOGLE_CLIENT_ID=client_id # Google OAuth 2.0 client ID
    DEV_SERVER_PORT=3000 # Development server port (default: 3000)
    DEV_SERVER_HOST=localhost # Development server host (default: localhost)
    DEV_SERVER_PROXY=/api # Development server proxy (default: /api)
    DEV_SERVER_PROXY_TARGET=http://localhost:5000 # Development server proxy target (default: http://localhost:5000)
    ```
 
-   > **Note**: The `BUILD_MODE` variable is used to determine the build mode. It can be `web` or `local`. When set to `web`, the client will load static assets from the CDN. When set to `local`, the client will load static assets from the local server, and will not be able to use Google OAuth 2.0. The `local` build mode is used for native builds (e.g. Electron, Capacitor, etc.).
+   > **Note**: The `BUILD_MODE` variable is used to determine the build mode. It can be `web` or `local`. When set to `web`, the client will load static assets from the CDN. When set to `local`, the client will load static assets from the local server. The `local` build mode is used for native builds (e.g. Electron, Capacitor, etc.).
 
 4. Build the client:
 
