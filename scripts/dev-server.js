@@ -34,7 +34,7 @@ if (PROXY_PATH && PROXY_TARGET) {
   );
 }
 
-app.use(express.static(STATIC_DIR, { index: false }));
+app.use(express.static(STATIC_DIR, { index: false, redirect: false }));
 
 app.use((req, res, next) => {
   const requestedPath = req.path;
