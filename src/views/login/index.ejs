@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-  <%- include("../partials/head.ejs") %>
+  <%- include("../../partials/head.ejs") %>
   <title>Tridecco | Login</title>
-  <% if (env.ENABLE_GOOGLE_OAUTH) { %>
-  <%- include("../partials/libs/google-oauth.ejs") %>
+  <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
+  <%- include("../../partials/libs/google-oauth.ejs") %>
   <% } %>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
@@ -41,7 +41,7 @@
         <a class="text-blue-600 hover:text-blue-800" href="/password-reset">Forgot your password?</a>
       </p>
 
-      <% if (env.ENABLE_GOOGLE_OAUTH) { %>
+      <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
       <!-- Google OAuth button -->
       <div id="g_id_onload" class="mt-4" data-client_id="<%= env.GOOGLE_CLIENT_ID %>" data-auto_prompt="false"></div>
       <% } %>
@@ -123,7 +123,7 @@
     });
   </script>
 
-  <%- include("../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>
