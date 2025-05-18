@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../../partials/head.ejs") %>
+  <title>Tridecco | Update Email</title>
+  <script src="<%= env.CDN_URL %>/js/user.js"></script>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: #8e5e4d url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Content Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
+    <!-- Main Content Box -->
+    <div class="bg-white bg-opacity-90 p-6 md:p-10 rounded-xl shadow-xl w-full max-w-md backdrop-filter backdrop-blur-md overflow-hidden text-center">
+
+      <!-- Updating State (Initially visible via JS, then hidden) -->
+      <div id="updating-state" class="hidden">
+        <h2 class="text-xl font-bold mb-4 text-amber-900">Updating Email</h2>
+        <!-- Simple spinning dots animation -->
+        <div class="flex justify-center items-center space-x-2 text-amber-700 mb-4">
+          <div class="w-3 h-3 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div class="w-3 h-3 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div class="w-3 h-3 bg-amber-600 rounded-full animate-bounce"></div>
+        </div>
+        <p class="text-gray-600">Please wait while we verify your request...</p>
+      </div>
+
+      <!-- Success State (Hidden by default) -->
+      <div id="success-state" class="hidden">
+        <h2 class="text-xl font-bold mb-4 text-emerald-700">Email Updated Successfully!</h2>
+        <!-- Checkmark Icon -->
+        <svg class="w-16 h-16 mx-auto text-emerald-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p id="success-message" class="text-gray-700 mb-6">Your email address has been confirmed and updated.</p>
+        <!-- Link back to account settings -->
+        <a href="/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
+          Go to Account Settings
+        </a>
+      </div>
+
+      <!-- Failure State (Hidden by default) -->
+      <div id="failure-state" class="hidden">
+        <h2 class="text-xl font-bold mb-4 text-red-700">Email Update Failed</h2>
+        <!-- Error Icon -->
+        <svg class="w-16 h-16 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p id="failure-message" class="text-gray-700 mb-6">Could not update your email. The confirmation link might be invalid, expired, or already used.</p>
+        <!-- Link back to account settings -->
+        <a href="/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
+          Return to Account Settings
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Include Tridecco Animator -->
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
+
+  <script>
+    const updatingState = document.getElementById("updating-state");
+    const successState = document.getElementById("success-state");
+    const failureState = document.getElementById("failure-state");
+    const successMessage = document.getElementById("success-message");
+    const failureMessage = document.getElementById("failure-message");
+
+    // Initialize user module
+    const user = new User(app);
+
+    const token = app.location.params.token;
+
+    async function processEmailUpdate() {
+      updatingState.classList.remove("hidden");
+      successState.classList.add("hidden");
+      failureState.classList.add("hidden");
+
+      try {
+        const response = await user.completeEmailUpdate(token);
+
+        updatingState.classList.add("hidden");
+
+        if (response && response.status === "success") {
+          successMessage.textContent = response.message;
+          successState.classList.remove("hidden");
+        } else {
+          failureMessage.textContent = (response && response.message) || "Failed to update email. The link may be invalid, expired, or already used.";
+          failureState.classList.remove("hidden");
+        }
+      } catch (error) {
+        updatingState.classList.add("hidden");
+        failureMessage.textContent = "An unexpected error occurred while processing your request. Please try again later or contact support.";
+        failureState.classList.remove("hidden");
+      }
+    }
+
+    // Start the email update process when the page loads
+    document.addEventListener('DOMContentLoaded', processEmailUpdate);
+  </script>
+</body>
+
+</html>
