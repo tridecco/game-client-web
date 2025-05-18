@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../partials/head.ejs") %>
+  <title>Tridecco | Login</title>
+  <% if (env.ENABLE_GOOGLE_OAUTH) { %>
+  <%- include("../partials/libs/google-oauth.ejs") %>
+  <% } %>
+  <script src="<%= env.CDN_URL %>/js/auth.js"></script>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Auth Form Container -->
+  <div class="fixed inset-0 flex items-center justify-center">
+    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-xl w-96 max-w-sm backdrop-filter backdrop-blur-md">
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
+      <form id="auth-form" class="space-y-4">
+        <div class="mb-4">
+          <label for="identifier" class="block text-gray-700 text-sm font-bold mb-2">Email or Username</label>
+          <input type="text" id="identifier" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your email or username">
+        </div>
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+          <input type="password" id="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your password">
+        </div>
+        <div class="flex items-center justify-between">
+          <button id="login" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
+            Login
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center text-gray-600 text-xs mt-4">
+        <a class="text-blue-600 hover:text-blue-800" href="/password-reset">Forgot your password?</a>
+      </p>
+
+      <% if (env.ENABLE_GOOGLE_OAUTH) { %>
+      <!-- Google OAuth button -->
+      <div id="g_id_onload" class="mt-4" data-client_id="<%= env.GOOGLE_CLIENT_ID %>" data-auto_prompt="false"></div>
+      <% } %>
+
+      <p class="text-center text-gray-600 text-xs mt-4">
+        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/register">Register</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize authentication module
+    const auth = new Authentication(app);
+    const loginButton = document.getElementById("login");
+
+    // Add click event listener to the login button
+    loginButton.addEventListener("click", async (event) => {
+      loginButton.disabled = true; // Disable button during processing
+      event.preventDefault(); // Prevent form submission
+
+      const identifier = document.getElementById("identifier").value; // Get entered identifier (username or email)
+      const password = document.getElementById("password").value; // Get entered password
+
+      // Attempt to log in
+      const response = await auth.login(identifier, password);
+      if (response.status === "success") {
+        app.auth.set(response.data.user._id, response.data.accessToken, response.data.refreshToken, response.data.user.identities);
+        app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
+      } else {
+        loginButton.disabled = false; // Re-enable button on error
+        app.ui.notification(
+          "alert",
+          response.message,
+          "error",
+          document.getElementById("auth-form"),
+          "login"
+        );
+      }
+    });
+
+    // Google OAuth (Get the JWT token, and send it to the server)
+    window.addEventListener('load', () => {
+      if (!window.google) {
+        return;
+      }
+
+      google.accounts.id.initialize({
+        client_id: "<%= env.GOOGLE_CLIENT_ID %>",
+        callback: async (response) => {
+          if (response.credential) {
+            const token = response.credential;
+            const loginResponse = await auth.oauthAuth(token);
+            if (loginResponse.status === "success") {
+              app.auth.set(loginResponse.data.user._id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
+              app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
+            } else {
+              app.ui.notification(
+                "alert",
+                loginResponse.message,
+                "error",
+                document.getElementById("auth-form"),
+                "login"
+              );
+            }
+          }
+        }
+      });
+
+      // Render the Google OAuth button
+      google.accounts.id.renderButton(
+        document.getElementById("g_id_onload"), {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          width: "auto",
+        }
+      );
+    });
+  </script>
+
+  <%- include("../partials/tridecco-board-animator.ejs") %>
+</body>
+
+</html>
