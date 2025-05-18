@@ -34,17 +34,20 @@ if (PROXY_PATH && PROXY_TARGET) {
   );
 }
 
+app.use(express.static(STATIC_DIR, { index: false }));
+
 app.use((req, res, next) => {
-  if (!req.path.endsWith('/') && !path.extname(req.path)) {
-    const htmlFilePath = path.join(STATIC_DIR, req.path + '.html');
-    if (fs.existsSync(htmlFilePath)) {
-      return res.sendFile(htmlFilePath);
+  const requestedPath = req.path;
+
+  if (!path.extname(requestedPath)) {
+    const indexPath = path.join(STATIC_DIR, requestedPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
     }
   }
+
   return next();
 });
-
-app.use(express.static(STATIC_DIR, { index: 'index.html' }));
 
 app.use((_req, res) => {
   if (fs.existsSync(NOT_FOUND_PAGE)) {
