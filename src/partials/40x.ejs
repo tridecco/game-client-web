@@ -97,7 +97,7 @@
     });
   </script>
   <script>
-    history.pushState(null, null, app.location.path);
+    history.pushState(null, null, app.location.params.path || app.location.path);
   </script>
 </body>
 
