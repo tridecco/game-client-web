@@ -4,7 +4,7 @@ const fs = require('fs');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const DEFAULT_PORT = 3000;
 const PORT = process.env.DEV_SERVER_PORT || DEFAULT_PORT;
