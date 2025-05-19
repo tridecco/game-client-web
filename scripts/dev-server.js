@@ -25,6 +25,7 @@ if (PROXY_PATH && PROXY_TARGET) {
       target: PROXY_TARGET,
       changeOrigin: true,
       logLevel: 'debug',
+      pathRewrite: { '^': '/api' },
     }),
   );
   console.log(`Proxying requests from ${PROXY_PATH} to ${PROXY_TARGET}`);
