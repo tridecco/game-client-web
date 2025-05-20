@@ -47,63 +47,84 @@
 
     // Add click event listener to the registration button
     completeRegistrationButton.addEventListener("click", async (event) => {
-      completeRegistrationButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      completeRegistrationButton.disabled = true; // Disable button during processing
 
       const token = app.location.params.token; // Get token for registration
       const username = document.getElementById("username").value; // Get entered username
       const password = document.getElementById("password").value; // Get entered password
 
       // Attempt to complete registration
-      const response = await auth.completeRegistration(token, username, password);
-      if (response.status === "success") {
-        document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          document.getElementById("auth-form"),
-          "register"
-        );
+      try {
+        const response = await auth.completeRegistration(token, username, password);
+        if (response.status === "success") {
+          document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
+          app.ui.notification(
+            "alert",
+            response.message,
+            "success",
+            document.getElementById("auth-form"),
+            "register"
+          );
 
-        setTimeout(() => {
-          app.location.redirect("/login"); // Redirect to login after a short delay
-        }, 2000);
-      } else {
-        completeRegistrationButton.disabled = false; // Re-enable button on error
-        // Handle specific errors for invalid username and password
-        if (response.error.code === "INVALID_USERNAME") {
+          setTimeout(() => {
+            app.location.redirect("/login"); // Redirect to login after a short delay
+          }, 2000);
+        } else {
+          completeRegistrationButton.disabled = false; // Re-enable button on error
+          // Handle specific errors for invalid username and password
+          if (response.error.code === "INVALID_USERNAME") {
+            app.ui.notification(
+              "list",
+              [
+                "Username must be at least 3 characters long",
+                "Username can only contain letters, numbers, underscores, and hyphens",
+              ],
+              "error",
+              document.getElementById("auth-form"),
+              "register"
+            );
+            return;
+          } else if (response.error.code === "INVALID_PASSWORD") {
+            app.ui.notification(
+              "list",
+              [
+                "Password must be at least 8 characters long",
+                "Password must contain at least one uppercase letter",
+                "Password must contain at least one lowercase letter",
+                "Password must contain at least one number",
+                "Password must contain at least one special character",
+              ],
+              "error",
+              document.getElementById("auth-form"),
+              "register"
+            );
+            return;
+          }
+          // General error notification
           app.ui.notification(
-            "list",
-            [
-              "Username must be at least 3 characters long",
-              "Username can only contain letters, numbers, underscores, and hyphens",
-            ],
+            "alert",
+            response.message,
             "error",
             document.getElementById("auth-form"),
             "register"
           );
-          return;
-        } else if (response.error.code === "INVALID_PASSWORD") {
-          app.ui.notification(
-            "list",
-            [
-              "Password must be at least 8 characters long",
-              "Password must contain at least one uppercase letter",
-              "Password must contain at least one lowercase letter",
-              "Password must contain at least one number",
-              "Password must contain at least one special character",
-            ],
-            "error",
-            document.getElementById("auth-form"),
-            "register"
-          );
-          return;
         }
-        // General error notification
+      } catch (error) {
+        completeRegistrationButton.disabled = false; // Re-enable button on error
         app.ui.notification(
           "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
           document.getElementById("auth-form"),
           "register"
