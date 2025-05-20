@@ -51,27 +51,48 @@
 
     // Add click event listener to the register button
     registerButton.addEventListener("click", async (event) => {
-      registerButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      registerButton.disabled = true; // Disable button during processing
 
       const email = document.getElementById("email").value; // Get entered email
 
       // Attempt to register
-      const response = await auth.register(email);
-      if (response.status === "success") {
-        document.getElementById("auth-form").innerHTML = ""; // Clear form on success
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          document.getElementById("auth-form"),
-          "register"
-        );
-      } else {
+      try {
+        const response = await auth.register(email);
+        if (response.status === "success") {
+          document.getElementById("auth-form").innerHTML = ""; // Clear form on success
+          app.ui.notification(
+            "alert",
+            response.message,
+            "success",
+            document.getElementById("auth-form"),
+            "register"
+          );
+        } else {
+          registerButton.disabled = false; // Re-enable button on error
+          app.ui.notification(
+            "alert",
+            response.message,
+            "error",
+            document.getElementById("auth-form"),
+            "register"
+          );
+        }
+      } catch (error) {
         registerButton.disabled = false; // Re-enable button on error
         app.ui.notification(
           "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
           document.getElementById("auth-form"),
           "register"
