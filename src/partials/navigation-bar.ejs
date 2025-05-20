@@ -36,13 +36,6 @@ function classNames(active) {
       </svg>
       <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Leaderboards</span>
     </a>
-    <!-- Offline Game -->
-    <a href="/offline" class="<%= classNames(page === 'offline') %>">
-      <svg class="w-5 h-5 mr-4 flex-shrink-0 <%= page === "offline" ? 'text-amber-800' : "" %>" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-      </svg>
-      <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Offline Game</span>
-    </a>
     <!-- Settings -->
     <a href="/user/settings" class="<%= classNames(page === 'settings') %>">
       <svg class="w-5 h-5 mr-4 flex-shrink-0 <%= page === "settings" ? 'text-amber-800' : "" %>" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
