@@ -144,7 +144,14 @@ class Auth {
     this.identities = this.app.data.auth && this.app.data.auth.identities;
     this.accessToken = this.app.data.auth && this.app.data.auth.accessToken;
     this.refreshToken = this.app.data.auth && this.app.data.auth.refreshToken;
+
+    this._refreshing = null; // Prevent concurrent refreshes
   }
+
+  static ERROR_CODES = {
+    INVALID: 400,
+    UNAUTHORIZED: 401,
+  };
 
   /**
    * @method init - Initializes the Auth class.
@@ -159,22 +166,20 @@ class Auth {
       return false;
     } else if (this.refreshToken && this.accessToken && this.userId) {
       this.authenticated = true;
-      this.setFetch();
+      this._wrapFetch();
       return true;
     } else {
       this.authenticated = false;
+      this._wrapFetch();
       return false;
     }
   }
 
   /**
-   * @method setFetch - Replacement for the fetch function with the access token.
+   * @method _wrapFetch - Wraps the fetch function to handle JWT and refresh logic.
    */
-  setFetch() {
-    if (!this.accessToken) {
-      return;
-    }
-
+  _wrapFetch() {
+    const self = this;
     window.originalFetch = window.originalFetch || window.fetch;
 
     window.fetch = async function fetchWithAuth(url, options = {}) {
@@ -192,85 +197,143 @@ class Auth {
         targetOrigin = '';
       }
 
-      if (targetOrigin === currentOrigin && this.accessToken) {
+      // Add Authorization header for same-origin requests
+      if (targetOrigin === currentOrigin && self.accessToken) {
         options.headers = {
           ...options.headers,
-          Authorization: `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${self.accessToken}`,
         };
       }
 
-      const refreshToken = async () => {
-        try {
-          await this.authenticate();
-
-          if (targetOrigin === currentOrigin) {
-            options.headers.Authorization = `Bearer ${this.accessToken}`;
-          }
-
-          return await window.originalFetch(url, options);
-        } catch (error) {
-          this.destroy();
-          this.app.location.init();
-          return null;
-        }
-      };
-
+      let response;
       try {
-        const response = await window.originalFetch(url, options);
-        const UNAUTHORIZED = 401;
-        if (response.status === UNAUTHORIZED) {
-          return await refreshToken();
-        } else {
-          return response;
-        }
-      } catch (error) {
-        if (this.app.online) {
-          const RETRY_WAIT_TIME = 1000;
-          setTimeout(async () => {
-            return await refreshToken();
-          }, RETRY_WAIT_TIME);
+        response = await window.originalFetch(url, options);
+      } catch (err) {
+        // Network error, propagate to caller
+        throw err;
+      }
+
+      // If unauthorized, try to refresh token
+      if (response.status === Auth.ERROR_CODES.UNAUTHORIZED) {
+        try {
+          await self._refreshTokenOnce();
+          // Retry original request with new token
+          if (targetOrigin === currentOrigin && self.accessToken) {
+            options.headers = {
+              ...options.headers,
+              Authorization: `Bearer ${self.accessToken}`,
+            };
+          }
+          return await window.originalFetch(url, options);
+        } catch (refreshErr) {
+          // Only destroy if token is truly expired/invalid
+          if (refreshErr && refreshErr.isTokenExpired) {
+            self.destroy();
+            self.app.location.init();
+            return null;
+          }
+          // Other errors (e.g. network), propagate to caller
+          throw refreshErr;
         }
       }
 
-      return undefined;
-    }.bind(this);
+      return response;
+    };
   }
 
   /**
-   * @method authenticate - Authenticates the user. (refresh JWT token)
+   * @method _refreshTokenOnce - Ensures only one refresh is in progress.
+   * @private
+   */
+  async _refreshTokenOnce() {
+    if (!this._refreshing) {
+      this._refreshing = this.authenticate()
+        .catch((err) => {
+          throw err;
+        })
+        .finally(() => {
+          this._refreshing = null;
+        });
+    }
+    return this._refreshing;
+  }
+
+  /**
+   * @method authenticate - Refreshes the JWT token.
    * @throws {Error} - If the token is invalid or expired.
    */
   async authenticate() {
     if (!this.refreshToken) {
-      throw new Error('Invalid or expired token.');
+      const err = new Error('Invalid or expired token.');
+      err.isTokenExpired = true;
+      throw err;
     }
 
-    const response = await fetch(`${this.app.apiURL}/auth/refresh-token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refreshToken: this.refreshToken,
-      }),
-    });
+    let response;
+    try {
+      response = await window.originalFetch(
+        `${this.app.apiURL}/auth/refresh-token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            refreshToken: this.refreshToken,
+          }),
+        },
+      );
+    } catch (err) {
+      // Network error, propagate
+      throw err;
+    }
+
+    // Parse response JSON only once
+    let responseJson = null;
+    try {
+      responseJson = await response.clone().json();
+    } catch (e) {
+      // Ignore JSON parse error, will be handled by status code
+    }
+
+    // Destroy if any of these error codes are present
+    const shouldDestroy =
+      (response.status === Auth.ERROR_CODES.INVALID &&
+        responseJson &&
+        responseJson.error &&
+        (responseJson.error.code === 'INVALID_REFRESH_TOKEN' ||
+          responseJson.error.code === 'INVALID_TOKEN')) ||
+      (response.status === Auth.ERROR_CODES.UNAUTHORIZED &&
+        responseJson &&
+        responseJson.error &&
+        responseJson.error.code === 'TOKEN_EXPIRED');
+
+    if (shouldDestroy) {
+      this.authenticated = false;
+      const err = new Error('Invalid or expired token.');
+      err.isTokenExpired = true;
+      throw err;
+    }
 
     if (!response.ok) {
-      this.authenticated = false;
-      throw new Error('Invalid or expired token.');
-    } else {
-      const data = (await response.json()).data;
-
-      this.authenticated = true;
-
-      this.accessToken = data.accessToken;
-      this.app.data.auth.accessToken = data.accessToken;
-
-      this.identities = data.identities;
-      this.app.data.auth.identities = data.identities;
-
-      this.setFetch();
+      // Other server errors
+      throw new Error('Failed to refresh token.');
     }
+
+    const data =
+      responseJson && responseJson.data
+        ? responseJson.data
+        : (await response.json()).data;
+
+    this.authenticated = true;
+    this.accessToken = data.accessToken;
+    this.app.data.auth.accessToken = data.accessToken;
+
+    this.identities = data.identities;
+    this.app.data.auth.identities = data.identities;
+
+    // Re-wrap fetch with new token
+    this._wrapFetch();
   }
 
   /**
@@ -288,7 +351,13 @@ class Auth {
       refreshToken,
       identities,
     };
-    this.setFetch();
+    this.userId = userId;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.identities = identities;
+    this.authenticated = !!(userId && accessToken && refreshToken);
+    this._wrapFetch();
+    return this.app.data.auth;
   }
 
   /**
@@ -296,7 +365,12 @@ class Auth {
    */
   destroy() {
     this.app.data.auth = {};
-    this.setFetch();
+    this.userId = null;
+    this.accessToken = null;
+    this.refreshToken = null;
+    this.identities = null;
+    this.authenticated = false;
+    this._wrapFetch();
   }
 }
 
