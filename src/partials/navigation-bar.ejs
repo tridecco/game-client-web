@@ -6,6 +6,19 @@ function classNames(active) {
 }
 %>
 
+<style>
+  .nav-active {
+    background-color: rgba(217, 119, 6, 0.1);
+    border-left-color: #D97706;
+    color: #92400E;
+    font-weight: 600;
+  }
+
+  .nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+</style>
+
 <aside class="hidden lg:flex flex-col w-20 hover:w-56 transition-all duration-300 ease-in-out bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 overflow-hidden group">
   <!-- Logo/Game Title Area -->
   <div class="w-full p-4 flex items-center group-hover:justify-start space-x-3 border-b border-amber-700/20 h-[72px] flex-shrink-0">
