@@ -748,11 +748,13 @@ class Network {
    */
   init() {
     window.addEventListener('online', () => {
+      this.online = true;
       this.app.online = true;
       this.app.ui.alert('You are back online!', 'success');
     });
 
     window.addEventListener('offline', () => {
+      this.online = false;
       this.app.online = false;
       this.app.ui.alert('You are offline!', 'info');
     });
