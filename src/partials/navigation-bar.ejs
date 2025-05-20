@@ -14,7 +14,7 @@ function classNames(active) {
     <span class="text-xl font-bold text-amber-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Tridecco</span>
   </div>
   <!-- Navigation Links -->
-  <nav class="flex-1 py-4 space-y-1 custom-scrollbar overflow-y-auto">
+  <nav class="flex-1 py-4 space-y-1 custom-scrollbar overflow-y-auto overflow-x-hidden">
     <!-- Home -->
     <a href="/" class="<%= classNames(page === 'home') %>">
       <svg class="w-5 h-5 mr-4 flex-shrink-0 <%= page === 'home' ? 'text-amber-800' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
