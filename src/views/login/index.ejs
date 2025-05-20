@@ -59,22 +59,43 @@
 
     // Add click event listener to the login button
     loginButton.addEventListener("click", async (event) => {
-      loginButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      loginButton.disabled = true; // Disable button during processing
 
       const identifier = document.getElementById("identifier").value; // Get entered identifier (username or email)
       const password = document.getElementById("password").value; // Get entered password
 
       // Attempt to log in
-      const response = await auth.login(identifier, password);
-      if (response.status === "success") {
-        app.auth.set(response.data.user._id, response.data.accessToken, response.data.refreshToken, response.data.user.identities);
-        app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
-      } else {
+      try {
+        const response = await auth.login(identifier, password);
+        if (response.status === "success") {
+          app.auth.set(response.data.user._id, response.data.accessToken, response.data.refreshToken, response.data.user.identities);
+          app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
+        } else {
+          loginButton.disabled = false; // Re-enable button on error
+          app.ui.notification(
+            "alert",
+            response.message,
+            "error",
+            document.getElementById("auth-form"),
+            "login"
+          );
+        }
+      } catch (error) {
         loginButton.disabled = false; // Re-enable button on error
         app.ui.notification(
           "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
           document.getElementById("auth-form"),
           "login"
