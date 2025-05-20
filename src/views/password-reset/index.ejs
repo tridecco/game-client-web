@@ -47,47 +47,68 @@
 
     // Add click event listener to the reset button
     resetButton.addEventListener("click", async (event) => {
-      resetButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      resetButton.disabled = true; // Disable button during processing
 
       const email = document.getElementById("email").value; // Get entered email
 
       // Attempt to reset password
-      const response = await auth.resetPassword(email);
-      if (response.status === "success") {
-        document.getElementById("auth-form").innerHTML = ""; // Clear form on success
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          document.getElementById("auth-form"),
-          "reset"
-        );
-      } else {
-        if (response.error.code === "INVALID_PASSWORD") {
+      try {
+        const response = await auth.resetPassword(email);
+        if (response.status === "success") {
+          document.getElementById("auth-form").innerHTML = ""; // Clear form on success
           app.ui.notification(
-            "list",
-            [
-              "Password must be at least 8 characters long",
-              "Password must contain at least one uppercase letter",
-              "Password must contain at least one lowercase letter",
-              "Password must contain at least one number",
-              "Password must contain at least one special character",
-            ],
-            "error",
+            "alert",
+            response.message,
+            "success",
             document.getElementById("auth-form"),
             "reset"
           );
         } else {
-          resetButton.disabled = false; // Re-enable button on error
-          app.ui.notification(
-            "alert",
-            response.message,
-            "error",
-            document.getElementById("auth-form"),
-            "reset"
-          );
+          if (response.error.code === "INVALID_PASSWORD") {
+            app.ui.notification(
+              "list",
+              [
+                "Password must be at least 8 characters long",
+                "Password must contain at least one uppercase letter",
+                "Password must contain at least one lowercase letter",
+                "Password must contain at least one number",
+                "Password must contain at least one special character",
+              ],
+              "error",
+              document.getElementById("auth-form"),
+              "reset"
+            );
+          } else {
+            resetButton.disabled = false; // Re-enable button on error
+            app.ui.notification(
+              "alert",
+              response.message,
+              "error",
+              document.getElementById("auth-form"),
+              "reset"
+            );
+          }
         }
+      } catch (error) {
+        resetButton.disabled = false; // Re-enable button on error
+        app.ui.notification(
+          "alert",
+          "An error occurred. Please try again.",
+          "error",
+          document.getElementById("auth-form"),
+          "reset"
+        );
       }
     });
   </script>
