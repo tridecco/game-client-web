@@ -16,7 +16,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 
 - **Languages**: HTML, CSS, JavaScript
 - **Frameworks**: Express.js + Socket.IO, Tailwind CSS
-- **Authentication**: JWT, OAuth 2.0
+- **Authentication**: JWT, OAuth 2.0 (Google)
 
 ## Getting Started
 
@@ -25,9 +25,8 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 - Node.js
 - Tridecco Game Server (backend)
 - Tridecco Game Match Server (backend)
-- Google OAuth 2.0 client ID
+- Google OAuth 2.0 client ID (only for web build)
 - Nginx (for reverse proxy) (optional)
-- PM2 (for process management) (optional)
 
 ### Installation
 
@@ -46,28 +45,34 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
 3. Create a `.env` file in the root directory:
 
    ```env
-   PORT=3000 # Port number for the server (default: 3000)
-   HOST=localhost # Host address for the server (default: localhost)
    CDN_URL= # CDN URL for static assets (default: empty)
    API_URL=/api # API URL for the backend server (default: /api)
+   BUILD_MODE=web # Build mode (default: web, can be web or local)
+   ENABLE_GOOGLE_OAUTH=false # Enable Google OAuth 2.0 (default: false)
    GOOGLE_CLIENT_ID=client_id # Google OAuth 2.0 client ID
+   DEV_SERVER_PORT=3000 # Development server port (default: 3000)
+   DEV_SERVER_HOST=localhost # Development server host (default: localhost)
+   DEV_SERVER_PROXY=/api # Development server proxy (default: /api)
+   DEV_SERVER_PROXY_TARGET=http://localhost:5000 # Development server proxy target (default: http://localhost:5000)
    ```
 
-4. Build the Tailwind CSS:
+   > **Note**: The `BUILD_MODE` variable is used to determine the build mode. It can be `web` or `local`. When set to `web`, the client will load static assets from the CDN. When set to `local`, the client will load static assets from the local server. The `local` build mode is used for native builds (e.g. Electron, Capacitor, etc.).
+
+4. Build the client:
 
    ```bash
-   npm run build:css
+   npm run build # for production mode
    ```
 
-5. Start the server:
+   or
 
    ```bash
-   npm start
+   npm run dev # for development mode (will start a development server)
    ```
 
-6. The server should be running on `http://localhost:3000`.
+   > **Note**: The build will be created in the `dist` directory.
 
-> **Note**: Use a reverse proxy (e.g., Nginx) to serve the server on a public domain (`/` -> `http://localhost:3000`). Use a process manager (e.g., PM2) to keep the server running in the background.
+> **Note**: Use a server like Nginx to serve the static files in production mode.
 
 ## License
 
