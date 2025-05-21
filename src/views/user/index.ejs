@@ -287,7 +287,7 @@
 
           Object.values(userRoleBadges).forEach(badge => badge.classList.add("hidden"));
           user.identities.forEach(role => {
-            if (userRoleBadges[role]) userRoleBadges[role].classList.remove("hidden");
+            userRoleBadges[role].classList.remove("hidden");
           });
 
           let genderText = "Not specified";
@@ -299,10 +299,8 @@
           setDisplayContent(birthdayDisplay, formatBirthday(profile.birthday));
 
           const currentEloRank = app.utils.getRank(eloData.rating);
-          if (rankIcon) {
-            rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
-            rankIcon.alt = currentEloRank.name;
-          }
+          rankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${currentEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          rankIcon.alt = currentEloRank.name;
           setDisplayContent(eloRating, `${eloData.rating} (${currentEloRank.name})`, "--");
 
           setDisplayContent(eloWins, eloData.wins, "0");
@@ -312,11 +310,9 @@
           setDisplayContent(eloWinrate, winRatePercent, "--");
 
           const highestEloRank = app.utils.getRank(eloData.highestRating);
-          if (eloHighestRankIcon) {
-            eloHighestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${highestEloRank.name.split(" ")[0].toLowerCase()}.png`;
-            eloHighestRankIcon.alt = highestEloRank.name;
-            eloHighestRankIcon.title = `Highest Rank: ${highestEloRank.name}`;
-          }
+          eloHighestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${highestEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          eloHighestRankIcon.alt = highestEloRank.name;
+          eloHighestRankIcon.title = `Highest Rank: ${highestEloRank.name}`;
           setDisplayContent(eloHighest, highestEloRank.name, "--");
           eloHighest.addEventListener("mouseover", () => {
             setDisplayContent(eloHighest, eloData.highestRating, "--");
@@ -326,11 +322,9 @@
           });
 
           const lowestEloRank = app.utils.getRank(eloData.lowestRating);
-          if (eloLowestRankIcon) {
-            eloLowestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${lowestEloRank.name.split(" ")[0].toLowerCase()}.png`;
-            eloLowestRankIcon.alt = lowestEloRank.name;
-            eloLowestRankIcon.title = `Lowest Rank: ${lowestEloRank.name}`;
-          }
+          eloLowestRankIcon.src = `<%= env.CDN_URL %>/img/ranks/nobg/${lowestEloRank.name.split(" ")[0].toLowerCase()}.png`;
+          eloLowestRankIcon.alt = lowestEloRank.name;
+          eloLowestRankIcon.title = `Lowest Rank: ${lowestEloRank.name}`;
           setDisplayContent(eloLowest, lowestEloRank.name, "--");
           eloLowest.addEventListener("mouseover", () => {
             setDisplayContent(eloLowest, eloData.lowestRating, "--");
@@ -341,21 +335,18 @@
 
           const level = app.utils.getLevel(user.experience);
           setDisplayContent(userLevel, `${level.level} (${level.title})`, "--");
-          if (userLevel) userLevel.style.color = level.color || "inherit";
+          userLevel.style.color = level.color || "inherit";
           setDisplayContent(xpText, `XP: ${user.experience} / ${level.nextLevelXp}`, "XP: -- / --");
-          if (xpProgressBar) {
-            xpProgressBar.style.width = `${level.progress || 0}%`;
-            xpProgressBar.style.backgroundColor = level.color || "#4B5563";
-          }
+          xpProgressBar.style.width = `${level.progress || 0}%`;
+          xpProgressBar.style.backgroundColor = level.color || "#4B5563";
 
           setDisplayContent(bioDisplay, profile.bio, "Nothing written yet.");
-          if (bioDisplay && profile.bio) bioDisplay.classList.remove("placeholder-text");
+          if (profile.bio) bioDisplay.classList.remove("placeholder-text");
 
-          if (customUrlsContainer) customUrlsContainer.innerHTML = "";
+          customUrlsContainer.innerHTML = "";
           if (profile.customizeUrls && profile.customizeUrls.length > 0) {
-            if (noLinksPlaceholder) noLinksPlaceholder.classList.add("hidden");
+            noLinksPlaceholder.classList.add("hidden");
             profile.customizeUrls.forEach(url => {
-              if (!url) return;
               const listItem = document.createElement("li");
               const link = document.createElement("a");
               link.href = url;
@@ -364,37 +355,35 @@
               link.target = "_blank";
               link.rel = "noopener noreferrer";
               listItem.appendChild(link);
-              if (customUrlsContainer) customUrlsContainer.appendChild(listItem);
+              customUrlsContainer.appendChild(listItem);
             });
           } else {
-            if (noLinksPlaceholder) noLinksPlaceholder.classList.remove("hidden");
+            noLinksPlaceholder.classList.remove("hidden");
           }
 
           skeletonLoader.classList.add("hidden");
           profileDisplayArea.classList.remove("hidden");
-          if (loadErrorContent) loadErrorContent.classList.add("hidden");
+          loadErrorContent.classList.add("hidden");
         } else {
           skeletonLoader.classList.add("hidden");
           profileDisplayArea.classList.add("hidden");
-          if (loadErrorContent) loadErrorContent.classList.remove("hidden");
+          loadErrorContent.classList.remove("hidden");
         }
       }).catch((error) => {
         skeletonLoader.classList.add("hidden");
         profileDisplayArea.classList.add("hidden");
-        if (loadErrorContent) loadErrorContent.classList.remove("hidden");
+        loadErrorContent.classList.remove("hidden");
       });
     }
     loadProfileData();
 
     // Retry loading profile
-    if (retryLoadButton) {
-      retryLoadButton.addEventListener("click", () => {
-        if (loadErrorContent) loadErrorContent.classList.add("hidden");
-        profileDisplayArea.classList.add("hidden");
-        skeletonLoader.classList.remove("hidden");
-        loadProfileData();
-      });
-    }
+    retryLoadButton.addEventListener("click", () => {
+      loadErrorContent.classList.add("hidden");
+      profileDisplayArea.classList.add("hidden");
+      skeletonLoader.classList.remove("hidden");
+      loadProfileData();
+    });
   </script>
 
   <%- include("../../partials/tridecco-board-animator.ejs") %>
