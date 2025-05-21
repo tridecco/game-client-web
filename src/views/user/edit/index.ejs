@@ -423,7 +423,7 @@
       saveButton.disabled = true; // Disable button during processing
 
       const profileData = {
-        avatar: removeAvatarFlag.value === "true" ? null : avatarPreview.src,
+        avatar: removeAvatarFlag.value === "true" ? '' : avatarPreview.src,
         name: displayNameInput.value.trim(),
         gender: genderInput.value === "" ? null : genderInput.value === "true",
         location: locationInput.value.trim(),
