@@ -266,6 +266,7 @@
           const profile = user.profile;
 
           avatarPreview.src = profile.avatar || "<%= env.CDN_URL %>/img/default-avatar.svg";
+          removeAvatarFlag.value = profile.avatar ? "false" : "true";
           displayNameInput.value = profile.name;
           Object.values(userRoleBadges).forEach(badge => badge.classList.add("hidden"));
           user.identities.forEach(role => {
