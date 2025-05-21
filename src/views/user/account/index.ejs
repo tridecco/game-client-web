@@ -163,7 +163,7 @@
     // Initialize user module
     const user = new User(app);
 
-    // Account Settings Loader
+    // Load account settings
     function loadAccountSettings() {
       user.getUser().then((response) => {
         if (response.status === "success") {
