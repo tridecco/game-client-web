@@ -128,7 +128,11 @@
                 </button>
               </div>
             </form>
+
           </div>
+
+          <!-- Load Error Content -->
+          <%- include("../../../partials/load-error-content.ejs") %>
         </section>
 
       </main>
@@ -153,25 +157,47 @@
     const confirmPasswordInput = document.getElementById("confirm-password");
     const savePasswordButton = document.getElementById("save-password");
 
+    const loadErrorContent = document.getElementById("load-error-content");
+    const retryLoadButton = document.getElementById("retry-load-button");
+
     // Initialize user module
     const user = new User(app);
 
-    // Load account settings
-    user.getUser().then((response) => {
-      if (response.status === "success") {
-        const user = response.data;
+    // Account Settings Loader
+    function loadAccountSettings() {
+      user.getUser().then((response) => {
+        if (response.status === "success") {
+          const user = response.data;
 
-        usernameInput.value = user.username;
-        emailInput.value = user.email;
+          usernameInput.value = user.username;
+          emailInput.value = user.email;
 
-        if (user.password === null) {
-          currentPasswordInput.parentElement.classList.add("hidden");
-          savePasswordButton.textContent = "Create Password";
+          if (user.password === null) {
+            currentPasswordInput.parentElement.classList.add("hidden");
+            savePasswordButton.textContent = "Create Password";
+          }
+
+          skeletonLoader.classList.add("hidden");
+          accountArea.classList.remove("hidden");
+        } else {
+          skeletonLoader.classList.add("hidden");
+          accountArea.classList.add("hidden");
+          loadErrorContent.classList.remove("hidden");
         }
-
+      }).catch((error) => {
         skeletonLoader.classList.add("hidden");
-        accountArea.classList.remove("hidden");
-      }
+        accountArea.classList.add("hidden");
+        loadErrorContent.classList.remove("hidden");
+      });
+    }
+    loadAccountSettings();
+
+    // Retry loading account settings
+    retryLoadButton.addEventListener("click", () => {
+      loadErrorContent.classList.add("hidden");
+      accountArea.classList.add("hidden");
+      skeletonLoader.classList.remove("hidden");
+      loadAccountSettings();
     });
 
     // Handle username update
@@ -192,19 +218,29 @@
       const newUsername = usernameInput.value;
 
       // Attempt to update username
-      const response = await user.updateUsername(newUsername);
-      if (response.status === "success") {
+      try {
+        const response = await user.updateUsername(newUsername);
+        if (response.status === "success") {
+          app.ui.notification(
+            "alert",
+            response.message,
+            "success",
+            usernameForm,
+            "username",
+            true);
+        } else {
+          app.ui.notification(
+            "alert",
+            response.message,
+            "error",
+            usernameForm,
+            "username",
+            true);
+        }
+      } catch (error) {
         app.ui.notification(
           "alert",
-          response.message,
-          "success",
-          usernameForm,
-          "username",
-          true);
-      } else {
-        app.ui.notification(
-          "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
           usernameForm,
           "username",
@@ -232,22 +268,32 @@
       const newEmail = emailInput.value;
 
       // Attempt to update email
-      const response = await user.updateEmail(newEmail);
-      if (response.status === "success") {
+      try {
+        const response = await user.updateEmail(newEmail);
+        if (response.status === "success") {
+          app.ui.notification(
+            "alert",
+            response.message,
+            "success",
+            emailForm,
+            "email",
+            true);
+        } else {
+          app.ui.notification(
+            "alert",
+            response.message,
+            "error",
+            emailForm,
+            "email",
+            true);
+        }
+      } catch (error) {
         app.ui.notification(
           "alert",
-          response.message,
-          "success",
-          emailForm,
-          "email",
-          true);
-      } else {
-        app.ui.notification(
-          "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
-          emailForm,
-          "email",
+          usernameForm,
+          "username",
           true);
       }
 
@@ -287,45 +333,55 @@
       }
 
       // Attempt to update password
-      const response = await user.updatePassword(currentPassword, newPassword);
-      if (response.status === "success") {
-        if (savePasswordButton.textContent === "Create Password") {
-          savePasswordButton.textContent = "Update Password";
-          currentPasswordInput.parentElement.classList.remove("hidden");
-        }
+      try {
+        const response = await user.updatePassword(currentPassword, newPassword);
+        if (response.status === "success") {
+          if (savePasswordButton.textContent === "Create Password") {
+            savePasswordButton.textContent = "Update Password";
+            currentPasswordInput.parentElement.classList.remove("hidden");
+          }
 
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          passwordForm,
-          "password",
-          true);
-      } else {
-        if (response.error.code === "INVALID_NEW_PASSWORD") {
-          app.ui.notification(
-            "list",
-            [
-              "Password must be at least 8 characters long",
-              "Password must contain at least one uppercase letter",
-              "Password must contain at least one lowercase letter",
-              "Password must contain at least one number",
-              "Password must contain at least one special character",
-            ],
-            "error",
-            passwordForm,
-            "password",
-            true
-          );
-        } else {
           app.ui.notification(
             "alert",
             response.message,
-            "error",
+            "success",
             passwordForm,
             "password",
             true);
+        } else {
+          if (response.error.code === "INVALID_NEW_PASSWORD") {
+            app.ui.notification(
+              "list",
+              [
+                "Password must be at least 8 characters long",
+                "Password must contain at least one uppercase letter",
+                "Password must contain at least one lowercase letter",
+                "Password must contain at least one number",
+                "Password must contain at least one special character",
+              ],
+              "error",
+              passwordForm,
+              "password",
+              true
+            );
+          } else {
+            app.ui.notification(
+              "alert",
+              response.message,
+              "error",
+              passwordForm,
+              "password",
+              true);
+          }
         }
+      } catch (error) {
+        app.ui.notification(
+          "alert",
+          "An error occurred. Please try again.",
+          "error",
+          usernameForm,
+          "username",
+          true);
       }
 
       savePasswordButton.disabled = false; // Re-enable button after processing
