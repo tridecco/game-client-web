@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../partials/head.ejs") %>
+  <title>Tridecco | More</title>
+  <script src="<%= env.CDN_URL %>/js/user.js"></script>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Main Layout Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+
+    <!-- Main Content Flex Container -->
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
+      <!-- Left Sidebar: Navigation -->
+      <%- include("../../partials/navigation-bar.ejs", { page: "more" }) %>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Responsive Grid of Additional Links -->
+        <section class="flex-1 bg-white/70 backdrop-blur-sm rounded-xl shadow-inner border border-amber-700/20 p-4 md:p-6 overflow-y-auto custom-scrollbar">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <!-- Grid Item: Account -->
+            <a href="/user/account" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-amber-600 group-hover:text-amber-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Account</div>
+            </a>
+            <!-- Grid Item: Game History -->
+            <a href="/user/game-history" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-blue-600 group-hover:text-blue-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Game History</div>
+            </a>
+            <!-- Grid Item: Elo History -->
+            <a href="/user/elo-history" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-purple-600 group-hover:text-purple-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Elo History</div>
+            </a>
+            <!-- Grid Item: Experience History -->
+            <a href="/user/experience-history" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-green-600 group-hover:text-green-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Experience History</div>
+            </a>
+            <!-- Grid Item: Settings -->
+            <a href="/user/settings" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-gray-600 group-hover:text-gray-800 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Settings</div>
+            </a>
+            <!-- Grid Item: Security -->
+            <a href="/user/security" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-red-600 group-hover:text-red-700 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Security</div>
+            </a>
+            <!-- Grid Item: Logout -->
+            <a href="/logout" class="flex flex-col items-center justify-center bg-white/80 border border-amber-300 rounded-xl shadow-md p-6 hover:shadow-lg transition hover:bg-amber-50 cursor-pointer group min-h-[120px]">
+              <svg class="w-10 h-10 mb-2 text-gray-400 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              <div class="text-sm font-semibold text-amber-900 text-center">Logout</div>
+            </a>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="h-8 bg-black/30 backdrop-blur-sm border-t border-amber-700/50 z-10 flex items-center justify-between px-4 text-xs text-gray-400 flex-shrink-0">
+      <script>
+        document.write('<div>Tridecco © ' + new Date().getFullYear() + '</div>');
+      </script>
+    </footer>
+
+  </div>
+
+  <!-- Mobile Navigation -->
+  <%- include("../../partials/navigation-bar-mobile.ejs", { page: "more" }) %>
+</body>
+
+</html>
