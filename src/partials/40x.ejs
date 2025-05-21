@@ -4,98 +4,16 @@
 <head>
   <%- include("../partials/head.ejs") %>
   <title>Tridecco | <%= status %></title>
-  <style>
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.8;
-      }
-
-      50% {
-        transform: scale(1.1);
-        opacity: 1;
-      }
-
-      100% {
-        transform: scale(1);
-        opacity: 0.8;
-      }
-    }
-
-    @keyframes float {
-      0% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
-
-      100% {
-        transform: translateY(0);
-      }
-    }
-  </style>
-  <%- include("../partials/libs/tridecco-board.ejs") %>
 </head>
 
-<body class="h-screen flex items-center justify-center overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/tridecco.jpg') center center / cover no-repeat;">
-  <div class="relative">
-
-    <div id="board-container" class="w-96 h-96 md:w-[32rem] md:h-[32rem] rounded-2xl shadow-2xl overflow-hidden transform transition-transform hover:scale-105 duration-300">
-    </div>
-
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-      <h1 class="font-display text-6xl md:text-8xl font-bold text-black drop-shadow-[2px_2px_0px_white] animate-pulse"><%= status %></h1>
-      <p class="text-lg md:text-xl text-white drop-shadow-[2px_2px_0px_rgba(0,0,0,0.8)] mt-4 animate-float"><%= message %></p>
-      <a href="/" class="inline-block mt-8 py-2 px-4 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded-md shadow-md transition-colors duration-300">Back to the Lobby</a>
-    </div>
+<body class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('<%= env.CDN_URL %>/img/backgrounds/tridecco.jpg');">
+  <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl px-8 py-12 max-w-md w-full text-center border border-amber-700/30">
+    <h1 class="font-display text-7xl md:text-8xl font-extrabold text-amber-600 drop-shadow mb-4 tracking-tight"><%= status %></h1>
+    <p class="text-xl md:text-2xl text-gray-700 font-medium mb-8"><%= message %></p>
+    <a href="/" class="inline-block px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg shadow transition-colors duration-200">
+      Back to the Lobby
+    </a>
   </div>
-  <script>
-    window.addEventListener('load', () => {
-      const {
-        Board,
-        Piece,
-        Renderer
-      } = Tridecco;
-
-      const board = new Board();
-      const renderer = new Renderer({
-        board: board,
-        container: document.getElementById('board-container'),
-        texturesUrl: `${TRIDECCO_BOARD_ASSETS_URL}/textures/classic/normal`,
-        backgroundUrl: `${TRIDECCO_BOARD_ASSETS_URL}/backgrounds/wooden-board.jpg`,
-        gridUrl: `${TRIDECCO_BOARD_ASSETS_URL}/grids/black.png`,
-      }, () => {
-        const pieceColorList = [
-          ['blue', 'white'],
-          ['red', 'blue'],
-          ['red', 'yellow'],
-          ['white', 'red'],
-          ['yellow', 'blue']
-        ];
-
-        // Randomly fill the board on initialization
-        for (let i = 0; i < 63; i++) {
-          const colorPair = pieceColorList[Math.floor(Math.random() * pieceColorList.length)];
-          const piece = new Piece(colorPair);
-          board.place(i, piece);
-        }
-
-        // Randomly change the colors of pieces
-        setInterval(() => {
-          const randomIndex = Math.floor(Math.random() * 63);
-          const colorPair = pieceColorList[Math.floor(Math.random() * pieceColorList.length)];
-          const piece = new Piece(colorPair);
-
-          if (board.get(randomIndex)) {
-            board.remove(randomIndex); // Remove the old piece
-          }
-          board.place(randomIndex, piece); // Place the new piece
-        }, 500); // Execute every 0.5 seconds
-      });
-    });
-  </script>
   <script>
     history.pushState(null, null, app.location.params.path || app.location.path);
   </script>

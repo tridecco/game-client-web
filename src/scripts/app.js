@@ -443,7 +443,7 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/404', '/403', '/leaderboards'].includes(route);
+    return ['/', '/more', '/404', '/403', '/leaderboards'].includes(route);
   }
 
   /**
@@ -748,11 +748,13 @@ class Network {
    */
   init() {
     window.addEventListener('online', () => {
+      this.online = true;
       this.app.online = true;
       this.app.ui.alert('You are back online!', 'success');
     });
 
     window.addEventListener('offline', () => {
+      this.online = false;
       this.app.online = false;
       this.app.ui.alert('You are offline!', 'info');
     });
