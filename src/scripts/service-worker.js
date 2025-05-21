@@ -6,7 +6,29 @@
 const DYNAMIC_CACHE = 'dynamic';
 const STATIC_CACHE = 'static';
 
-const PRECACHE_ASSETS = ['/'];
+const PRECACHE_ASSETS = [
+  '/',
+  '/offline',
+  '/login',
+  '/logout',
+  '/register',
+  '/password-reset',
+  '/user',
+  '/user/edit',
+  '/user/account',
+  '/user/settings',
+  '/user/security',
+  '/more',
+  '/404',
+  '/403',
+
+  '/favicon.ico',
+  '/css/style.css',
+  '/js/app.js',
+  '/js/auth.js',
+  '/js/user.js',
+  '/img/default-avatar.svg',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
