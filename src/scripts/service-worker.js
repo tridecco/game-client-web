@@ -41,6 +41,20 @@ const PRECACHE_ASSETS = [
   '/img/backgrounds/marble.jpg',
   '/img/backgrounds/metal-plate.jpg',
   '/img/backgrounds/sand.jpg',
+  '/img/ranks/bg/iron.png',
+  '/img/ranks/bg/bronze.png',
+  '/img/ranks/bg/silver.png',
+  '/img/ranks/bg/gold.png',
+  '/img/ranks/bg/platinum.png',
+  '/img/ranks/bg/diamond.png',
+  '/img/ranks/bg/tridecco.png',
+  '/img/ranks/nobg/iron.png',
+  '/img/ranks/nobg/bronze.png',
+  '/img/ranks/nobg/silver.png',
+  '/img/ranks/nobg/gold.png',
+  '/img/ranks/nobg/platinum.png',
+  '/img/ranks/nobg/diamond.png',
+  '/img/ranks/nobg/tridecco.png',
 ];
 
 self.addEventListener('install', (event) => {
