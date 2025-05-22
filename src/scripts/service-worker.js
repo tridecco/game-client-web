@@ -28,6 +28,19 @@ const PRECACHE_ASSETS = [
   '/js/auth.js',
   '/js/user.js',
   '/img/default-avatar.svg',
+
+  '/img/backgrounds/tridecco.jpg',
+  '/img/backgrounds/wooden-board.jpg',
+  '/img/backgrounds/broken-glass.jpg',
+  '/img/backgrounds/composite-board.jpg',
+  '/img/backgrounds/frosted-glass.jpg',
+  '/img/backgrounds/galaxy.jpg',
+  '/img/backgrounds/gold-leaf.jpg',
+  '/img/backgrounds/leather.jpg',
+  '/img/backgrounds/log.jpg',
+  '/img/backgrounds/marble.jpg',
+  '/img/backgrounds/metal-plate.jpg',
+  '/img/backgrounds/sand.jpg',
 ];
 
 self.addEventListener('install', (event) => {
