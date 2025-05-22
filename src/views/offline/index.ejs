@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../partials/head.ejs") %>
+  <title>Tridecco | Offline</title>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Main Layout Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+
+    <!-- Centered Content Container -->
+    <main class="flex flex-1 flex-col items-center justify-center p-4">
+
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-amber-700/30 px-8 py-10 max-w-md w-full flex flex-col items-center">
+        <!-- Icon -->
+        <svg class="w-16 h-16 mb-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+
+        <!-- Title -->
+        <h1 class="text-2xl font-bold text-amber-900 mb-2 text-center">You Are Offline</h1>
+
+        <!-- Description -->
+        <p class="text-gray-700 mb-6 text-center">
+          It looks like you have lost your internet connection.<br>
+          Please check your network and try again.
+        </p>
+
+        <!-- Return Home Button -->
+        <a href="/" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm">
+          Return to Home
+        </a>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="h-8 bg-black/30 backdrop-blur-sm border-t border-amber-700/50 z-10 flex items-center justify-between px-4 text-xs text-gray-400 flex-shrink-0">
+      <script>
+        document.write('<div>Tridecco © ' + new Date().getFullYear() + '</div>');
+      </script>
+    </footer>
+
+  </div>
+</body>
+
+</html>

@@ -56,7 +56,7 @@ Tridecco Game Client is a frontend application designed to support Tridecco game
    DEV_SERVER_PROXY_TARGET=http://localhost:5000 # Development server proxy target (default: http://localhost:5000)
    ```
 
-   > **Note**: The `BUILD_MODE` variable is used to determine the build mode. It can be `web` or `local`. When set to `web`, the client will load static assets from the CDN. When set to `local`, the client will load static assets from the local server. The `local` build mode is used for native builds (e.g. Electron, Capacitor, etc.).
+   > **Note**: The `BUILD_MODE` variable is used to determine the build mode. It can be `web` or `local`. When set to `web`, the client will load static assets from the CDN. When set to `local`, the client will load static assets from the local server, and Service Workers will be disabled. The `local` build mode is used for native builds (e.g. Electron, Capacitor, etc.).
 
 4. Build the client:
 
