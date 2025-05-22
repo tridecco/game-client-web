@@ -11,22 +11,6 @@
       font-style: italic;
     }
 
-    .tab-button {
-      @apply px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 border-transparent transition duration-150 ease-in-out;
-    }
-
-    .tab-button.active {
-      @apply text-amber-700 border-amber-600 bg-white/10;
-    }
-
-    .tab-button:not(.active) {
-      @apply text-amber-800/70 hover: text-amber-700 hover:border-amber-400;
-    }
-
-    .tab-content {
-      @apply p-4 bg-black/5 rounded-b-lg rounded-tr-lg;
-    }
-
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
     }
@@ -45,17 +29,6 @@
       scrollbar-color: rgba(180, 83, 9, 0.4) transparent;
     }
 
-    .nav-active {
-      background-color: rgba(217, 119, 6, 0.1);
-      border-left-color: #D97706;
-      color: #92400E;
-      font-weight: 600;
-    }
-
-    .nav-item:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
     #sidebar-overlay {
       transition: opacity 0.3s ease-in-out;
     }
@@ -72,11 +45,8 @@
 
 <body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
   <!-- Main Layout Container -->
-  <div class="relative flex flex-col h-screen text-gray-800 z-20">
-
-    <!-- Main Content Flex Container -->
-    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden z-10">
-
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
       <!-- Left Sidebar: Navigation -->
       <%- include("../partials/navigation-bar.ejs", { page: "home" }) %>
 
@@ -146,7 +116,6 @@
 
           <!-- Hidden Room View -->
           <div id="room-view" class="w-full max-w-xl mx-auto bg-gray-800/80 backdrop-blur-md border border-gray-700 rounded-xl shadow-2xl p-6 md:p-8 flex-col items-center hidden">
-            <!-- Content for Room View (Buttons, Player List) would go here -->
             <p class="text-white">Room View Placeholder</p>
           </div>
         </div>
@@ -154,11 +123,11 @@
 
       <!-- Right Sidebar: Room Status / List -->
       <aside id="right-sidebar" class="
-      w-64 bg-white/80 backdrop-blur-sm shadow-xl border-amber-700/30 
-      flex flex-col overflow-hidden 
-      fixed top-0 right-0 bottom-0 z-40 transform translate-x-full transition-transform duration-300 ease-in-out
-      xl:static xl:z-auto xl:translate-x-0 xl:flex xl:relative xl:border xl:rounded-xl xl:shadow-lg
-  ">
+        w-64 bg-white/80 backdrop-blur-sm shadow-xl border-amber-700/30 
+        flex flex-col overflow-hidden 
+        fixed top-0 right-0 bottom-0 z-40 transform translate-x-full transition-transform duration-300 ease-in-out
+        xl:static xl:z-auto xl:translate-x-0 xl:flex xl:relative xl:border xl:rounded-xl xl:shadow-lg
+      ">
         <div class="flex items-center justify-between p-2 border-b border-amber-700/10 xl:hidden flex-shrink-0">
           <span class="text-sm font-semibold text-amber-800 pl-2">Rooms</span>
           <button id="close-right-sidebar-button" class="p-1.5 rounded-full text-gray-500 hover:text-amber-700 hover:bg-amber-100/50 transition-colors">
@@ -211,8 +180,7 @@
               </svg>
               <p class="text-sm placeholder-text">Loading room list...</p>
             </div>
-            <div id="room-list-container" class="space-y-2">
-            </div>
+            <div id="room-list-container" class="space-y-2"></div>
             <div id="room-list-empty" class="flex flex-col items-center justify-center text-center py-8 text-gray-500 hidden">
               <svg class="w-12 h-12 mb-3 text-gray-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
@@ -226,7 +194,6 @@
 
       <!-- Overlay for Right Sidebar -->
       <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 opacity-0 hidden"></div>
-
     </div>
 
     <!-- Footer -->
@@ -332,14 +299,12 @@
 
           setDisplayContent(displayNameMain, profile.name, "Player");
         } else {
-          console.error("Failed to load user data:", response.message);
           setDisplayContent(displayNameTop, "Error");
           setDisplayContent(rankNameTop, "N/A");
           setDisplayContent(userLevelTop, "N/A");
           setDisplayContent(displayNameMain, "User");
         }
       }).catch(error => {
-        console.error("Exception fetching user data:", error);
         setDisplayContent(displayNameTop, "Error");
         setDisplayContent(rankNameTop, "N/A");
         setDisplayContent(userLevelTop, "N/A");
@@ -413,7 +378,6 @@
     toggleRightSidebarButton.addEventListener("click", openRightSidebar);
     closeRightSidebarButton.addEventListener("click", closeRightSidebar);
     sidebarOverlay.addEventListener("click", closeRightSidebar);
-
 
     // Load user data when the page is ready
     document.addEventListener("DOMContentLoaded", () => {

@@ -43,8 +43,18 @@
 
     // Add click event listener to the reset password button
     completePasswordResetButton.addEventListener("click", async (event) => {
-      completePasswordResetButton.disabled = true; // Disable button during processing
       event.preventDefault(); // Prevent form submission
+
+      if (!app.online) {
+        app.ui.alert(
+          "You are offline. Please check your internet connection.",
+          "warning",
+          3000,
+        );
+        return;
+      }
+
+      completePasswordResetButton.disabled = true; // Disable button during processing
 
       const token = app.location.params.token; // Get token for password reset
       const password = document.getElementById("password").value; // Get entered password
@@ -64,42 +74,53 @@
       }
 
       // Attempt to complete password reset
-      const response = await auth.completePasswordReset(token, password);
-      if (response.status === "success") {
-        document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
-        app.ui.notification(
-          "alert",
-          response.message,
-          "success",
-          document.getElementById("auth-form"),
-          "reset"
-        );
-        setTimeout(() => {
-          app.location.redirect("/login"); // Redirect to login after a short delay
-        }, 2000);
-      } else {
-        completePasswordResetButton.disabled = false; // Re-enable button on error
-        // Handle specific error for invalid password
-        if (response.error.code === "INVALID_PASSWORD") {
+      try {
+        const response = await auth.completePasswordReset(token, password);
+        if (response.status === "success") {
+          document.getElementById("auth-form").innerHTML = ""; // Clear the form on success
           app.ui.notification(
-            "list",
-            [
-              "Password must be at least 8 characters long",
-              "Password must contain at least one uppercase letter",
-              "Password must contain at least one lowercase letter",
-              "Password must contain at least one number",
-              "Password must contain at least one special character",
-            ],
+            "alert",
+            response.message,
+            "success",
+            document.getElementById("auth-form"),
+            "reset"
+          );
+          setTimeout(() => {
+            app.location.redirect("/login"); // Redirect to login after a short delay
+          }, 2000);
+        } else {
+          completePasswordResetButton.disabled = false; // Re-enable button on error
+          // Handle specific error for invalid password
+          if (response.error.code === "INVALID_PASSWORD") {
+            app.ui.notification(
+              "list",
+              [
+                "Password must be at least 8 characters long",
+                "Password must contain at least one uppercase letter",
+                "Password must contain at least one lowercase letter",
+                "Password must contain at least one number",
+                "Password must contain at least one special character",
+              ],
+              "error",
+              document.getElementById("auth-form"),
+              "reset"
+            );
+            return;
+          }
+          // General error notification
+          app.ui.notification(
+            "alert",
+            response.message,
             "error",
             document.getElementById("auth-form"),
             "reset"
           );
-          return;
         }
-        // General error notification
+      } catch (error) {
+        completePasswordResetButton.disabled = false; // Re-enable button on error
         app.ui.notification(
           "alert",
-          response.message,
+          "An error occurred. Please try again.",
           "error",
           document.getElementById("auth-form"),
           "reset"

@@ -29,93 +29,104 @@
   <!-- Background Overlay with Blur -->
   <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
 
-  <!-- Centered Content Container -->
-  <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
-    <!-- Main Content Box -->
-    <div class="bg-white bg-opacity-90 p-6 md:p-8 rounded-xl shadow-xl w-full max-w-4xl backdrop-filter backdrop-blur-md overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
-      <!-- Navigation Sidebar -->
-      <%- include("../../../partials/user-sidebar.ejs", { page: "security" }) %>
+  <!-- Main Layout Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+    <!-- Main Content Flex Container -->
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
+      <!-- Left Sidebar: Navigation -->
+      <%- include("../../../partials/navigation-bar.ejs", { page: "security" }) %>
 
-      <!-- Security Content Area -->
-      <div class="w-full md:w-3/4 lg:w-4/5 md:pl-6 overflow-y-auto" style="max-height: calc(90vh - 4rem);">
-        <h2 class="text-2xl font-bold mb-6 text-amber-900">Security Records</h2>
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col overflow-hidden">
 
-        <!-- Skeleton Loader -->
-        <div id="skeleton-loader">
-          <div class="animate-pulse">
-            <div class="bg-amber-100 rounded-t-lg p-3 flex space-x-4">
-              <div class="h-4 bg-gray-200 rounded w-1/6"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/4"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/6"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/4"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/6"></div>
-            </div>
-            <div class="space-y-2 mt-2 p-3 bg-gray-50 rounded-b-lg">
-              <% for(let i = 0; i < 15; i++) { %>
-              <div class="flex space-x-4">
+        <!-- Mobile Top Bar: Back Button -->
+        <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
+          <a href="/more" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </a>
+          <span class="ml-3 text-lg font-semibold text-amber-900">Security Records</span>
+        </header>
+
+        <section class="flex-1 bg-white/80 backdrop-blur-sm rounded-xl shadow-inner border border-amber-700/20 p-4 md:p-6 overflow-y-auto custom-scrollbar max-h-full">
+          <h2 class="text-2xl font-bold mb-6 text-amber-900 hidden lg:block">Security Records</h2>
+
+          <!-- Skeleton Loader -->
+          <div id="skeleton-loader">
+            <div class="animate-pulse">
+              <div class="bg-amber-100 rounded-t-lg p-3 flex space-x-4">
                 <div class="h-4 bg-gray-200 rounded w-1/6"></div>
                 <div class="h-4 bg-gray-200 rounded w-1/4"></div>
                 <div class="h-4 bg-gray-200 rounded w-1/6"></div>
                 <div class="h-4 bg-gray-200 rounded w-1/4"></div>
                 <div class="h-4 bg-gray-200 rounded w-1/6"></div>
               </div>
-              <% } %>
+              <div class="space-y-2 mt-2 p-3 bg-gray-50 rounded-b-lg">
+                <% for(let i = 0; i < 15; i++) { %>
+                <div class="flex space-x-4">
+                  <div class="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/6"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-1/6"></div>
+                </div>
+                <% } %>
+              </div>
+              <div class="flex justify-between mt-4">
+                <div class="h-8 bg-gray-200 rounded w-20"></div>
+                <div class="h-8 bg-gray-200 rounded w-20"></div>
+              </div>
             </div>
-            <div class="flex justify-between mt-4">
-              <div class="h-8 bg-gray-200 rounded w-20"></div>
-              <div class="h-8 bg-gray-200 rounded w-20"></div>
+          </div>
+
+          <!-- Security Records Display Area -->
+          <div id="security-records-area" class="hidden">
+            <!-- Info Text -->
+            <p class="text-sm text-gray-600 mb-4">
+              Below are recent security-related events for your account. Only the latest 100 records are stored.
+              If you notice any suspicious activity, please
+              <a href="/user/account#password-form" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                change your password immediately
+              </a>.
+            </p>
+
+            <!-- Records Table Wrapper for Scrolling -->
+            <div class="table-scroll-wrapper bg-white rounded-lg shadow border border-amber-200">
+              <table class="w-full text-sm text-left text-gray-700 min-w-[600px]">
+                <thead class="text-xs text-amber-800 uppercase bg-amber-100">
+                  <tr>
+                    <th scope="col" class="px-4 py-3 sticky left-0 bg-amber-100 z-10">Type</th>
+                    <th scope="col" class="px-4 py-3">Date</th>
+                    <th scope="col" class="px-4 py-3">IP Address</th>
+                    <th scope="col" class="px-4 py-3">Device / Browser</th>
+                    <th scope="col" class="px-4 py-3">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="records-table-body" class="divide-y divide-amber-100">
+                  <tr id="no-records-row" class="hidden">
+                    <td colspan="5" class="px-4 py-4 text-center text-gray-500 italic">No security records found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="flex justify-between items-center mt-4">
+              <button id="prev-page-button" class="pagination-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+              </button>
+              <span id="page-info" class="text-sm text-gray-600">Page 1</span>
+              <button id="next-page-button" class="pagination-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+              </button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Security Records Display Area -->
-        <div id="security-records-area" class="hidden">
-          <!-- Info Text -->
-          <p class="text-sm text-gray-600 mb-4">
-            Below are recent security-related events for your account. Only the latest 100 records are stored.
-            If you notice any suspicious activity, please
-            <a href="/user/account#password-form" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-              change your password immediately
-            </a>.
-          </p>
-
-          <!-- Records Table Wrapper for Scrolling -->
-          <div class="table-scroll-wrapper bg-white rounded-lg shadow border border-amber-200">
-            <table class="w-full text-sm text-left text-gray-700 min-w-[600px]">
-              <thead class="text-xs text-amber-800 uppercase bg-amber-100">
-                <tr>
-                  <th scope="col" class="px-4 py-3 sticky left-0 bg-amber-100 z-10">Type</th>
-                  <th scope="col" class="px-4 py-3">Date</th>
-                  <th scope="col" class="px-4 py-3">IP Address</th>
-                  <th scope="col" class="px-4 py-3">Device / Browser</th>
-                  <th scope="col" class="px-4 py-3">Details</th>
-                </tr>
-              </thead>
-              <tbody id="records-table-body" class="divide-y divide-amber-100">
-                <tr id="no-records-row" class="hidden">
-                  <td colspan="5" class="px-4 py-4 text-center text-gray-500 italic">No security records found.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination Controls -->
-          <div class="flex justify-between items-center mt-4">
-            <button id="prev-page-button" class="pagination-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-              Previous
-            </button>
-            <span id="page-info" class="text-sm text-gray-600">Page 1</span>
-            <button id="next-page-button" class="pagination-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   </div>
-
-  <!-- Include Tridecco Animator -->
-  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 
   <script>
     const skeletonLoader = document.getElementById("skeleton-loader");
@@ -242,7 +253,6 @@
             });
           }
         } else {
-          console.error("Failed to fetch security records:", response.message);
           hasMorePages = false;
           const errorRow = document.createElement("tr");
           errorRow.innerHTML = `<td colspan="5" class="px-4 py-4 text-center text-red-600 italic">Could not load records. Please try again later.</td>`;
@@ -250,7 +260,6 @@
         }
 
       } catch (error) {
-        console.error("Error during fetchAndDisplayRecords:", error);
         hasMorePages = false;
         recordsTableBody.innerHTML = `<td colspan="5" class="px-4 py-4 text-center text-red-600 italic">An unexpected error occurred.</td>`;
       } finally {
@@ -284,6 +293,8 @@
     // Initial Load
     fetchAndDisplayRecords(currentPage);
   </script>
+
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>
