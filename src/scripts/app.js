@@ -396,8 +396,8 @@ class Location {
    * @method init - Initializes the redirect.
    */
   init() {
-    const HOME = '/';
-    const AUTH = '/login';
+    const HOME = '/multi';
+    const AUTH = '/multi/login';
     const FORBIDDEN = 403;
 
     const actionMatrix = [
@@ -426,11 +426,11 @@ class Location {
     const action = actionMatrix[routeTypeIndex][authStateIndex];
     if (action) {
       if (action === AUTH) {
-        this.redirect(`/login?redirect=${this.path}`);
+        this.redirect(`/multi/login?redirect=${this.path}`);
       } else if (action === FORBIDDEN) {
         this.showForbidden();
       } else if (action === HOME) {
-        this.redirect('/');
+        this.redirect('/multi');
       } else {
         this.redirect(action);
       }
@@ -443,7 +443,17 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/more', '/404', '/403', '/leaderboards', '/offline'].includes(route);
+    return (
+      [
+        '/',
+        '/multi',
+        '/multi/more',
+        '/multi/404',
+        '/multi/403',
+        '/multi/leaderboards',
+        '/multi/offline',
+      ].includes(route) || route.startsWith('/single')
+    );
   }
 
   /**
@@ -465,7 +475,7 @@ class Location {
    * @returns {boolean} - True if the route needs admin authentication, false otherwise.
    */
   isAdminRoute(route) {
-    return route.startsWith('/admin');
+    return route.startsWith('/multi/admin');
   }
 
   /**
@@ -475,11 +485,11 @@ class Location {
    */
   isAuthRoute(route) {
     return [
-      '/login',
-      '/register',
-      '/register/complete',
-      '/password-reset',
-      '/password-reset/complete',
+      '/multi/login',
+      '/multi/register',
+      '/multi/register/complete',
+      '/multi/password-reset',
+      '/multi/password-reset/complete',
     ].includes(route);
   }
 
