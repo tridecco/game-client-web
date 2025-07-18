@@ -20,7 +20,7 @@ class Authentication {
    * @returns {Promise<Object>} - The response object.
    */
   async register(email) {
-    const callbackUrl = `${this.baseURL}/register/complete`;
+    const callbackUrl = `${this.baseURL}/multi/register/complete`;
 
     const response = await fetch(`${this.apiURL}/auth/register`, {
       method: 'POST',
@@ -82,7 +82,7 @@ class Authentication {
    * @returns {Promise<Object>} - The response object.
    */
   async resetPassword(email) {
-    const callbackUrl = `${this.baseURL}/password-reset/complete`;
+    const callbackUrl = `${this.baseURL}/multi/password-reset/complete`;
 
     const response = await fetch(`${this.apiURL}/auth/reset-password`, {
       method: 'POST',
