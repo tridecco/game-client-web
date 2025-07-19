@@ -225,9 +225,12 @@
     const user = new User(app);
 
     // Construct asset URLs based on settings
-    function getTextureUrl(texture, colorBlindness) {
+    function getTextureUrls(texture, colorBlindness) {
       const cbPath = colorBlindness === "none" ? "normal" : colorBlindness;
-      return `${TRIDECCO_BOARD_ASSETS_URL}/textures/${texture}/${cbPath}`;
+      return {
+        index: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/${texture}/${cbPath}/index.json`,
+        atlas: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/${texture}/${cbPath}/atlas.webp`,
+      }
     }
 
     function getBackgroundUrl(background) {
@@ -316,14 +319,15 @@
         const dummyBoard = new Tridecco.Board();
         const Piece = Tridecco.Piece;
         const rendererMap = Tridecco.maps.renderer.default;
-        const textureUrl = getTextureUrl(boardSettings.texture, boardSettings.colorBlindness);
+        const textureUrls = getTextureUrls(boardSettings.texture, boardSettings.colorBlindness);
         const backgroundUrl = getBackgroundUrl(boardSettings.background);
         const gridUrl = getGridUrl(boardSettings.grid);
 
         miniBoardRenderer = new Tridecco.Renderer({
           board: dummyBoard,
           container: miniBoardContainer,
-          texturesUrl: textureUrl,
+          texturesIndexUrl: textureUrls.index,
+          texturesAtlasUrl: textureUrls.atlas,
           backgroundUrl: backgroundUrl,
           gridUrl: gridUrl,
         }, () => {
@@ -359,7 +363,7 @@
       const background = boardBackgroundSelect.value;
       const grid = boardGridSelect.value;
 
-      const textureUrl = getTextureUrl(texture, colorBlindness);
+      const textureUrls = getTextureUrls(texture, colorBlindness);
       const backgroundUrl = getBackgroundUrl(background);
       const gridUrl = getGridUrl(grid);
 
@@ -367,7 +371,7 @@
       miniBoardLoading.textContent = "Updating Preview...";
 
       try {
-        await miniBoardRenderer.updateTextures(textureUrl);
+        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas); // TODO: Fix the issue that cannot update textures
         await miniBoardRenderer.updateBackground(backgroundUrl);
         await miniBoardRenderer.updateGrid(gridUrl);
         miniBoardLoading.style.display = "none";
