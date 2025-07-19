@@ -396,7 +396,7 @@ class Location {
    * @method init - Initializes the redirect.
    */
   init() {
-    const HOME = '/multi';
+    const LOBBY = '/multi';
     const AUTH = '/multi/login';
     const FORBIDDEN = 403;
 
@@ -404,7 +404,7 @@ class Location {
       [null, null, null],
       [AUTH, null, null],
       [AUTH, FORBIDDEN, null],
-      [null, HOME, HOME],
+      [null, LOBBY, LOBBY],
     ];
     const routeTypeIndex = [
       this.isPublicRoute(this.path),
@@ -429,7 +429,7 @@ class Location {
         this.redirect(`/multi/login?redirect=${this.path}`);
       } else if (action === FORBIDDEN) {
         this.showForbidden();
-      } else if (action === HOME) {
+      } else if (action === LOBBY) {
         this.redirect('/multi');
       } else {
         this.redirect(action);
