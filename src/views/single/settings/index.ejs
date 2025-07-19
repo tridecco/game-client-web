@@ -45,7 +45,7 @@
 
         <!-- Mobile Top Bar: Back Button -->
         <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
-          <a href="/single/more" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+          <a href="/single" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -169,6 +169,9 @@
 
       </main>
     </div>
+
+    <!-- Mobile Navigation -->
+    <%- include("../../../partials/single/navigation-bar-mobile.ejs", { page: "settings" }) %>
   </div>
 
   <script>
