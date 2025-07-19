@@ -7,7 +7,7 @@
   <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
   <%- include("../../../partials/libs/google-oauth.ejs") %>
   <% } %>
-  <script src="<%= env.CDN_URL %>/js/auth.js"></script>
+  <script src="<%= env.CDN_URL %>/js/multi/auth.js"></script>
 </head>
 
 <body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
