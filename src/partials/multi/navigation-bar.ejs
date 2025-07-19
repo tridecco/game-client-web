@@ -28,12 +28,12 @@ function classNames(active) {
   </div>
   <!-- Navigation Links -->
   <nav class="flex-1 py-4 space-y-1 custom-scrollbar overflow-y-auto overflow-x-hidden">
-    <!-- Home -->
-    <a href="/multi" class="<%= classNames(page === 'home') %>">
-      <svg class="w-5 h-5 mr-4 flex-shrink-0 <%= page === 'home' ? 'text-amber-800' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Lobby -->
+    <a href="/multi" class="<%= classNames(page === 'lobby') %>">
+      <svg class="w-5 h-5 mr-4 flex-shrink-0 <%= page === 'lobby' ? 'text-amber-800' : '' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
       </svg>
-      <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Home</span>
+      <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">Lobby</span>
     </a>
     <!-- Profile -->
     <a href="/multi/user" class="<%= classNames(page === 'profile') %>">
