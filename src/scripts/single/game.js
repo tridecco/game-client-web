@@ -8,7 +8,6 @@
  * @description Manages audio playback for sound effects and background music.
  */
 const MAX_VOLUME = 100;
-
 class AudioManager {
   /**
    * @constructor - Initializes the AudioManager with sound effects and background music manifests.
@@ -103,5 +102,62 @@ class AudioManager {
       this.currentBgm.pause();
       this.currentBgm.currentTime = 0;
     }
+  }
+}
+
+/**
+ * @class VibrationManager
+ * @description Manages vibration feedback for user interactions.
+ */
+const VIBRATION_SHORT = 50;
+const VIBRATION_MEDIUM = 100;
+const VIBRATION_LONG = 200;
+const VIBRATION_ERROR = 75;
+const VIBRATION_DOUBLE = 150;
+class VibrationManager {
+  /**
+   * @constructor - Initializes the VibrationManager.
+   */
+  constructor() {
+    this.isSupported = 'vibrate' in navigator;
+  }
+
+  /**
+   * @method vibrate - Triggers vibration with a specified pattern.
+   * @param {number|Array<number>} pattern - Vibration pattern (single number or array of numbers).
+   */
+  vibrate(pattern) {
+    if (this.isSupported) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {
+        console.error('Vibration failed:', e);
+      }
+    }
+  }
+
+  success() {
+    this.vibrate([VIBRATION_MEDIUM, VIBRATION_SHORT, VIBRATION_MEDIUM]);
+  }
+  error() {
+    this.vibrate([
+      VIBRATION_ERROR,
+      VIBRATION_SHORT,
+      VIBRATION_ERROR,
+      VIBRATION_SHORT,
+      VIBRATION_ERROR,
+    ]);
+  }
+  impactLight() {
+    this.vibrate(VIBRATION_SHORT);
+  }
+  impactMedium() {
+    this.vibrate(VIBRATION_MEDIUM);
+  }
+  impactHeavy() {
+    this.vibrate(VIBRATION_LONG);
+  }
+  doubleSuccess() {
+    this.vibrate([VIBRATION_DOUBLE, VIBRATION_SHORT, VIBRATION_DOUBLE]);
   }
 }
