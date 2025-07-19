@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../../partials/head.ejs") %>
+  <title>Tridecco | Game Settings</title>
+  <style>
+    /* Custom scrollbar style to match the application's theme */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(180, 83, 9, 0.4);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(180, 83, 9, 0.4) transparent;
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: #8e5e4d url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Main Layout Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+    <!-- Main Content Flex Container -->
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
+      <!-- Left Sidebar: Navigation -->
+      <%- include("../../../partials/single/navigation-bar.ejs", { page: "settings" }) %>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Mobile Top Bar: Back Button -->
+        <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
+          <a href="/single/more" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </a>
+          <span class="ml-3 text-lg font-semibold text-amber-900">Game Settings</span>
+        </header>
+
+        <section class="flex-1 bg-white/80 backdrop-blur-sm rounded-xl shadow-inner border border-amber-700/20 p-4 md:p-6 overflow-y-auto custom-scrollbar max-h-full">
+          <h2 class="text-2xl font-bold mb-6 text-amber-900 hidden lg:block">Game Settings</h2>
+
+          <!-- Settings Area -->
+          <form id="settings-form" class="space-y-8">
+
+            <!-- Volume Settings Section -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2">Volume</h3>
+              <div>
+                <label for="setting-volume-bgm" class="block text-amber-800 text-sm font-bold mb-2">Background Music (<span id="volume-bgm-value">100</span>%)</label>
+                <input type="range" id="setting-volume-bgm" name="game.volume.bgm" min="0" max="100" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer range-lg dark:bg-amber-700 accent-emerald-600">
+              </div>
+              <div>
+                <label for="setting-volume-sfx" class="block text-amber-800 text-sm font-bold mb-2">Sound Effects (<span id="volume-sfx-value">100</span>%)</label>
+                <input type="range" id="setting-volume-sfx" name="game.volume.sfx" min="0" max="100" class="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer range-lg dark:bg-amber-700 accent-emerald-600">
+              </div>
+            </div>
+
+            <hr class="border-amber-200">
+
+            <!-- Board Settings Section -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2">Board Appearance</h3>
+              <div class="flex flex-col md:flex-row gap-6">
+                <!-- Board Options -->
+                <div class="flex-grow space-y-4">
+                  <div>
+                    <label for="setting-board-texture" class="block text-amber-800 text-sm font-bold mb-2">Board Texture</label>
+                    <select id="setting-board-texture" name="game.board.texture" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                      <option value="classic">Classic</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="setting-board-colorBlindness" class="block text-amber-800 text-sm font-bold mb-2">Color Assistance</label>
+                    <select id="setting-board-colorBlindness" name="game.board.colorBlindness" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                      <option value="none">None</option>
+                      <option value="rgbblind">Red, Green, Blue</option>
+                      <option value="monochrome">Monochromatic</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="setting-board-background" class="block text-amber-800 text-sm font-bold mb-2">Game Background</label>
+                    <select id="setting-board-background" name="game.board.background" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                      <option value="wooden-board">Wooden Board</option>
+                      <option value="broken-glass">Broken Glass</option>
+                      <option value="composite-board">Composite Board</option>
+                      <option value="frosted-glass">Frosted Glass</option>
+                      <option value="galaxy">Galaxy</option>
+                      <option value="gold-leaf">Gold Leaf</option>
+                      <option value="leather">Leather</option>
+                      <option value="log">Log</option>
+                      <option value="marble">Marble</option>
+                      <option value="metal-plate">Metal Plate</option>
+                      <option value="sand">Sand</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="setting-board-grid" class="block text-amber-800 text-sm font-bold mb-2">Grid Color</label>
+                    <select id="setting-board-grid" name="game.board.grid" class="shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                      <option value="black">Black</option>
+                      <option value="blue">Blue</option>
+                      <option value="cyan">Cyan</option>
+                      <option value="green">Green</option>
+                      <option value="magenta">Magenta</option>
+                      <option value="red">Red</option>
+                      <option value="white">White</option>
+                      <option value="yellow">Yellow</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Mini Board Preview -->
+                <div class="flex-shrink-0 w-full md:w-1/3">
+                  <label class="block text-amber-800 text-sm font-bold mb-2 text-center">Preview</label>
+                  <div id="mini-board-preview" class="w-full aspect-square bg-gray-200 rounded-lg border border-amber-300 shadow-inner overflow-hidden relative">
+                    <!-- Renderer Canvas will be appended here -->
+                    <div id="mini-board-loading" class="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-75 text-amber-700 z-10">
+                      Loading Preview...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-amber-200">
+
+            <!-- Hotkey Settings Section -->
+            <div class="space-y-4">
+              <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2">Hotkeys</h3>
+              <p class="text-sm text-gray-600">Click on an input field and press the desired key to set a new hotkey.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% const hotkeys = { next: "Next", previous: "Previous", nextPiece: "Next Piece", previousPiece: "Previous Piece", confirm: "Confirm", cancel: "Cancel", trade: "Trade", accept: "Accept", refuse: "Refuse" }; %>
+                <% Object.entries(hotkeys).forEach(([key, label]) => { %>
+                <div>
+                  <label for="setting-hotkey-<%= key %>" class="block text-amber-800 text-sm font-bold mb-1"><%= label %></label>
+                  <input type="text" id="setting-hotkey-<%= key %>" name="game.hotkey.<%= key %>" readonly class="hotkey-input shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white cursor-pointer" placeholder="Press a key">
+                </div>
+                <% }) %>
+              </div>
+            </div>
+
+            <hr class="border-amber-200">
+
+            <!-- Save Button -->
+            <div class="flex justify-end items-center gap-4">
+              <p class="text-xs text-gray-500 italic">Settings are saved to your local device.</p>
+              <button id="save-settings" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-5 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm">
+                Save Settings
+              </button>
+            </div>
+
+          </form>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const settingsForm = document.getElementById("settings-form");
+    const saveSettingsButton = document.getElementById("save-settings");
+
+    const volumeBgmSlider = document.getElementById("setting-volume-bgm");
+    const volumeSfxSlider = document.getElementById("setting-volume-sfx");
+    const volumeBgmValueSpan = document.getElementById("volume-bgm-value");
+    const volumeSfxValueSpan = document.getElementById("volume-sfx-value");
+
+    const boardTextureSelect = document.getElementById("setting-board-texture");
+    const boardColorBlindnessSelect = document.getElementById("setting-board-colorBlindness");
+    const boardBackgroundSelect = document.getElementById("setting-board-background");
+    const boardGridSelect = document.getElementById("setting-board-grid");
+    const miniBoardContainer = document.getElementById("mini-board-preview");
+    const miniBoardLoading = document.getElementById("mini-board-loading");
+
+    const hotkeyInputs = document.querySelectorAll(".hotkey-input");
+
+    let miniBoardRenderer = null;
+
+    // Default settings structure
+    const defaultSettings = {
+      game: {
+        volume: {
+          bgm: 100,
+          sfx: 100
+        },
+        board: {
+          texture: "classic",
+          colorBlindness: "none",
+          background: "wooden-board",
+          grid: "black"
+        },
+        hotkey: {
+          next: "ArrowRight",
+          previous: "ArrowLeft",
+          nextPiece: "ArrowUp",
+          previousPiece: "ArrowDown",
+          confirm: "Enter",
+          cancel: "Escape",
+          trade: "",
+          accept: "",
+          refuse: ""
+        }
+      }
+    };
+
+    // Construct asset URLs based on settings
+    function getTextureUrls(texture, colorBlindness) {
+      const cbPath = colorBlindness === "none" ? "normal" : colorBlindness;
+      return {
+        index: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/${texture}/${cbPath}/index.json`,
+        atlas: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/${texture}/${cbPath}/atlas.webp`,
+      }
+    }
+
+    function getBackgroundUrl(background) {
+      return `${TRIDECCO_BOARD_ASSETS_URL}/backgrounds/${background}.jpg`;
+    }
+
+    function getGridUrl(gridColor) {
+      return `${TRIDECCO_BOARD_ASSETS_URL}/grids/${gridColor}.png`;
+    }
+
+    // Populate form fields with loaded settings
+    function populateForm(settings) {
+      const gameSettings = settings.game || {};
+
+      // Volume
+      const volume = gameSettings.volume || {};
+      volumeBgmSlider.value = volume.bgm ?? 100;
+      volumeSfxSlider.value = volume.sfx ?? 100;
+      volumeBgmValueSpan.textContent = volumeBgmSlider.value;
+      volumeSfxValueSpan.textContent = volumeSfxSlider.value;
+
+      // Board
+      const board = gameSettings.board || {};
+      boardTextureSelect.value = board.texture ?? "classic";
+      boardColorBlindnessSelect.value = board.colorBlindness ?? "none";
+      boardBackgroundSelect.value = board.background ?? "wooden-board";
+      boardGridSelect.value = board.grid ?? "black";
+
+      // Hotkeys
+      const hotkeys = gameSettings.hotkey || {};
+      hotkeyInputs.forEach(input => {
+        const keyName = input.name.split(".").pop();
+        const keyValue = hotkeys[keyName] || "";
+        input.value = formatKeyDisplay(keyValue);
+        input.dataset.key = keyValue;
+      });
+    }
+
+    // Format key names for display (e.g., "ArrowRight" -> "→")
+    function formatKeyDisplay(keyString) {
+      if (!keyString) return "";
+      const parts = keyString.split("+");
+      const mainKey = parts.pop();
+      const modifiers = parts;
+
+      const map = {
+        "ArrowUp": "↑",
+        "ArrowDown": "↓",
+        "ArrowLeft": "←",
+        "ArrowRight": "→",
+        " ": "Space",
+        "Escape": "Esc"
+      };
+
+      const formattedMainKey = map[mainKey] || mainKey;
+      return [...modifiers, formattedMainKey].join("+");
+    }
+
+    function isDuplicateHotkey(hotkeyString, currentInput) {
+      if (!hotkeyString) return false;
+      for (const otherInput of hotkeyInputs) {
+        if (otherInput !== currentInput && otherInput.dataset.key === hotkeyString) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Initialize the mini-board renderer
+    function initializeMiniBoard(boardSettings) {
+      miniBoardLoading.style.display = "flex";
+      if (miniBoardRenderer) {
+        try {
+          miniBoardRenderer.destroy();
+        } catch (e) {
+          console.error("Error destroying renderer:", e);
+        }
+        miniBoardRenderer = null;
+      }
+
+      try {
+        const dummyBoard = new Tridecco.Board();
+        const Piece = Tridecco.Piece;
+        const rendererMap = Tridecco.maps.renderer.default;
+        const textureUrls = getTextureUrls(boardSettings.texture, boardSettings.colorBlindness);
+        const backgroundUrl = getBackgroundUrl(boardSettings.background);
+        const gridUrl = getGridUrl(boardSettings.grid);
+
+        miniBoardRenderer = new Tridecco.Renderer({
+          board: dummyBoard,
+          container: miniBoardContainer,
+          texturesIndexUrl: textureUrls.index,
+          texturesAtlasUrl: textureUrls.atlas,
+          backgroundUrl: backgroundUrl,
+          gridUrl: gridUrl,
+        }, () => {
+          const pieceColorList = [
+            ["blue", "white"],
+            ["red", "blue"],
+            ["red", "yellow"],
+            ["white", "red"],
+            ["yellow", "blue"]
+          ];
+          for (let i = 0; i < 63; i++) {
+            dummyBoard.place(i, new Piece(pieceColorList[Math.floor(Math.random() * pieceColorList.length)]));
+          }
+          miniBoardLoading.style.display = "none";
+        });
+      } catch (error) {
+        console.error("Error creating Mini Board Renderer:", error);
+        miniBoardLoading.style.display = "flex";
+        miniBoardLoading.textContent = "Preview Error";
+        app.ui.alert("Error creating board preview.", "error", 5000);
+      }
+    }
+
+    // Update mini-board preview based on current selections
+    async function updateMiniBoardPreview() {
+      const texture = boardTextureSelect.value;
+      const colorBlindness = boardColorBlindnessSelect.value;
+      const background = boardBackgroundSelect.value;
+      const grid = boardGridSelect.value;
+
+      const textureUrls = getTextureUrls(texture, colorBlindness);
+      const backgroundUrl = getBackgroundUrl(background);
+      const gridUrl = getGridUrl(grid);
+
+      miniBoardLoading.style.display = "flex";
+      miniBoardLoading.textContent = "Updating Preview...";
+
+      try {
+        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas); // TODO: Fix the issue that cannot update textures
+        await miniBoardRenderer.updateBackground(backgroundUrl);
+        await miniBoardRenderer.updateGrid(gridUrl);
+        miniBoardLoading.style.display = "none";
+      } catch (error) {
+        app.ui.alert("Failed to update preview.", "warning", 3000);
+        miniBoardLoading.textContent = "Update Error";
+      }
+    }
+
+    // Event Listeners for UI elements
+    volumeBgmSlider.addEventListener("input", e => {
+      volumeBgmValueSpan.textContent = e.target.value;
+    });
+    volumeSfxSlider.addEventListener("input", e => {
+      volumeSfxValueSpan.textContent = e.target.value;
+    });
+    boardTextureSelect.addEventListener("change", updateMiniBoardPreview);
+    boardColorBlindnessSelect.addEventListener("change", updateMiniBoardPreview);
+    boardBackgroundSelect.addEventListener("change", updateMiniBoardPreview);
+    boardGridSelect.addEventListener("change", updateMiniBoardPreview);
+
+    // Handle Hotkey Input
+    hotkeyInputs.forEach(input => {
+      input.addEventListener("focus", () => {
+        input.value = "Press key...";
+        input.classList.add("ring-2", "ring-amber-500");
+      });
+      input.addEventListener("blur", () => {
+        if (input.value.endsWith("...")) {
+          input.value = formatKeyDisplay(input.dataset.key || "");
+        }
+        input.classList.remove("ring-2", "ring-amber-500");
+      });
+      input.addEventListener("keydown", event => {
+        event.preventDefault();
+        const key = event.key;
+        if (!["Control", "Shift", "Alt", "Meta"].includes(key)) {
+          let modifiers = [];
+          if (event.ctrlKey) modifiers.push("Ctrl");
+          if (event.shiftKey) modifiers.push("Shift");
+          if (event.altKey) modifiers.push("Alt");
+          if (event.metaKey) modifiers.push("Meta");
+          const finalKeyString = [...modifiers.sort(), key].join("+");
+          if (isDuplicateHotkey(finalKeyString, input)) {
+            app.ui.alert(`Hotkey "${formatKeyDisplay(finalKeyString)}" is already assigned.`, "error", 4000);
+            input.value = formatKeyDisplay(input.dataset.key || "");
+          } else {
+            input.value = formatKeyDisplay(finalKeyString);
+            input.dataset.key = finalKeyString;
+            input.blur();
+          }
+        } else {
+          let currentModifiers = [];
+          if (event.ctrlKey) currentModifiers.push("Ctrl");
+          if (event.shiftKey) currentModifiers.push("Shift");
+          if (event.altKey) currentModifiers.push("Alt");
+          if (event.metaKey) currentModifiers.push("Meta");
+          input.value = currentModifiers.sort().join("+") + "+...";
+        }
+      });
+    });
+
+    // Handle Save Settings
+    saveSettingsButton.addEventListener("click", event => {
+      event.preventDefault();
+      saveSettingsButton.disabled = true;
+      saveSettingsButton.textContent = "Saving...";
+
+      // Final duplicate check before saving
+      const assignedValues = new Set();
+      let duplicatesFound = false;
+      hotkeyInputs.forEach(input => {
+        const hotkeyValue = input.dataset.key || "";
+        input.classList.remove("border-red-500", "ring-red-500");
+        if (hotkeyValue && assignedValues.has(hotkeyValue)) {
+          duplicatesFound = true;
+          input.classList.add("border-red-500", "ring-red-500");
+          hotkeyInputs.forEach(otherInput => {
+            if (otherInput !== input && otherInput.dataset.key === hotkeyValue) {
+              otherInput.classList.add("border-red-500", "ring-red-500");
+            }
+          });
+        } else if (hotkeyValue) {
+          assignedValues.add(hotkeyValue);
+        }
+      });
+
+      if (duplicatesFound) {
+        app.ui.alert("Duplicate hotkeys detected. Please ensure each hotkey is unique.", "error", 5000);
+        saveSettingsButton.disabled = false;
+        saveSettingsButton.textContent = "Save Settings";
+        return;
+      }
+
+      // Save settings to app.data.single.settings
+      app.data.single.settings.game.volume.bgm = parseInt(volumeBgmSlider.value, 10);
+      app.data.single.settings.game.volume.sfx = parseInt(volumeSfxSlider.value, 10);
+      app.data.single.settings.game.board.texture = boardTextureSelect.value;
+      app.data.single.settings.game.board.colorBlindness = boardColorBlindnessSelect.value;
+      app.data.single.settings.game.board.background = boardBackgroundSelect.value;
+      app.data.single.settings.game.board.grid = boardGridSelect.value;
+      hotkeyInputs.forEach(input => {
+        const keyName = input.name.split(".").pop();
+        app.data.single.settings.game.hotkey[keyName] = input.dataset.key || "";
+      });
+
+      app.ui.notification("alert", "Settings saved successfully.", "success", settingsForm, null, true);
+
+      saveSettingsButton.disabled = false;
+      saveSettingsButton.textContent = "Save Settings";
+    });
+
+    // Load game settings from local data
+    function loadGameSettings() {
+      // Deep merge defaults with loaded settings to ensure all keys exist
+      const loadedSettings = app.data.single.settings || {};
+      const mergedSettings = {
+        game: {
+          volume: {
+            ...defaultSettings.game.volume,
+            ...(loadedSettings.game?.volume || {})
+          },
+          board: {
+            ...defaultSettings.game.board,
+            ...(loadedSettings.game?.board || {})
+          },
+          hotkey: {
+            ...defaultSettings.game.hotkey,
+            ...(loadedSettings.game?.hotkey || {})
+          },
+        }
+      };
+
+      populateForm(mergedSettings);
+
+      if (mergedSettings.game && mergedSettings.game.board) {
+        initializeMiniBoard(mergedSettings.game.board);
+      }
+    }
+
+    // Initial load
+    document.addEventListener("DOMContentLoaded", () => {
+      loadGameSettings();
+    });
+  </script>
+
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
+</body>
+
+</html>
