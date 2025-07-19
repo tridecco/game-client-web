@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-  <%- include("../../partials/head.ejs") %>
+  <%- include("../../../partials/head.ejs") %>
   <title>Tridecco | Login</title>
   <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
-  <%- include("../../partials/libs/google-oauth.ejs") %>
+  <%- include("../../../partials/libs/google-oauth.ejs") %>
   <% } %>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
@@ -38,7 +38,7 @@
       </form>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        <a class="text-blue-600 hover:text-blue-800" href="/password-reset">Forgot your password?</a>
+        <a class="text-blue-600 hover:text-blue-800" href="/multi/password-reset">Forgot your password?</a>
       </p>
 
       <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
@@ -47,7 +47,7 @@
       <% } %>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/register">Register</a>
+        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/multi/register">Register</a>
       </p>
     </div>
   </div>
@@ -80,7 +80,7 @@
         const response = await auth.login(identifier, password);
         if (response.status === "success") {
           app.auth.set(response.data.user._id, response.data.accessToken, response.data.refreshToken, response.data.user.identities);
-          app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
+          app.location.redirect(app.location.params.redirect || "/multi"); // Redirect on success
         } else {
           loginButton.disabled = false; // Re-enable button on error
           app.ui.notification(
@@ -117,7 +117,7 @@
             const loginResponse = await auth.oauthAuth(token);
             if (loginResponse.status === "success") {
               app.auth.set(loginResponse.data.user._id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
-              app.location.redirect(app.location.params.redirect || "/"); // Redirect on success
+              app.location.redirect(app.location.params.redirect || "/multi"); // Redirect on success
             } else {
               app.ui.notification(
                 "alert",
@@ -144,7 +144,7 @@
     });
   </script>
 
-  <%- include("../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>

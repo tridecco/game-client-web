@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <%- include("../../partials/head.ejs") %>
+  <%- include("../../../partials/head.ejs") %>
   <title>Tridecco | Password Reset</title>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
@@ -31,11 +31,11 @@
       </form>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        <a class="text-blue-600 hover:text-blue-800" href="/login">Back to login</a>
+        <a class="text-blue-600 hover:text-blue-800" href="/multi/login">Back to login</a>
       </p>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/register">Register</a>
+        Don't have an account? <a class="text-blue-600 hover:text-blue-800" href="/multi/register">Register</a>
       </p>
     </div>
   </div>
@@ -113,7 +113,7 @@
     });
   </script>
 
-  <%- include("../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>

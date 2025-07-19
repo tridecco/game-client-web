@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <%- include("../../partials/head.ejs") %>
+  <%- include("../../../partials/head.ejs") %>
   <title>Tridecco | Profile</title>
   <script src="<%= env.CDN_URL %>/js/user.js"></script>
   <style>
@@ -30,14 +30,14 @@
     <!-- Main Content Flex Container -->
     <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
       <!-- Left Sidebar: Navigation -->
-      <%- include("../../partials/navigation-bar.ejs", { page: "profile" }) %>
+      <%- include("../../../partials/multi/navigation-bar.ejs", { page: "profile" }) %>
 
       <!-- Main Content Area -->
       <main class="flex-1 flex flex-col overflow-hidden">
 
         <!-- Mobile Top Bar: Back Button -->
         <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
-          <a href="/more" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+          <a href="/multi/more" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -193,7 +193,7 @@
 
             <!-- Edit Profile Button -->
             <div class="flex justify-center pt-6 border-t border-amber-700 border-opacity-30 mt-8">
-              <a href="/user/edit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm inline-flex items-center">
+              <a href="/multi/user/edit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md focus:outline-none focus:shadow-outline transition duration-200 text-sm inline-flex items-center">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                 </svg>
@@ -204,7 +204,7 @@
           </div>
 
           <!-- Load Error Content -->
-          <%- include("../../partials/load-error-content.ejs") %>
+          <%- include("../../../partials/multi/load-error-content.ejs") %>
         </section>
 
       </main>
@@ -386,7 +386,7 @@
     });
   </script>
 
-  <%- include("../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>

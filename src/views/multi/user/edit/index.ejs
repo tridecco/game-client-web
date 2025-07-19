@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <%- include("../../../partials/head.ejs") %>
+  <%- include("../../../../partials/head.ejs") %>
   <title>Tridecco | Profile</title>
   <script src="<%= env.CDN_URL %>/js/user.js"></script>
 </head>
@@ -19,14 +19,14 @@
     <!-- Main Content Flex Container -->
     <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
       <!-- Left Sidebar: Navigation -->
-      <%- include("../../../partials/navigation-bar.ejs", { page: "profile" }) %>
+      <%- include("../../../../partials/multi/navigation-bar.ejs", { page: "profile" }) %>
 
       <!-- Main Content Area -->
       <main class="flex-1 flex flex-col overflow-hidden">
 
         <!-- Mobile Top Bar: Back Button -->
         <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
-          <a href="/user" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+          <a href="/multi/user" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -216,7 +216,7 @@
           </form>
 
           <!-- Load Error Content -->
-          <%- include("../../../partials/load-error-content.ejs") %>
+          <%- include("../../../../partials/multi/load-error-content.ejs") %>
         </section>
 
       </main>
@@ -447,7 +447,7 @@
           );
 
           setTimeout(() => {
-            app.location.redirect("/user");
+            app.location.redirect("/multi/user");
           }, 2000);
         } else {
           app.ui.notification(
@@ -473,11 +473,11 @@
 
     // Handle cancel button
     cancelButton.addEventListener("click", () => {
-      app.location.redirect("/user");
+      app.location.redirect("/multi/user");
     });
   </script>
 
-  <%- include("../../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>

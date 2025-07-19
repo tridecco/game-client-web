@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-  <%- include("../../partials/head.ejs") %>
+  <%- include("../../../partials/head.ejs") %>
   <title>Tridecco | Register</title>
   <% if (env.ENABLE_GOOGLE_OAUTH && env.ENABLE_GOOGLE_OAUTH === "true") { %>
-  <%- include("../../partials/libs/google-oauth.ejs") %>
+  <%- include("../../../partials/libs/google-oauth.ejs") %>
   <% } %>
   <script src="<%= env.CDN_URL %>/js/auth.js"></script>
 </head>
@@ -39,7 +39,7 @@
       <% } %>
 
       <p class="text-center text-gray-600 text-xs mt-4">
-        Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/login">Sign in</a>
+        Already have an account? <a class="text-blue-600 hover:text-blue-800" href="/multi/login">Sign in</a>
       </p>
     </div>
   </div>
@@ -114,7 +114,7 @@
             const loginResponse = await auth.oauthAuth(token);
             if (loginResponse.status === "success") {
               app.auth.set(loginResponse.data.user.id, loginResponse.data.accessToken, loginResponse.data.refreshToken, loginResponse.data.user.identities);
-              app.location.redirect("/"); // Redirect on success
+              app.location.redirect("/multi"); // Redirect on success
             } else {
               app.ui.notification(
                 "alert",
@@ -141,7 +141,7 @@
     });
   </script>
 
-  <%- include("../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
 </body>
 
 </html>

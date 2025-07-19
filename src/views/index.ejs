@@ -87,7 +87,7 @@
 
     @media (min-width: 450px) {
       .glass-card {
-        width: 350px;
+        width: 380px;
         min-width: 320px;
       }
     }
@@ -95,17 +95,6 @@
     @media (min-width: 640px) {
       .glass-card {
         width: 410px;
-      }
-    }
-
-    @media (max-width: 400px) {
-      .glass-card {
-        padding: 1.3rem 0.5rem 1.1rem;
-        gap: 1.2rem;
-      }
-
-      .glow-title {
-        font-size: 1.6rem;
       }
     }
   </style>
@@ -117,11 +106,11 @@
 
   <div class="fixed inset-0 flex items-center justify-center z-10">
     <div class="glass-card">
-      <h1 class="glow-title text-7xl text-center select-none text-[#fffde7] rounded-[1.2em] m-2 tracking-[0.10em]" style="
+      <h1 class="glow-title text-6xl sm:text-7xl text-center select-none text-[#fffde7] rounded-[1.2em] m-2 tracking-[0.10em]" style="
           text-shadow: 3px 3px 3px #DAA520, 2px 3px 5px #8B4513, 0px 0px 20px #fffde7cc; font-family: 'tridecco', sans-serif;
         ">TRIDECCO</h1>
       <div class="w-full flex flex-col gap-4">
-        <a href="/solo" class="glass-btn text-center">Single Player</a>
+        <a href="/single" class="glass-btn text-center">Single Player</a>
         <button class="glass-btn disabled" disabled>Multiplayer</button>
         <p class="text-center text-gray-500 text-sm mt-2 select-none" style="margin-bottom:0;">Multiplayer coming soon!</p>
       </div>

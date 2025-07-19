@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <%- include("../../../../partials/head.ejs") %>
+  <%- include("../../../../../partials/head.ejs") %>
   <title>Tridecco | Update Email</title>
   <script src="<%= env.CDN_URL %>/js/user.js"></script>
 </head>
@@ -40,7 +40,7 @@
         </svg>
         <p id="success-message" class="text-gray-700 mb-6">Your email address has been confirmed and updated.</p>
         <!-- Link back to account settings -->
-        <a href="/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
+        <a href="/multi/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
           Go to Account Settings
         </a>
       </div>
@@ -54,7 +54,7 @@
         </svg>
         <p id="failure-message" class="text-gray-700 mb-6">Could not update your email. The confirmation link might be invalid, expired, or already used.</p>
         <!-- Link back to account settings -->
-        <a href="/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
+        <a href="/multi/user/account" class="inline-block bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-200">
           Return to Account Settings
         </a>
       </div>
@@ -63,7 +63,7 @@
   </div>
 
   <!-- Include Tridecco Animator -->
-  <%- include("../../../../partials/tridecco-board-animator.ejs") %>
+  <%- include("../../../../../partials/tridecco-board-animator.ejs") %>
 
   <script>
     const updatingState = document.getElementById("updating-state");
