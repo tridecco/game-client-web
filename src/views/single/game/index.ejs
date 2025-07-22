@@ -5,6 +5,26 @@
   <%- include("../../../partials/head.ejs") %>
   <title>Tridecco | Game</title>
   <script src="<%= env.CDN_URL %>/js/single/game.js"></script>
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
 </head>
 
 <body class="h-screen overflow-hidden bg-no-repeat bg-center bg-cover" style="background-image: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg');">
@@ -12,93 +32,200 @@
   <!-- Main Game UI Container -->
   <div class="fixed inset-0 flex flex-col h-screen text-white p-3 sm:p-4 gap-3 sm:gap-4">
 
-    <!-- Top Bar: AI Info, Exit, and Player Scores -->
-    <header class="h-24 md:h-28 flex items-center p-3 sm:p-4 gap-4 flex-shrink-0">
-      <!-- Left: Exit Button -->
-      <div class="flex-shrink-0">
-        <a href="/single" class="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors" aria-label="Exit Game">
+    <!-- Responsive Top Bar -->
+    <header class="flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] md:items-center p-0 md:p-3 md:gap-4 flex-shrink-0">
+
+      <!-- Column 1 (Left): Contains Exit button and mobile scores -->
+      <div class="flex items-center w-full p-3 md:p-0">
+        <!-- Exit Button (always visible) -->
+        <a href="/single" class="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex-shrink-0" aria-label="Exit Game">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </a>
+
+        <!-- Mobile-Only Centered Score -->
+        <div class="flex-grow text-center md:hidden">
+          <span class="text-xs uppercase text-white/70 tracking-wider">Score</span>
+          <p class="text-2xl font-bold text-amber-300">1,230</p>
+        </div>
+
+        <!-- Mobile-Only High Score -->
+        <div class="w-12 text-right md:hidden flex-shrink-0">
+          <span class="text-xs uppercase text-white/70 tracking-wider">High</span>
+          <p class="text-lg font-medium text-white/80">8,450</p>
+        </div>
       </div>
 
-      <!-- Center: AI Pieces Area -->
-      <div class="flex-grow h-full flex items-center justify-center p-2 gap-2 sm:gap-3 overflow-hidden"></div>
-
-      <!-- Right: Player Scores -->
-      <div class="flex-shrink-0 flex flex-col items-end space-y-2 text-right w-32 sm:w-40">
-        <div>
-          <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">Score</span>
-          <p class="text-lg sm:text-2xl font-bold text-amber-300">1,230</p>
+      <!-- Column 2 (Center): AI Pieces Area -->
+      <div id="ai-pieces-container" class="h-20 md:h-full w-full grid place-items-center overflow-x-auto overflow-y-hidden custom-scrollbar">
+        <div class="flex flex-nowrap gap-2 sm:gap-3">
+          <!-- AI Piece Examples (resized for mobile) -->
+          <div class="game-piece-unit group relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-indigo-800/30 to-purple-800/30 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+            <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+            <span class="absolute inset-0 flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">8</span>
+          </div>
+          <div class="game-piece-unit group relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-indigo-800/30 to-purple-800/30 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+            <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+            <span class="absolute inset-0 flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">12</span>
+          </div>
         </div>
-        <div>
-          <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">High Score</span>
-          <p class="text-base sm:text-lg font-medium text-white/80">8,450</p>
+      </div>
+
+      <!-- Column 3 (Right): Desktop-Only Player Scores -->
+      <div class="hidden md:flex justify-end">
+        <div class="flex-shrink-0 flex-col items-end space-y-2 text-right w-32 sm:w-40">
+          <div>
+            <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">Your Score</span>
+            <p class="text-lg sm:text-2xl font-bold text-amber-300">1,230</p>
+          </div>
+          <div>
+            <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">High Score</span>
+            <p class="text-base sm:text-lg font-medium text-white/80">8,450</p>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Middle Layer: Game Board Area -->
     <main class="flex-1 min-h-0 flex items-center justify-center">
-      <!-- The actual game board will be rendered inside this container -->
       <div id="board-container" class="w-full h-full max-w-5xl max-h-[80vh] aspect-square">
-        <!-- Placeholder text, will be replaced by canvas -->
         <div class="flex items-center justify-center h-full text-white/20 text-3xl font-thin tracking-widest select-none">BOARD</div>
       </div>
     </main>
 
-    <!-- Bottom Bar: Player's Pieces -->
-    <footer class="h-24 md:h-28 flex items-center p-3 sm:p-4 gap-4 flex-shrink-0"></footer>
+    <!-- Bottom Bar: Your Pieces -->
+    <footer id="player-pieces-container" class="h-24 md:h-28 flex items-center p-3 sm:p-4 gap-4 flex-shrink-0 justify-center overflow-x-auto overflow-y-hidden custom-scrollbar">
+      <!-- Your Piece Examples (resized for mobile) -->
+      <div class="game-piece-unit group relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-teal-800/30 to-blue-800/30 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+        <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+        <span class="absolute inset-0 flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">3</span>
+      </div>
+      <div class="game-piece-unit group relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-teal-800/30 to-blue-800/30 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+        <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+        <span class="absolute inset-0 flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">7</span>
+      </div>
+    </footer>
 
   </div>
 
-  <!-- Modals Layer -->
-  <div class="fixed inset-0 z-50 pointer-events-none">
+  <!-- Perform Trade Modal -->
+  <div id="trade-modal-perform" class="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4 transition-opacity duration-300 hidden">
+    <div class="relative w-full max-w-3xl lg:max-w-4xl max-h-[90vh] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex flex-col p-6 sm:p-8 transform scale-100 opacity-100 transition-all duration-300">
+      <!-- Minimize Button -->
+      <button class="absolute top-4 left-4 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors" aria-label="Minimize Trade Window">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
 
-    <!-- Modal Type 1: Draggable Side Request (Hidden by default) -->
-    <div id="side-request-modal" class="hidden pointer-events-auto absolute top-1/4 left-8 w-64 bg-slate-800/70 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 overflow-hidden">
-      <div class="drag-handle bg-slate-900/50 p-2 text-center text-sm font-bold text-white/80">
-        Trade Request
-      </div>
-      <div class="p-4 space-y-3">
-        <p class="text-center text-white">AI wants to trade a piece with you.</p>
-        <div class="flex justify-around pt-2">
-          <button class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-semibold transition-colors">Accept</button>
-          <button class="px-5 py-2 bg-gray-400 text-white font-semibold rounded-lg cursor-not-allowed opacity-60" disabled>Refuse</button>
-        </div>
-      </div>
-    </div>
+      <h3 class="text-xl sm:text-2xl font-bold text-center text-white mb-6 tracking-wide">Initiate Piece Trade</h3>
 
-    <!-- Modal Type 2: Centered Complex Modal (Hidden by default) -->
-    <div id="centered-complex-modal" class="hidden pointer-events-auto fixed inset-0 bg-black/60 flex items-center justify-center p-4">
-      <div class="w-full max-w-lg bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 flex flex-col">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-4 border-b border-white/10">
-          <h3 class="text-xl font-bold text-white">Trade Pieces</h3>
-          <button class="p-1 rounded-full hover:bg-white/20 transition-colors" aria-label="Close modal">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <!-- Modal Body -->
-        <div class="p-6 space-y-4">
-          <p class="text-white/80">Select a piece from your hand to offer for a trade.</p>
-          <!-- Placeholder for complex content, e.g., piece selection -->
-          <div class="h-40 rounded-lg flex items-center justify-center">
-            <span class="text-white/30">Complex content area...</span>
+      <div class="flex flex-col md:flex-row items-center gap-6 flex-grow min-h-0">
+        <!-- AI Piece Selection Column -->
+        <div class="flex-1 w-full bg-gray-800/50 rounded-lg p-4 flex flex-col custom-scrollbar overflow-y-auto max-h-[calc(80vh-160px)] md:max-h-full">
+          <p class="text-sm sm:text-base uppercase text-white/70 font-semibold mb-3 text-center tracking-wider">AI's Pieces</p>
+          <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+            <!-- AI Piece Example -->
+            <div class="game-piece-unit group relative aspect-square w-full bg-gradient-to-br from-indigo-800/30 to-purple-800/30 border border-white/10 rounded-lg shadow-md hover:border-white/30 transition-all duration-200 cursor-pointer flex items-center justify-center p-1 ai-piece-select">
+              <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+              <span class="absolute flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">8</span>
+              <!-- Selected state overlay -->
+              <div class="absolute inset-0 border-2 border-amber-400 rounded-lg opacity-0 group-[.selected]:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
+            </div>
           </div>
         </div>
-        <!-- Modal Footer -->
-        <div class="flex justify-end p-4 bg-black/20 border-t border-white/10 rounded-b-2xl">
-          <button class="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition-colors">Confirm Trade</button>
+
+        <!-- Middle Arrows -->
+        <div class="flex-shrink-0 flex md:flex-col items-center justify-center gap-3 md:gap-4 p-2 md:p-0">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white/70 md:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white/70 md:rotate-180 rotate-[270deg]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+        </div>
+
+        <!-- Your Piece Selection Column -->
+        <div class="flex-1 w-full bg-gray-800/50 rounded-lg p-4 flex flex-col custom-scrollbar overflow-y-auto max-h-[calc(80vh-160px)] md:max-h-full">
+          <p class="text-sm sm:text-base uppercase text-white/70 font-semibold mb-3 text-center tracking-wider">Your Pieces</p>
+          <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+            <!-- Your Piece Example -->
+            <div class="game-piece-unit group relative aspect-square w-full bg-gradient-to-br from-teal-800/30 to-blue-800/30 border border-white/10 rounded-lg shadow-md hover:border-white/30 transition-all duration-200 cursor-pointer flex items-center justify-center p-1 your-piece-select">
+              <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+              <span class="absolute flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">3</span>
+            </div>
+            <div class="game-piece-unit group relative aspect-square w-full bg-gradient-to-br from-teal-800/30 to-blue-800/30 border border-white/10 rounded-lg shadow-md hover:border-white/30 transition-all duration-200 cursor-pointer flex items-center justify-center p-1 your-piece-select">
+              <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+              <span class="absolute flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">7</span>
+              <div class="absolute inset-0 border-2 border-amber-400 rounded-lg opacity-0 group-[.selected]:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Button -->
+      <div class="flex justify-center mt-6">
+        <button class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200">
+          Confirm Trade
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Being Traded Window -->
+  <div id="trade-modal-being" class="fixed inset-0 z-[90] bg-black/60 flex items-center justify-center p-4 transition-opacity duration-300 hidden">
+    <div class="w-full max-w-3xl lg:max-w-4xl max-h-[90vh] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex flex-col p-6 sm:p-8 transform scale-100 opacity-100 transition-all duration-300">
+      <h3 class="text-xl sm:text-2xl font-bold text-center text-red-400 mb-6 tracking-wide">Trade in Progress!</h3>
+
+      <div class="flex flex-col md:flex-row items-center gap-6 flex-grow min-h-0">
+        <div class="flex-1 w-full bg-gray-800/50 rounded-lg p-4 flex flex-col custom-scrollbar overflow-y-auto max-h-[calc(80vh-160px)] md:max-h-full">
+          <p class="text-sm sm:text-base uppercase text-white/70 font-semibold mb-3 text-center tracking-wider">AI Gives</p>
+          <div class="grid grid-cols-1 place-items-center gap-3">
+            <!-- AI Piece Example (not interactive) -->
+            <div class="game-piece-unit relative aspect-square w-32 h-32 bg-gradient-to-br from-indigo-800/30 to-purple-800/30 border border-white/10 rounded-lg shadow-md flex items-center justify-center">
+              <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+              <span class="absolute flex items-center justify-center text-white text-3xl font-bold">8</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0 flex md:flex-col items-center justify-center gap-3 md:gap-4 p-2 md:p-0">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-red-400 md:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-red-400 md:rotate-180 rotate-[270deg]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+        </div>
+
+        <!-- Your Piece Display Column -->
+        <div class="flex-1 w-full bg-gray-800/50 rounded-lg p-4 flex flex-col custom-scrollbar overflow-y-auto max-h-[calc(80vh-160px)] md:max-h-full">
+          <p class="text-sm sm:text-base uppercase text-white/70 font-semibold mb-3 text-center tracking-wider">You Give</p>
+          <div class="grid grid-cols-1 place-items-center gap-3">
+            <!-- Your Piece Example (not interactive) -->
+            <div class="game-piece-unit relative aspect-square w-32 h-32 bg-gradient-to-br from-teal-800/30 to-blue-800/30 border border-white/10 rounded-lg shadow-md flex items-center justify-center">
+              <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+              <span class="absolute flex items-center justify-center text-white text-3xl font-bold">7</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
+  <!-- Minimized Window Toggle -->
+  <div id="minimized-trade-perform" class="fixed right-4 top-1/2 -translate-y-1/2 z-[110] w-16 h-16 sm:w-20 sm:h-20 bg-blue-600/70 hover:bg-blue-600 border border-blue-400 rounded-full shadow-xl flex items-center justify-center cursor-grab active:cursor-grabbing transition-all duration-200 group hidden" aria-label="Open Trade Window">
+    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h18M16.5 3L21 7.5m0 0L16.5 12M21 7.5H3" />
+    </svg>
+    <span class="absolute top-full mt-2 px-3 py-1 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">Trade Pieces</span>
+  </div>
+
+  <!-- Large Game Info Message -->
+  <div id="game-info-message" class="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 w-full max-w-lg text-center pointer-events-none hidden" style="font-family: 'tridecco', sans-serif;">
+    <p class="font-tridecco text-6xl md:text-7xl text-white/90 drop-shadow-lg tracking-wide select-none"></p>
+  </div>
 </body>
 
 </html>
