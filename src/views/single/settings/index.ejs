@@ -125,7 +125,7 @@
                   </div>
                   <hr class="border-amber-100 my-2">
                   <div class="flex items-center mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 shadow-sm">
-                    <input type="checkbox" id="setting-assist-preview" name="game.assist.preview" checked class="accent-emerald-600 w-5 h-5 transition-all duration-150 focus:ring-2 focus:ring-amber-500">
+                    <input type="checkbox" id="setting-assist-preview" name="game.board.preview" checked class="accent-emerald-600 w-5 h-5 transition-all duration-150 focus:ring-2 focus:ring-amber-500">
                     <label for="setting-assist-preview" class="ml-3 text-amber-800 text-sm font-bold select-none cursor-pointer">
                       <span class="inline-flex items-center gap-1">
                         <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -220,7 +220,8 @@
           texture: "classic",
           colorBlindness: "none",
           background: "wooden-board",
-          grid: "black"
+          grid: "black",
+          preview: true
         },
         hotkey: {
           next: "ArrowRight",
@@ -271,7 +272,7 @@
       boardBackgroundSelect.value = board.background ?? "wooden-board";
       boardGridSelect.value = board.grid ?? "black";
       if (assistPreviewToggle) {
-        assistPreviewToggle.checked = settings.game?.assist?.preview !== false;
+        assistPreviewToggle.checked = settings.game?.board?.preview !== false;
       }
 
       // Hotkeys
@@ -479,8 +480,8 @@
       app.data.single.settings.game.board.colorBlindness = boardColorBlindnessSelect.value;
       app.data.single.settings.game.board.background = boardBackgroundSelect.value;
       app.data.single.settings.game.board.grid = boardGridSelect.value;
-      app.data.single.settings.game.assist = app.data.single.settings.game.assist || {};
-      app.data.single.settings.game.assist.preview = assistPreviewToggle ? assistPreviewToggle.checked : true;
+      app.data.single.settings.game.preview = app.data.single.settings.game.preview || {};
+      app.data.single.settings.game.board.preview = assistPreviewToggle ? assistPreviewToggle.checked : true;
       hotkeyInputs.forEach(input => {
         const keyName = input.name.split(".").pop();
         app.data.single.settings.game.hotkey[keyName] = input.dataset.key || "";
