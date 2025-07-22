@@ -123,6 +123,20 @@
                       <option value="yellow">Yellow</option>
                     </select>
                   </div>
+                  <hr class="border-amber-100 my-2">
+                  <div class="flex items-center mt-4 p-3 rounded-lg bg-amber-50 border border-amber-200 shadow-sm">
+                    <input type="checkbox" id="setting-assist-preview" name="game.assist.preview" checked class="accent-emerald-600 w-5 h-5 transition-all duration-150 focus:ring-2 focus:ring-amber-500">
+                    <label for="setting-assist-preview" class="ml-3 text-amber-800 text-sm font-bold select-none cursor-pointer">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                          <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Enable in-game preview assist
+                      </span>
+                      <span class="block text-xs font-normal text-gray-500 mt-1">Show move/placement preview and hints in game</span>
+                    </label>
+                  </div>
                 </div>
                 <!-- Mini Board Preview -->
                 <div class="flex-shrink-0 w-full md:w-1/3">
@@ -187,6 +201,7 @@
     const boardColorBlindnessSelect = document.getElementById("setting-board-colorBlindness");
     const boardBackgroundSelect = document.getElementById("setting-board-background");
     const boardGridSelect = document.getElementById("setting-board-grid");
+    const assistPreviewToggle = document.getElementById("setting-assist-preview");
     const miniBoardContainer = document.getElementById("mini-board-preview");
     const miniBoardLoading = document.getElementById("mini-board-loading");
 
@@ -255,6 +270,9 @@
       boardColorBlindnessSelect.value = board.colorBlindness ?? "none";
       boardBackgroundSelect.value = board.background ?? "wooden-board";
       boardGridSelect.value = board.grid ?? "black";
+      if (assistPreviewToggle) {
+        assistPreviewToggle.checked = settings.game?.assist?.preview !== false;
+      }
 
       // Hotkeys
       const hotkeys = gameSettings.hotkey || {};
@@ -461,6 +479,8 @@
       app.data.single.settings.game.board.colorBlindness = boardColorBlindnessSelect.value;
       app.data.single.settings.game.board.background = boardBackgroundSelect.value;
       app.data.single.settings.game.board.grid = boardGridSelect.value;
+      app.data.single.settings.game.assist = app.data.single.settings.game.assist || {};
+      app.data.single.settings.game.assist.preview = assistPreviewToggle ? assistPreviewToggle.checked : true;
       hotkeyInputs.forEach(input => {
         const keyName = input.name.split(".").pop();
         app.data.single.settings.game.hotkey[keyName] = input.dataset.key || "";
