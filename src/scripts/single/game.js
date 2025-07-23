@@ -166,6 +166,7 @@ class VibrationManager {
  * @class UIManager
  * @description Manages all UI interactions, updates, and animations, acting as a bridge between the game logic and the DOM.
  */
+const DEFAULT_INFO_MESSAGE_DURATION = 1800;
 class UIManager {
   /**
    * @constructor - Initializes UIManager and caches all relevant DOM elements.
@@ -224,7 +225,11 @@ class UIManager {
    * @param {string} [animation] - Animation type: 'fade', 'slide', 'scale', 'confetti', etc.
    * @param {number} [duration=1800] - How long to show (ms)
    */
-  showInfoMessage(text, animation = 'fade', duration = 1800) {
+  showInfoMessage(
+    text,
+    animation = 'fade',
+    duration = DEFAULT_INFO_MESSAGE_DURATION,
+  ) {
     if (!this.gameInfoMessage) return;
     const p = this.gameInfoMessage.querySelector('p');
     p.textContent = text;
@@ -377,7 +382,8 @@ class UIManager {
    */
   _animateNumber(el, value, options = {}) {
     if (!el) return;
-    const duration = options.duration || 600;
+    const DEFAULT_DURATION = 600;
+    const duration = options.duration || DEFAULT_DURATION;
     const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
     const end = value;
     const startTime = performance.now();
@@ -412,9 +418,10 @@ class UIManager {
         origin: { y: 0.6 },
       });
     }
+    const ANIMATION_DURATION = 900;
     setTimeout(() => {
       el.classList.remove(type);
-    }, 900);
+    }, ANIMATION_DURATION);
   }
 
   /**
