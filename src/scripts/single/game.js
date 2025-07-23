@@ -584,3 +584,42 @@ class PlayerAgent extends Agent {
 
   // TODO: Implement player-specific action handlers
 }
+
+/**
+ * @class AIPlayerAgent
+ * @description Represents an AI player agent in the game, extending the Agent class.
+ */
+class AIPlayerAgent extends Agent {
+  /**
+   * @constructor - Initializes the AIPlayerAgent with a player instance.
+   * @param {Player} player - The player instance associated with this AI agent.
+   * @param {Object} aiConfig - Configuration options for the AI agent.
+   */
+  constructor(player, aiConfig = {}) {
+    super(player);
+    this.config = aiConfig;
+  }
+
+  /**
+   * @method _performAction - Performs an AI-specific action.
+   * @param {string} action - The action type ('toss', 'place', 'trade').
+   * @param {...any} args - Additional arguments for the action.
+   * @returns {Promise<any>} - Resolves with the result of the action.
+   */
+  async _performAction(action, ...args) {
+    switch (action) {
+      case 'toss':
+        return this.handleToss();
+      case 'place':
+        return this.handlePlace(args[0], args[1]);
+      case 'trade':
+        return this.handleTrade(args[0], args[1]);
+      default:
+        throw new Error(
+          `Action ${action} not implemented for AIPlayerAgent class`,
+        );
+    }
+  }
+
+  // TODO: Implement AI-specific action handlers
+}
