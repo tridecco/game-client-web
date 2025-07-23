@@ -240,6 +240,14 @@
     </div>
   </div>
 
+  <!-- Template for a single game piece -->
+  <template id="piece-template">
+    <div class="game-piece-unit group relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+      <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+      <span class="piece-value absolute inset-0 flex items-center justify-center text-white text-xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></span>
+    </div>
+  </template>
+
 </body>
 
 </html>
