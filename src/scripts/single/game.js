@@ -444,3 +444,54 @@ class UIManager {
     return el;
   }
 }
+
+/**
+ * @class Player
+ * @description Represents a player in the game, managing their pieces and score.
+ */
+class Player {
+  constructor(name) {
+    this.name = name;
+    this.scores = new Map();
+    this.pieces = new Map();
+    this.totalScore = 0;
+  }
+
+  /**
+   * @method addPiece - Adds a piece to the player's collection.
+   * @param {string} color - The color-key of the piece.
+   * @param {Object} piece - The piece object to add.
+   */
+  addPiece(color, piece) {
+    if (!this.pieces.has(color)) {
+      this.pieces.set(color, []);
+    }
+    this.pieces.get(color).push(piece);
+  }
+
+  /**
+   * @method popPiece - Removes and returns a piece from the player's collection.
+   * @param {string} color - The color-key of the piece to remove.
+   * @returns {Object | null} - The removed piece or null if not found.
+   */
+  popPiece(color) {
+    if (this.pieces.has(color) && this.pieces.get(color).length > 0) {
+      return this.pieces.get(color).pop();
+    }
+    return null;
+  }
+
+  /**
+   * @method addScore - Adds a score entry for the player.
+   * @param {string} key - The score key.
+   * @param {number} value - The score value.
+   */
+  addScore(key, value) {
+    if (this.scores.has(key)) {
+      this.scores.set(key, this.scores.get(key) + value);
+    } else {
+      this.scores.set(key, value);
+    }
+    this.totalScore += value;
+  }
+}
