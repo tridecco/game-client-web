@@ -166,196 +166,274 @@ class VibrationManager {
  * @class UIManager
  * @description Manages all UI interactions, updates, and animations, acting as a bridge between the game logic and the DOM.
  */
-const DEFAULT_MESSAGE_DURATION = 2000;
 class UIManager {
   /**
-   * @constructor
-   * @param {Object} callbacks - An object containing callback functions for user interactions.
-   * @param {function} callbacks.onPlayAgain - Called when the "Play Again" button is clicked.
-   * @param {function} callbacks.onPieceClick - Called when a player's piece is clicked, passing the piece's data.
+   * @constructor - Initializes UIManager and caches all relevant DOM elements.
    */
-  constructor(callbacks) {
-    this.elements = {};
-    this.callbacks = callbacks;
+  constructor() {
+    this.scoreMobile = document.querySelector('[data-score-mobile]');
+    this.highscoreMobile = document.querySelector('[data-highscore-mobile]');
+    this.scoreDesktop = document.querySelector('[data-score-desktop]');
+    this.highscoreDesktop = document.querySelector('[data-highscore-desktop]');
+    this.finalScore = document.querySelector('[data-final-score]');
+    this.finalHighscore = document.querySelector('[data-final-highscore]');
+    this.resultTitle = document.querySelector('[data-result-title]');
+    this.scoreDetails = document.querySelector('[data-score-details]');
 
-    this._cacheDOMElements();
-    this._setupEventListeners();
-  }
-
-  /**
-   * @method _cacheDOMElements - Finds and stores references to all necessary DOM elements for performance.
-   */
-  _cacheDOMElements() {
-    this.elements.aiPiecesContainer = document.getElementById(
-      'ai-pieces-container',
-    );
-    this.elements.playerPiecesContainer = document.getElementById(
+    this.aiPiecesContainer = document.getElementById('ai-pieces-container');
+    this.playerPiecesContainer = document.getElementById(
       'player-pieces-container',
     );
-    this.elements.pieceTemplate = document.getElementById('piece-template');
 
-    this.elements.scoreDesktop = document.querySelector('[data-score-desktop]');
-    this.elements.scoreMobile = document.querySelector('[data-score-mobile]');
-    this.elements.highscoreDesktop = document.querySelector(
-      '[data-highscore-desktop]',
+    this.tradeModalPerform = document.getElementById('trade-modal-perform');
+    this.tradeModalBeing = document.getElementById('trade-modal-being');
+    this.minimizedTradePerform = document.getElementById(
+      'minimized-trade-perform',
     );
-    this.elements.highscoreMobile = document.querySelector(
-      '[data-highscore-mobile]',
-    );
+    this.gameInfoMessage = document.getElementById('game-info-message');
+    this.gameOverModal = document.getElementById('game-over-modal');
 
-    this.elements.tradeModal = document.getElementById('trade-modal-perform');
-    this.elements.beingTradedModal =
-      document.getElementById('trade-modal-being');
-    this.elements.gameOverModal = document.getElementById('game-over-modal');
-
-    this.elements.gameOverModalContent =
-      this.elements.gameOverModal.querySelector('div');
-    this.elements.resultTitle = document.querySelector('[data-result-title]');
-    this.elements.finalScore = document.querySelector('[data-final-score]');
-    this.elements.finalHighscore = document.querySelector(
-      '[data-final-highscore]',
-    );
-    this.elements.scoreDetailsContainer = document.querySelector(
-      '[data-score-details]',
-    );
-
-    this.elements.playAgainBtn = document.getElementById('play-again-btn');
-
-    this.elements.infoMessage = document.getElementById('game-info-message');
+    this.pieceTemplate = document.getElementById('piece-template');
   }
 
   /**
-   * @method _setupEventListeners - Binds all necessary event listeners to the DOM elements.
+   * @method setScore - Sets the current score value (with optional animation).
+   * @param {number} value - The new score value.
+   * @param {Object} [options] - Animation options.
    */
-  _setupEventListeners() {
-    this.elements.playAgainBtn.addEventListener('click', () =>
-      this.callbacks.onPlayAgain(),
-    );
-
-    this.elements.playerPiecesContainer.addEventListener('click', (event) => {
-      const pieceElement = event.target.closest('.game-piece-unit');
-      if (pieceElement && this.callbacks.onPieceClick) {
-        const pieceId = pieceElement.dataset.id;
-        this.callbacks.onPieceClick(pieceId);
-      }
-    });
+  setScore(value, options = {}) {
+    this._animateNumber(this.scoreMobile, value, options);
+    this._animateNumber(this.scoreDesktop, value, options);
+    this._animateNumber(this.finalScore, value, options);
   }
 
   /**
-   * @method _createPieceElement - Creates a DOM element for a game piece.
-   * @param {Object} piece - The piece data object (e.g., { id: 'p1', value: 10 }).
-   * @param {boolean} isPlayer - If true, applies player-specific styling.
-   * @returns {HTMLElement} The created piece element.
+   * @method setHighScore - Sets the high score value (with optional animation).
+   * @param {number} value - The new high score value.
+   * @param {Object} [options] - Animation options.
    */
-  _createPieceElement(piece, isPlayer) {
-    const pieceElement =
-      this.elements.pieceTemplate.content.firstElementChild.cloneNode(true);
-    pieceElement.dataset.id = piece.id;
-
-    const bgGradient = isPlayer
-      ? 'from-teal-800/30 to-blue-800/30'
-      : 'from-indigo-800/30 to-purple-800/30';
-    pieceElement.classList.add(...bgGradient.split(' '));
-
-    pieceElement.querySelector('.piece-value').textContent = piece.value;
-
-    // TODO: The `canvas` element is ready. The game logic can now draw on it.
-
-    return pieceElement;
+  setHighScore(value, options = {}) {
+    this._animateNumber(this.highscoreMobile, value, options);
+    this._animateNumber(this.highscoreDesktop, value, options);
+    this._animateNumber(this.finalHighscore, value, options);
   }
 
   /**
-   * @method renderPieces - Renders an array of game pieces into the specified container.
-   * @param {HTMLElement} container - The container element (e.g., aiPiecesContainer).
-   * @param {Array<Object>} pieces - An array of piece data objects.
-   * @param {boolean} isPlayer - Flag to determine styling.
+   * @method showInfoMessage - Shows a large info message with animation.
+   * @param {string} text - The message text to display.
+   * @param {string} [animation] - Animation type: 'fade', 'slide', 'scale', 'confetti', etc.
+   * @param {number} [duration=1800] - How long to show (ms)
    */
-  renderPieces(container, pieces, isPlayer) {
-    container.innerHTML = '';
-    const fragment = document.createDocumentFragment();
+  showInfoMessage(text, animation = 'fade', duration = 1800) {
+    if (!this.gameInfoMessage) return;
+    const p = this.gameInfoMessage.querySelector('p');
+    p.textContent = text;
+    this.gameInfoMessage.classList.remove('hidden');
+    this._animateElement(this.gameInfoMessage, animation);
+    setTimeout(() => {
+      this.gameInfoMessage.classList.add('hidden');
+      p.textContent = '';
+    }, duration);
+  }
+
+  /**
+   * @method setAIPieces - Renders AI pieces in the AI slot area.
+   * @param {Array<Object>} pieces - Array of piece objects { value, ... }.
+   * @param {Object} [options] - Additional options for rendering.
+   */
+  setAIPieces(pieces, options = {}) {
+    if (!this.aiPiecesContainer) return;
+    this.aiPiecesContainer.innerHTML = '';
     pieces.forEach((piece) => {
-      fragment.appendChild(this._createPieceElement(piece, isPlayer));
+      const el = this._createPieceElement(piece, 'ai');
+      this.aiPiecesContainer.appendChild(el);
     });
-    container.appendChild(fragment);
   }
 
   /**
-   * @method updateScores - Updates the displayed scores in the UI.
-   * @param {number} score - The new current score.
-   * @param {number} highScore - The new high score.
+   * @method setPlayerPieces - Renders player pieces in the player slot area.
+   * @param {Array<Object>} pieces - Array of piece objects { value, ... }.
+   * @param {Object} [options] - Additional options for rendering.
    */
-  updateScores(score, highScore) {
-    const formattedScore = score.toLocaleString();
-    const formattedHighScore = highScore.toLocaleString();
-
-    this.elements.scoreDesktop.textContent = formattedScore;
-    this.elements.scoreMobile.textContent = formattedScore;
-    this.elements.highscoreDesktop.textContent = formattedHighScore;
-    this.elements.highscoreMobile.textContent = formattedHighScore;
+  setPlayerPieces(pieces, options = {}) {
+    if (!this.playerPiecesContainer) return;
+    this.playerPiecesContainer.innerHTML = '';
+    pieces.forEach((piece) => {
+      const el = this._createPieceElement(piece, 'player');
+      this.playerPiecesContainer.appendChild(el);
+    });
   }
 
   /**
-   * @method showTradeModal - Displays the trade modal with the specified piece details.
-   * @param {string} message - The text to display.
-   * @param {number} [duration=2000] - How long to display the message in ms. Auto-hides if > 0.
+   * @method toggleTradeModalPerform - Shows or hides the trade modal (perform).
+   * @param {boolean} show - Whether to show or hide the modal.
    */
-  showInfoMessage(message, duration = DEFAULT_MESSAGE_DURATION) {
-    this.elements.infoMessage.querySelector('p').textContent = message;
-    this.elements.infoMessage.classList.remove('hidden');
+  toggleTradeModalPerform(show) {
+    if (!this.tradeModalPerform) return;
+    this.tradeModalPerform.classList.toggle('hidden', !show);
+  }
 
-    if (duration > 0) {
-      setTimeout(() => {
-        this.elements.infoMessage.classList.add('hidden');
-      }, duration);
+  /**
+   * @method toggleTradeModalBeing - Shows or hides the trade modal (being traded).
+   * @param {boolean} show - Whether to show or hide the modal.
+   */
+  toggleTradeModalBeing(show) {
+    if (!this.tradeModalBeing) return;
+    this.tradeModalBeing.classList.toggle('hidden', !show);
+  }
+
+  /**
+   * @method toggleMinimizedTradePerform - Shows or hides the minimized trade perform modal.
+   * @param {boolean} show - Whether to show or hide the modal.
+   */
+  toggleMinimizedTradePerform(show) {
+    if (!this.minimizedTradePerform) return;
+    this.minimizedTradePerform.classList.toggle('hidden', !show);
+  }
+
+  /**
+   * @method toggleGameOverModal - Shows or hides the game over modal, and sets result info.
+   * @param {boolean} show - Whether to show or hide the modal.
+   * @param {Object} [result] - { title, score, highscore, details }
+   */
+  toggleGameOverModal(show, result = {}) {
+    if (!this.gameOverModal) return;
+    this.gameOverModal.classList.toggle('hidden', !show);
+    const modalContent = this.gameOverModal.querySelector('div');
+    if (show) {
+      if (modalContent) {
+        modalContent.style.opacity = '1';
+        modalContent.style.transform = 'scale(1)';
+        modalContent.style.transition = 'opacity 0.3s, transform 0.3s';
+      }
+      if (this.resultTitle) {
+        this.resultTitle.textContent = result.title || '';
+        if (
+          result.type === 'fail' ||
+          /fail|lose|lost|defeat/i.test(result.title)
+        ) {
+          this.resultTitle.classList.remove('text-amber-300');
+          this.resultTitle.classList.add('text-red-400');
+        } else {
+          this.resultTitle.classList.remove('text-red-400');
+          this.resultTitle.classList.add('text-amber-300');
+        }
+      }
+      if (this.finalScore) {
+        this.finalScore.textContent = result.score || 0;
+        if (
+          result.type === 'fail' ||
+          /fail|lose|lost|defeat/i.test(result.title)
+        ) {
+          this.finalScore.classList.remove('text-white');
+          this.finalScore.classList.add('text-red-400');
+        } else {
+          this.finalScore.classList.remove('text-red-400');
+          this.finalScore.classList.add('text-white');
+        }
+      }
+      if (this.finalHighscore) {
+        this.finalHighscore.textContent = result.highscore || 0;
+        if (
+          result.type === 'fail' ||
+          /fail|lose|lost|defeat/i.test(result.title)
+        ) {
+          this.finalHighscore.classList.remove('text-white');
+          this.finalHighscore.classList.add('text-red-400');
+        } else {
+          this.finalHighscore.classList.remove('text-red-400');
+          this.finalHighscore.classList.add('text-white');
+        }
+      }
+      if (this.scoreDetails) this._renderScoreDetails(result.details || []);
+    } else {
+      if (modalContent) {
+        modalContent.style.opacity = '0';
+        modalContent.style.transform = 'scale(0.95)';
+      }
     }
   }
 
   /**
-   * @method showTradeModal - Displays the trade modal with the specified piece details.
-   * @param {boolean} isWin - Determines the title and color.
-   * @param {Object} scores - Contains final score and high score.
-   * @param {Array<Object>} scoreDetails - An array of objects for the details table, e.g., [{label: 'Time Bonus', value: '+210'}].
+   * @method _renderScoreDetails - Renders detailed score breakdown in the game over modal.
+   * @param {Array<{ label: string, value: string, highlight?: boolean }>} details - The score details to render.
    */
-  showGameOverModal(isWin, scores, scoreDetails) {
-    this.elements.resultTitle.textContent = isWin ? 'You Won!' : 'You Lost!';
-    this.elements.resultTitle.classList.toggle('text-amber-300', isWin);
-    this.elements.resultTitle.classList.toggle('text-red-500', !isWin);
-
-    this.elements.finalScore.textContent = scores.score.toLocaleString();
-    this.elements.finalHighscore.textContent =
-      scores.highScore.toLocaleString();
-
-    this.elements.scoreDetailsContainer.innerHTML = '';
-    const fragment = document.createDocumentFragment();
-
-    const headerRow = document.createElement('div');
-    headerRow.className =
-      'flex justify-between items-baseline text-xs uppercase text-white/50 tracking-wider';
-    headerRow.innerHTML = '<span>Item</span><span>Your Score</span>';
-    fragment.appendChild(headerRow);
-
-    scoreDetails.forEach((detail) => {
-      const detailRow = document.createElement('div');
-      detailRow.className = 'flex justify-between items-baseline';
-      detailRow.innerHTML = `
-        <span class="text-white/80">${detail.label}</span>
-        <span class="font-semibold text-white">${detail.value}</span>
-      `;
-      fragment.appendChild(detailRow);
+  _renderScoreDetails(details) {
+    if (!this.scoreDetails) return;
+    this.scoreDetails.innerHTML = '';
+    details.forEach((row) => {
+      const div = document.createElement('div');
+      div.className = 'flex justify-between items-baseline';
+      div.innerHTML = `<span class="${row.highlight ? 'text-amber-300' : 'text-white/80'}">${row.label}</span><span class="font-semibold text-white">${row.value}</span>`;
+      this.scoreDetails.appendChild(div);
     });
-    this.elements.scoreDetailsContainer.appendChild(fragment);
+  }
 
-    this.elements.gameOverModal.classList.remove('hidden');
-    const ANIMATION_DURATION = 10;
+  /**
+   * @method _animateNumber - Animates a number change in an element (count up effect).
+   * @param {Element} el - The element to animate.
+   * @param {number} value - The new value to animate to.
+   * @param {Object} [options] - Animation options.
+   */
+  _animateNumber(el, value, options = {}) {
+    if (!el) return;
+    const duration = options.duration || 600;
+    const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
+    const end = value;
+    const startTime = performance.now();
+    const format = (v) => v.toLocaleString();
+    function animate(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const current = Math.round(start + (end - start) * progress);
+      el.textContent = format(current);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        el.textContent = format(end);
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  /**
+   * @method _animateElement - Applies a CSS animation class to an element.
+   * @param {Element} el - The element to animate.
+   * @param {string} type - The type of animation ('fade', 'slide', 'scale', 'confetti').
+   */
+  _animateElement(el, type) {
+    if (!el) return;
+    el.classList.remove('fade', 'slide', 'scale', 'confetti');
+    el.classList.add(type);
+    if (type === 'confetti' && window.confetti) {
+      window.confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }
     setTimeout(() => {
-      this.elements.gameOverModalContent.classList.remove(
-        'opacity-0',
-        'scale-95',
-      );
-      this.elements.gameOverModalContent.classList.add(
-        'opacity-100',
-        'scale-100',
-      );
-    }, ANIMATION_DURATION);
+      el.classList.remove(type);
+    }, 900);
+  }
+
+  /**
+   * @method _createPieceElement - Creates a piece element for AI or player pieces.
+   * @param {Object} piece - { value, selected, ... }
+   * @param {string} owner - 'ai' or 'player'
+   * @returns {Element} - The created piece element.
+   */
+  _createPieceElement(piece, owner) {
+    const tpl = this.pieceTemplate.content.cloneNode(true);
+    const el = tpl.querySelector('.game-piece-unit');
+    const span = el.querySelector('.piece-value, span');
+    span.textContent = piece.value;
+    if (piece.selected) el.classList.add('selected');
+    if (owner === 'ai') {
+      el.classList.add('from-indigo-800/30', 'to-purple-800/30');
+    } else {
+      el.classList.add('from-teal-800/30', 'to-blue-800/30');
+    }
+    return el;
   }
 }
