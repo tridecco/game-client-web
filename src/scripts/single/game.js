@@ -552,3 +552,35 @@ class Agent {
     throw new Error(`Action ${action} not implemented for Agent class`);
   }
 }
+
+/**
+ * @class PlayerAgent
+ * @description Represents a player agent in the game, extending the Agent class.
+ */
+class PlayerAgent extends Agent {
+  /**
+   * @method _performAction - Performs a player-specific action.
+   * @param {string} action - The action type ('toss', 'place', 'trade').
+   * @param {...any} args - Additional arguments for the action.
+   * @returns {Promise<any>} - Resolves with the result of the action.
+   */
+  async _performAction(action, ...args) {
+    switch (action) {
+      case 'toss':
+        this.handleToss();
+        break;
+      case 'place':
+        this.handlePlace(args[0], args[1]);
+        break;
+      case 'trade':
+        this.handleTrade(args[0], args[1]);
+        break;
+      default:
+        throw new Error(
+          `Action ${action} not implemented for PlayerAgent class`,
+        );
+    }
+  }
+
+  // TODO: Implement player-specific action handlers
+}
