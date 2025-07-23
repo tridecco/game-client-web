@@ -495,3 +495,60 @@ class Player {
     this.totalScore += value;
   }
 }
+
+/**
+ * @class Agent
+ * @description Represents an AI agent or player in the game.
+ */
+class Agent {
+  /**
+   * @constructor - Initializes the Agent with a player instance.
+   * @param {Player} player - The player instance associated with this agent.
+   */
+  constructor(player) {
+    this.player = player;
+  }
+
+  /**
+   * @method tossPiece - Triggers a toss action for the agent.
+   * @returns {Promise<void>} - Resolves when the toss action is complete.
+   */
+  async tossPiece() {
+    return await this._performAction('toss');
+  }
+
+  /**
+   * @method placePiece - Places a piece on the board.
+   * @param {Array<number>} availablePositions - The available positions to place the piece.
+   * @param {Array<Array<Object>>} availablePieces - The available pieces to choose from.
+   * @returns {Promise<Object>} - Resolves with the placed piece object. ({ position, piece })
+   */
+  async placePiece(availablePositions, availablePieces) {
+    return await this._performAction(
+      'place',
+      availablePositions,
+      availablePieces,
+    );
+  }
+
+  /**
+   * @method forceTrade - Forces a trade action with the player.
+   * @param {Array<Object>} yourPieces - The pieces the agent is offering.
+   * @param {Array<Object>} opponentPieces - The pieces the opponent is offering.
+   * @returns {Promise<Object>} - Resolves with the trade result object. ({ accepted, yourPieceColor, opponentPieceColor })
+   */
+  async forceTrade(yourPieces, opponentPieces) {
+    return await this._performAction('trade', { yourPieces, opponentPieces });
+  }
+
+  /**
+   * @method _performAction - Simulates an action performed by the agent.
+   * @param {string} action - The action type ('toss', 'place', 'trade').
+   * @param {...any} args - Additional arguments for the action.
+   * @returns {Promise<any>} - Resolves with the result of the action.
+   * @throws {Error} - Throws an error if the action is not implemented.
+   */
+  async _performAction(action, ...args) {
+    throw new Error(`Action ${action} not implemented for Agent class`);
+  }
+}
