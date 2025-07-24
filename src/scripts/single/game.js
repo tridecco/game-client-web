@@ -47,15 +47,21 @@ class AudioManager {
    * @param {Object} target - The target object to load the audio assets into.
    */
   _loadAssets(manifest, target) {
-    for (const key in manifest) {
-      const audio = new Audio(manifest[key]);
-      audio.preload = 'auto';
-      if (Array.isArray(target)) {
-        target.push(audio);
-      } else {
-        target[key] = audio;
+    return new Promise((resolve) => {
+      for (const key in manifest) {
+        const audio = new Audio(manifest[key]);
+        audio.preload = 'auto';
+        if (Array.isArray(target)) {
+          target.push(audio);
+        } else {
+          target[key] = audio;
+        }
+
+        audio.addEventListener('canplaythrough', () => {
+          resolve();
+        });
       }
-    }
+    });
   }
 
   /**
