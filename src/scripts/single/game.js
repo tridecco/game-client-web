@@ -15,6 +15,9 @@ class AudioManager {
    * @param {Object} bgmManifest - Manifest object containing background music file paths.
    */
   constructor(sfxManifest, bgmManifest) {
+    this.sfxManifest = sfxManifest;
+    this.bgmManifest = bgmManifest;
+
     this.sfxVolume = 1.0;
     this.bgmVolume = 1.0;
     this.sfx = {};
