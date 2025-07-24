@@ -216,6 +216,8 @@ class UIManager {
     this.gameOverModal = document.getElementById('game-over-modal');
 
     this.pieceTemplate = document.getElementById('piece-template');
+
+    this.boardContainer = document.getElementById('board-container');
   }
 
   /**
