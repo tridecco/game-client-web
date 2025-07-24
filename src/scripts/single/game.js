@@ -265,34 +265,6 @@ class UIManager {
   }
 
   /**
-   * @method setAIPieces - Renders AI pieces in the AI slot area.
-   * @param {Array<Object>} pieces - Array of piece objects { value, ... }.
-   * @param {Object} [options] - Additional options for rendering.
-   */
-  setAIPieces(pieces, options = {}) {
-    if (!this.aiPiecesContainer) return;
-    this.aiPiecesContainer.innerHTML = '';
-    pieces.forEach((piece) => {
-      const el = this._createPieceElement(piece, 'ai');
-      this.aiPiecesContainer.appendChild(el);
-    });
-  }
-
-  /**
-   * @method setPlayerPieces - Renders player pieces in the player slot area.
-   * @param {Array<Object>} pieces - Array of piece objects { value, ... }.
-   * @param {Object} [options] - Additional options for rendering.
-   */
-  setPlayerPieces(pieces, options = {}) {
-    if (!this.playerPiecesContainer) return;
-    this.playerPiecesContainer.innerHTML = '';
-    pieces.forEach((piece) => {
-      const el = this._createPieceElement(piece, 'player');
-      this.playerPiecesContainer.appendChild(el);
-    });
-  }
-
-  /**
    * @method toggleTradeModalPerform - Shows or hides the trade modal (perform).
    * @param {boolean} show - Whether to show or hide the modal.
    */
@@ -445,26 +417,6 @@ class UIManager {
     setTimeout(() => {
       el.classList.remove(type);
     }, ANIMATION_DURATION);
-  }
-
-  /**
-   * @method _createPieceElement - Creates a piece element for AI or player pieces.
-   * @param {Object} piece - { value, selected, ... }
-   * @param {string} owner - 'ai' or 'player'
-   * @returns {Element} - The created piece element.
-   */
-  _createPieceElement(piece, owner) {
-    const tpl = this.pieceTemplate.content.cloneNode(true);
-    const el = tpl.querySelector('.game-piece-unit');
-    const span = el.querySelector('.piece-value, span');
-    span.textContent = piece.value;
-    if (piece.selected) el.classList.add('selected');
-    if (owner === 'ai') {
-      el.classList.add('from-indigo-800/30', 'to-purple-800/30');
-    } else {
-      el.classList.add('from-teal-800/30', 'to-blue-800/30');
-    }
-    return el;
   }
 }
 
