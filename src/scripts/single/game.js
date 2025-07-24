@@ -355,6 +355,14 @@ class UIManager {
   }
 
   /**
+   * @method updateBackgroundImage - Updates the background image of the page.
+   * @param {string} imageUrl - The URL of the new background image.
+   */
+  updateBackgroundImage(imageUrl) {
+    document.body.style.backgroundImage = `url(${imageUrl})`;
+  }
+
+  /**
    * @method _renderScoreDetails - Renders detailed score breakdown in the game over modal.
    * @param {Array<{ label: string, value: string, highlight?: boolean }>} details - The score details to render.
    */
