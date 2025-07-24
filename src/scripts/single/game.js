@@ -24,9 +24,21 @@ class AudioManager {
     this.bgm = [];
     this.currentBgm = null;
     this.currentBgmIndex = -1;
+  }
 
-    this._loadAssets(sfxManifest, this.sfx);
-    this._loadAssets(bgmManifest, this.bgm);
+  /**
+   * @method load - Loads audio assets for the game.
+   */
+  async load() {
+    await Promise.all([
+      this._loadAssets(this.sfxManifest, this.sfx),
+      this._loadAssets(this.bgmManifest, this.bgm),
+    ]);
+
+    for (let i = this.bgm.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.bgm[i], this.bgm[j]] = [this.bgm[j], this.bgm[i]];
+    }
   }
 
   /**
