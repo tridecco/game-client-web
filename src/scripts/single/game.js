@@ -549,6 +549,8 @@ class Agent {
  * @description Represents a player agent in the game, extending the Agent class.
  */
 class PlayerAgent extends Agent {
+  currentPieceSelection = 0;
+
   /**
    * @method _performAction - Performs a player-specific action.
    * @param {string} action - The action type ('toss', 'place', 'trade').
