@@ -363,6 +363,14 @@ class UIManager {
   }
 
   /**
+   * @method getBoardContainer - Returns the board container element.
+   * @returns {Element} - The board container element.
+   */
+  getBoardContainer() {
+    return this.boardContainer;
+  }
+
+  /**
    * @method _renderScoreDetails - Renders detailed score breakdown in the game over modal.
    * @param {Array<{ label: string, value: string, highlight?: boolean }>} details - The score details to render.
    */
