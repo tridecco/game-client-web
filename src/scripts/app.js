@@ -19,6 +19,7 @@ const DEFAULT_APP_DATA = {
           colorBlindness: 'none',
           background: 'wooden-board',
           grid: 'black',
+          preview: true,
         },
         hotkey: {
           next: 'ArrowRight',
