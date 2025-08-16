@@ -20,7 +20,7 @@ class GameHistory {
 
   /**
    * @method addGame - Adds a new game record to the history.
-   * @param {object} gameResult The result object from a completed game.
+   * @param {object} gameResult - The result object from a completed game.
    * @param {boolean} gameResult.won - Whether the player won.
    * @param {string} gameResult.difficulty - The difficulty level string.
    * @param {object} gameResult.score - The detailed score object.
