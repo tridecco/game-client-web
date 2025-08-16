@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../../partials/head.ejs") %>
+  <title>Tridecco | Statistics</title>
+  <script src="<%= env.CDN_URL %>/js/single/history.js"></script>
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(180, 83, 9, 0.4);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(180, 83, 9, 0.6);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: #8e5e4d url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Main Layout Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-gray-800 z-20">
+    <!-- Main Content Flex Container -->
+    <div class="flex flex-1 w-full h-full p-3 md:p-4 gap-3 md:gap-4 overflow-hidden max-w-7xl mx-auto z-10">
+
+      <!-- Left Sidebar: Navigation -->
+      <%- include("../../../partials/single/navigation-bar.ejs", { page: "statistics" }) %>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Mobile Top Bar: Back Button -->
+        <header class="lg:hidden flex items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-amber-700/30 p-3 mb-3 flex-shrink-0">
+          <a href="/single" class="p-2 rounded-full bg-amber-100/50 hover:bg-amber-200/70 border border-amber-300/50 text-amber-700 hover:text-amber-800 transition duration-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </a>
+          <span class="ml-3 text-lg font-semibold text-amber-900">Statistics</span>
+        </header>
+
+        <!-- Main Statistics Section -->
+        <section class="flex-1 bg-white/80 backdrop-blur-sm rounded-xl shadow-inner border border-amber-700/20 p-4 md:p-6 flex flex-col overflow-hidden">
+          <h2 class="text-2xl font-bold mb-6 text-amber-900 hidden lg:block flex-shrink-0">Game Statistics</h2>
+
+          <!-- Overall Statistics -->
+          <div id="overall-stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 flex-shrink-0">
+            <!-- Stat Card Template -->
+            <div class="bg-amber-100/50 border border-amber-300/50 p-4 rounded-lg shadow-md text-center">
+              <p class="text-sm font-semibold text-amber-800 uppercase tracking-wider">High Score</p>
+              <p id="stat-overall-highscore" class="text-3xl font-bold text-amber-900 mt-1">-</p>
+            </div>
+            <div class="bg-amber-100/50 border border-amber-300/50 p-4 rounded-lg shadow-md text-center">
+              <p class="text-sm font-semibold text-amber-800 uppercase tracking-wider">Win Rate</p>
+              <p id="stat-overall-winrate" class="text-3xl font-bold text-amber-900 mt-1">-</p>
+            </div>
+            <div class="bg-amber-100/50 border border-amber-300/50 p-4 rounded-lg shadow-md text-center">
+              <p class="text-sm font-semibold text-amber-800 uppercase tracking-wider">Wins</p>
+              <p id="stat-overall-wins" class="text-3xl font-bold text-amber-900 mt-1">-</p>
+            </div>
+            <div class="bg-amber-100/50 border border-amber-300/50 p-4 rounded-lg shadow-md text-center">
+              <p class="text-sm font-semibold text-amber-800 uppercase tracking-wider">Total Games</p>
+              <p id="stat-overall-total" class="text-3xl font-bold text-amber-900 mt-1">-</p>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <hr class="border-amber-200 mb-6 flex-shrink-0">
+
+          <!-- Per-Difficulty & History Container -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
+            <!-- Per-Difficulty Statistics -->
+            <h3 class="text-lg font-semibold text-amber-800 mb-4">By Difficulty</h3>
+            <div id="difficulty-stats-container" class="space-y-4 mb-8"></div>
+
+            <!-- Game History -->
+            <h3 class="text-lg font-semibold text-amber-800 mb-4">Game History</h3>
+            <div id="game-history-container" class="space-y-3"></div>
+
+            <!-- Empty State Message -->
+            <div id="empty-history-message" class="hidden text-center py-10">
+              <p class="text-amber-800 font-semibold">No game history found.</p>
+              <p class="text-amber-700/80 mt-1">Play a game to see your stats here!</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <%- include("../../../partials/single/navigation-bar-mobile.ejs", { page: "statistics" }) %>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.app.data.single.history === 'undefined') {
+        window.app.data.single.history = [];
+      }
+
+      const gameHistory = new GameHistory(window.app.data.single.history);
+      const stats = gameHistory.getStatistics();
+      const historyList = gameHistory.getHistory();
+
+      const overallHighScoreEl = document.getElementById('stat-overall-highscore');
+      const overallWinRateEl = document.getElementById('stat-overall-winrate');
+      const overallWinsEl = document.getElementById('stat-overall-wins');
+      const overallTotalEl = document.getElementById('stat-overall-total');
+      const difficultyContainer = document.getElementById('difficulty-stats-container');
+      const historyContainer = document.getElementById('game-history-container');
+      const emptyMessageEl = document.getElementById('empty-history-message');
+
+      function renderOverallStats() {
+        overallHighScoreEl.textContent = stats.overall.highScore.toLocaleString();
+        overallWinRateEl.textContent = `${stats.overall.winRate}%`;
+        overallWinsEl.textContent = stats.overall.wins.toLocaleString();
+        overallTotalEl.textContent = stats.overall.totalGames.toLocaleString();
+
+        document.querySelectorAll('#overall-stats-container > div').forEach((card, index) => {
+          card.style.animationDelay = `${index * 100}ms`;
+          card.classList.add('fade-in');
+        });
+      }
+
+      function renderDifficultyStats() {
+        difficultyContainer.innerHTML = '';
+        const difficulties = ['beginner', 'easy', 'normal', 'hard', 'insane'];
+
+        difficulties.forEach(diffKey => {
+          const diffStat = stats.byDifficulty[diffKey];
+          if (diffStat && diffStat.totalGames > 0) {
+            const statBlock = `
+                    <div class="bg-white/50 p-4 rounded-lg border border-amber-200/80 fade-in">
+                      <h4 class="font-bold text-amber-900 text-md capitalize">${diffKey}</h4>
+                      <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 mt-2 text-sm">
+                        <div><span class="font-semibold text-amber-800">High Score:</span> ${diffStat.highScore.toLocaleString()}</div>
+                        <div><span class="font-semibold text-amber-800">Win Rate:</span> ${diffStat.winRate}%</div>
+                        <div><span class="font-semibold text-amber-800">Wins:</span> ${diffStat.wins}</div>
+                        <div><span class="font-semibold text-amber-800">Played:</span> ${diffStat.totalGames}</div>
+                      </div>
+                    </div>
+                `;
+            difficultyContainer.insertAdjacentHTML('beforeend', statBlock);
+          }
+        });
+      }
+
+      function renderHistoryList() {
+        historyContainer.innerHTML = '';
+        if (historyList.length === 0) {
+          emptyMessageEl.classList.remove('hidden');
+          return;
+        }
+
+        historyList.forEach(game => {
+          const resultClass = game.won ?
+            'bg-emerald-100 text-emerald-700' :
+            'bg-red-100 text-red-700';
+          const resultLetter = game.won ? 'W' : 'L';
+          const timeAgo = formatTimeAgo(game.timestamp);
+
+          const historyItem = `
+                <div class="bg-white/50 p-3 rounded-lg border border-amber-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 fade-in">
+                  <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full ${resultClass} font-bold text-lg">${resultLetter}</span>
+                    <div>
+                      <p class="font-semibold text-amber-900">Score: ${game.score.total.toLocaleString()}</p>
+                      <p class="text-xs text-amber-800/80 capitalize">${game.difficulty} - ${timeAgo}</p>
+                    </div>
+                  </div>
+                  <div class="text-left sm:text-right text-xs sm:text-sm text-amber-900/90 pl-13 sm:pl-0">
+                    <p>Combo: <span class="font-bold">${game.score.combo}</span> | Difficulty: <span class="font-bold">${game.score.difficultyBonus}</span></p>
+                  </div>
+                </div>
+            `;
+          historyContainer.insertAdjacentHTML('beforeend', historyItem);
+        });
+      }
+
+      function formatTimeAgo(isoString) {
+        const date = new Date(isoString);
+        const seconds = Math.floor((new Date() - date) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " years ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " months ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " days ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " hours ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minutes ago";
+        return "Just now";
+      }
+
+      renderOverallStats();
+      renderDifficultyStats();
+      renderHistoryList();
+    });
+  </script>
+
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
+</body>
+
+</html>

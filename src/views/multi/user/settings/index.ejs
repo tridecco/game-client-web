@@ -371,7 +371,7 @@
       miniBoardLoading.textContent = "Updating Preview...";
 
       try {
-        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas); // TODO: Fix the issue that cannot update textures
+        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas);
         await miniBoardRenderer.updateBackground(backgroundUrl);
         await miniBoardRenderer.updateGrid(gridUrl);
         miniBoardLoading.style.display = "none";
