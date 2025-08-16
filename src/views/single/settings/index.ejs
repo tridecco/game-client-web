@@ -483,7 +483,7 @@
       app.data.single.settings.game.board.colorBlindness = boardColorBlindnessSelect.value;
       app.data.single.settings.game.board.background = boardBackgroundSelect.value;
       app.data.single.settings.game.board.grid = boardGridSelect.value;
-      app.data.single.settings.game.preview = app.data.single.settings.game.preview || {};
+      app.data.single.settings.game.board.preview = app.data.single.settings.game.board.preview || {};
       app.data.single.settings.game.board.preview = assistPreviewToggle ? assistPreviewToggle.checked : true;
       hotkeyInputs.forEach(input => {
         const keyName = input.name.split(".").pop();
