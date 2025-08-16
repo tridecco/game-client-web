@@ -3,6 +3,40 @@
  * @description The main application class for the frontend.
  */
 
+// Default application data structure
+const DEFAULT_APP_DATA = {
+  // Single-player data
+  single: {
+    // Settings for the single-player game
+    settings: {
+      game: {
+        volume: {
+          bgm: 100,
+          sfx: 100,
+        },
+        board: {
+          texture: 'classic',
+          colorBlindness: 'none',
+          background: 'wooden-board',
+          grid: 'black',
+          preview: true,
+        },
+        hotkey: {
+          next: 'ArrowRight',
+          previous: 'ArrowLeft',
+          nextPiece: 'ArrowDown',
+          previousPiece: 'ArrowUp',
+          confirm: 'Enter',
+          cancel: 'Escape',
+          trade: 'T',
+          accept: 'A',
+          refuse: 'R',
+        },
+      },
+    },
+  },
+};
+
 /**
  * @class Data
  * @description Handles the data of the application.
@@ -32,7 +66,7 @@ class Data {
           value = this.createProxy(value);
         }
         target[prop] = value;
-        this.saveData(); // Save data when any property is set
+        this.saveData();
         return true;
       },
       get: (target, prop) => {
@@ -50,18 +84,58 @@ class Data {
   }
 
   /**
-   * @method loadData - Loads data from the local-storage.
+   * @method loadData - Loads data from local storage and merges with defaults.
+   * @returns {Object} - The fully populated data object.
    */
   loadData() {
     const storedData = localStorage.getItem(this.key);
-    return storedData ? JSON.parse(storedData) : {};
+    const loaded = storedData ? JSON.parse(storedData) : {};
+    // Deep merge the loaded data with defaults to ensure all keys exist
+    return this._deepMerge(loaded, DEFAULT_APP_DATA);
   }
 
   /**
-   * @method saveData - Saves data to the local-storage.
+   * @method saveData - Saves the current state of _data to local storage.
    */
   saveData() {
     localStorage.setItem(this.key, JSON.stringify(this._data));
+  }
+
+  /**
+   * @method _deepMerge - Recursively merges a source object into a target object.
+   * @param {Object} target - The object to merge into (e.g., loaded data).
+   * @param {Object} source - The object with default values.
+   * @returns {Object} - The merged target object.
+   */
+  _deepMerge(target, source) {
+    const output = { ...target };
+
+    if (this._isObject(target) && this._isObject(source)) {
+      Object.keys(source).forEach((key) => {
+        if (this._isObject(source[key])) {
+          if (!(key in target)) {
+            output[key] = source[key];
+          } else {
+            output[key] = this._deepMerge(target[key], source[key]);
+          }
+        } else {
+          if (!(key in target)) {
+            output[key] = source[key];
+          }
+        }
+      });
+    }
+
+    return output;
+  }
+
+  /**
+   * @method _isObject - Helper to check if a variable is a non-null object.
+   * @param {*} item - The variable to check.
+   * @returns {boolean}
+   */
+  _isObject(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
   }
 }
 
@@ -396,15 +470,15 @@ class Location {
    * @method init - Initializes the redirect.
    */
   init() {
-    const HOME = '/';
-    const AUTH = '/login';
+    const LOBBY = '/multi';
+    const AUTH = '/multi/login';
     const FORBIDDEN = 403;
 
     const actionMatrix = [
       [null, null, null],
       [AUTH, null, null],
       [AUTH, FORBIDDEN, null],
-      [null, HOME, HOME],
+      [null, LOBBY, LOBBY],
     ];
     const routeTypeIndex = [
       this.isPublicRoute(this.path),
@@ -426,11 +500,11 @@ class Location {
     const action = actionMatrix[routeTypeIndex][authStateIndex];
     if (action) {
       if (action === AUTH) {
-        this.redirect(`/login?redirect=${this.path}`);
+        this.redirect(`/multi/login?redirect=${this.path}`);
       } else if (action === FORBIDDEN) {
         this.showForbidden();
-      } else if (action === HOME) {
-        this.redirect('/');
+      } else if (action === LOBBY) {
+        this.redirect('/multi');
       } else {
         this.redirect(action);
       }
@@ -443,7 +517,17 @@ class Location {
    * @returns {boolean} - True if the route is public, false otherwise.
    */
   isPublicRoute(route) {
-    return ['/', '/more', '/404', '/403', '/leaderboards', '/offline'].includes(route);
+    return (
+      [
+        '/',
+        '/multi',
+        '/multi/more',
+        '/multi/404',
+        '/multi/403',
+        '/multi/leaderboards',
+        '/multi/offline',
+      ].includes(route) || route.startsWith('/single')
+    );
   }
 
   /**
@@ -465,7 +549,7 @@ class Location {
    * @returns {boolean} - True if the route needs admin authentication, false otherwise.
    */
   isAdminRoute(route) {
-    return route.startsWith('/admin');
+    return route.startsWith('/multi/admin');
   }
 
   /**
@@ -475,11 +559,11 @@ class Location {
    */
   isAuthRoute(route) {
     return [
-      '/login',
-      '/register',
-      '/register/complete',
-      '/password-reset',
-      '/password-reset/complete',
+      '/multi/login',
+      '/multi/register',
+      '/multi/register/complete',
+      '/multi/password-reset',
+      '/multi/password-reset/complete',
     ].includes(route);
   }
 

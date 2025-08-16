@@ -8,15 +8,22 @@ require('dotenv').config();
 module.exports = {
   mode: 'production',
   entry: () => {
-    const files = fs
-      .readdirSync(path.resolve(__dirname, 'src', 'scripts'))
-      .filter((file) => file.endsWith('.js'))
-      .reduce((entries, file) => {
-        entries[file] = path.resolve(__dirname, 'src', 'scripts', file);
-        return entries;
-      }, {});
+    function getAllJsFiles(dir, baseDir = dir) {
+      const results = {};
+      fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          Object.assign(results, getAllJsFiles(fullPath, baseDir));
+        } else if (entry.isFile() && entry.name.endsWith('.js')) {
+          const relPath = path.relative(baseDir, fullPath);
+          results[relPath] = fullPath;
+        }
+      });
+      return results;
+    }
+    const scriptsDir = path.resolve(__dirname, 'src', 'scripts');
 
-    return files;
+    return getAllJsFiles(scriptsDir);
   },
 
   plugins: [

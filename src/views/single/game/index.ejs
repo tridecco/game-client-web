@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../../partials/head.ejs") %>
+  <title>Tridecco | Game</title>
+  <%- include("../../../partials/libs/canvas-confetti.ejs") %>
+  <%- include("../../../partials/libs/tridecco-board.ejs") %>
+  <script src="<%= env.CDN_URL %>/js/single/game.js"></script>
+  <script src="<%= env.CDN_URL %>/js/single/history.js"></script>
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .trade-piece.selected {
+      border-color: #f59e0b;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.7);
+    }
+
+    .piece-in-hud {
+      touch-action: none !important;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden bg-no-repeat bg-center bg-cover" style="background-image: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg');">
+
+  <!-- Main Game UI Container -->
+  <div class="fixed inset-0 flex flex-col h-screen text-white p-3 sm:p-4 gap-3 sm:gap-4">
+
+    <!-- Responsive Top Bar -->
+    <header class="flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] md:items-center p-0 md:p-3 md:gap-4 flex-shrink-0">
+
+      <!-- Column 1 (Left) -->
+      <div class="flex items-center w-full p-3 md:p-0">
+        <a href="/single" class="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex-shrink-0" aria-label="Exit Game">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div class="flex-grow text-center md:hidden">
+          <span class="text-xs uppercase text-white/70 tracking-wider">Score</span>
+          <p class="text-2xl font-bold text-amber-300" data-score-mobile>0</p>
+        </div>
+        <div class="w-12 text-right md:hidden flex-shrink-0">
+          <span class="text-xs uppercase text-white/70 tracking-wider">High</span>
+          <p class="text-lg font-medium text-white/80" data-highscore-mobile>0</p>
+        </div>
+      </div>
+
+      <!-- Column 2 (Center): AI Pieces Area -->
+      <div class="h-20 md:h-full w-full grid place-items-center overflow-x-auto overflow-y-hidden custom-scrollbar">
+        <div id="ai-pieces-container" class="flex flex-nowrap gap-2 sm:gap-3">
+          <!-- AI Pieces will be rendered here -->
+        </div>
+      </div>
+
+      <!-- Column 3 (Right): Desktop-Only Player Scores -->
+      <div class="hidden md:flex justify-end">
+        <div class="flex-shrink-0 flex-col items-end space-y-2 text-right w-32 sm:w-40">
+          <div>
+            <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">Your Score</span>
+            <p class="text-lg sm:text-2xl font-bold text-amber-300" data-score-desktop>0</p>
+          </div>
+          <div>
+            <span class="text-xs sm:text-sm uppercase text-white/70 tracking-wider">High Score</span>
+            <p class="text-base sm:text-lg font-medium text-white/80" data-highscore-desktop>0</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Middle Layer: Game Board Area -->
+    <main class="flex-1 min-h-0 flex items-center justify-center">
+      <div id="board-container" class="w-full h-full max-w-5xl max-h-[80vh] aspect-square">
+        <div class="flex items-center justify-center h-full text-white/20 text-3xl font-thin tracking-widest select-none">
+          <span class="animate-pulse">Loading Game...</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Bar: Your Pieces -->
+    <footer id="player-pieces-container" class="h-24 md:h-28 flex items-center p-3 sm:p-4 gap-4 flex-shrink-0 justify-center overflow-x-auto overflow-y-hidden custom-scrollbar">
+      <!-- Player Pieces will be rendered here -->
+    </footer>
+
+  </div>
+
+  <!-- Large Game Info Message -->
+  <div id="game-info-message" class="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 w-full max-w-lg text-center pointer-events-none hidden" style="font-family: 'tridecco', sans-serif;">
+    <p class="font-tridecco text-6xl md:text-7xl text-white/90 drop-shadow-lg tracking-wide select-none"></p>
+  </div>
+
+  <!-- Modal Overlay (Shared by all modals) -->
+  <div id="modal-overlay" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 hidden">
+
+    <!-- Player Initiates Trade Modal -->
+    <div id="trade-modal-perform" class="w-full max-w-md md:max-w-2xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex-col p-6 sm:p-8 hidden">
+      <h3 class="text-2xl font-bold text-center text-amber-400 mb-2 tracking-wide">Double Hexagon!</h3>
+      <p class="text-center text-white/70 mb-6">You formed two hexagons. Force a trade with the AI.</p>
+
+      <div class="flex flex-col md:flex-row items-stretch gap-4 md:gap-6 flex-grow min-h-0">
+        <!-- Your Pieces to Give -->
+        <div class="flex-1 flex flex-col bg-black/20 rounded-lg p-4">
+          <p class="text-sm uppercase text-white/60 font-semibold mb-3 text-center tracking-wider">Your Piece to Give</p>
+          <div id="perform-trade-player-options" class="grid grid-cols-2 gap-3 flex-grow content-start place-content-center">
+            <!-- Player's selectable pieces will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Middle Arrows -->
+        <div class="flex-shrink-0 flex md:flex-col items-center justify-center gap-2">
+          <svg class="w-8 h-8 text-white/70 md:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h18" />
+          </svg>
+          <svg class="w-8 h-8 text-white/70 md:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3L21 7.5m0 0L16.5 12M21 7.5H3" />
+          </svg>
+        </div>
+
+        <!-- AI Pieces to Take -->
+        <div class="flex-1 flex flex-col bg-black/20 rounded-lg p-4">
+          <p class="text-sm uppercase text-white/60 font-semibold mb-3 text-center tracking-wider">AI's Piece to Take</p>
+          <div id="perform-trade-ai-options" class="grid grid-cols-2 gap-3 flex-grow content-start place-content-center">
+            <!-- AI's selectable pieces will be rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row justify-center mt-8 gap-4">
+        <button id="perform-trade-decline-btn" class="w-full sm:w-auto px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200">Skip Trade</button>
+        <button id="perform-trade-confirm-btn" class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200" disabled>Confirm Trade</button>
+      </div>
+    </div>
+
+
+    <!-- AI Forces Trade Modal -->
+    <div id="trade-modal-being-forced" class="w-full max-w-md md:max-w-2xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex-col p-6 sm:p-8 hidden">
+      <h3 class="text-2xl font-bold text-center text-red-500 mb-2 tracking-wide">Trade Forced!</h3>
+      <p class="text-center text-white/70 mb-8">The AI formed two hexagons and forces a trade.</p>
+
+      <div class="flex items-center justify-around gap-4 md:gap-6">
+        <!-- AI Gives -->
+        <div class="text-center">
+          <p class="text-sm uppercase text-white/60 font-semibold mb-3 tracking-wider">AI Gives You</p>
+          <div id="forced-trade-ai-gives" class="flex justify-center">
+            <!-- AI's giving piece will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Arrow -->
+        <div class="text-3xl text-white/50 animate-pulse">⇆</div>
+
+        <!-- Player Gives -->
+        <div class="text-center">
+          <p class="text-sm uppercase text-white/60 font-semibold mb-3 tracking-wider">You Give AI</p>
+          <div id="forced-trade-player-gives" class="flex justify-center">
+            <!-- Player's giving piece will be rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Button -->
+      <div class="flex justify-center mt-10">
+        <button id="forced-trade-ok-btn" class="w-full sm:w-1/2 px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-colors duration-200">OK</button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal (Initially hidden) -->
+    <div id="game-over-modal" class="fixed inset-0 z-[200] bg-black/70 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-500 hidden">
+      <div class="w-full max-w-lg bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-white/10 p-6 sm:p-8 flex flex-col items-center gap-6 text-center transform opacity-0 scale-95 transition-all duration-300">
+        <div class="w-full">
+          <h2 class="font-tridecco text-5xl md:text-6xl font-bold drop-shadow-lg" data-result-title>You Won!</h2>
+          <div class="mt-4 flex justify-center gap-8">
+            <div>
+              <span class="text-sm uppercase text-white/60 tracking-wider">Score</span>
+              <p class="text-2xl font-semibold text-white" data-final-score>0</p>
+            </div>
+            <div>
+              <span class="text-sm uppercase text-white/60 tracking-wider">High Score</span>
+              <p class="text-2xl font-semibold text-white" data-final-highscore>0</p>
+            </div>
+          </div>
+        </div>
+        <div class="w-full border-y border-white/10 py-6 space-y-3" data-score-details>
+          <!-- Score details will be rendered here -->
+        </div>
+        <div class="w-full flex flex-col sm:flex-row gap-4">
+          <a href="/single" class="w-full flex items-center justify-center px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg font-semibold text-white transition-colors">Exit</a>
+          <button id="play-again-btn" class="w-full flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-white shadow-lg transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 9a9 9 0 0 1 14.24-4.96l-1.87 1.87A6.972 6.972 0 0 0 10.5 5.03a7 7 0 0 0-6.24 8.97" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 15a9 9 0 0 1-14.24 4.96l1.87-1.87a6.972 6.972 0 0 0 6.37 1.88 7 7 0 0 0 6.24-8.97" />
+            </svg>
+            Play Again
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Template for a single game piece -->
+  <template id="piece-template">
+    <div class="game-piece-unit piece-in-hud group relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border border-white/10 rounded-lg shadow-lg hover:border-white/30 transition-all duration-200 cursor-pointer">
+      <canvas class="absolute inset-0 w-full h-full rounded-lg"></canvas>
+      <span class="piece-value absolute inset-0 flex items-center justify-center text-white text-xl md:text-2xl font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></span>
+    </div>
+  </template>
+
+</body>
+
+</html>

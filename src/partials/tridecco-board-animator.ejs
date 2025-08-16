@@ -13,7 +13,8 @@
     const renderer = new Renderer({
       board: board,
       container: document.getElementById('board-container'),
-      texturesUrl: `${TRIDECCO_BOARD_ASSETS_URL}/textures/classic/normal`,
+      texturesIndexUrl: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/classic/normal/index.json`,
+      texturesAtlasUrl: `${TRIDECCO_BOARD_ASSETS_URL}/textures-bundle/classic/normal/atlas.webp`,
       backgroundUrl: EMPTY_PICTURE,
       gridUrl: `${TRIDECCO_BOARD_ASSETS_URL}/grids/black.png`,
     }, () => {

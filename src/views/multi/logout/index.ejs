@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include("../../../partials/head.ejs") %>
+  <title>Tridecco | Logout</title>
+</head>
+
+<body class="h-screen overflow-hidden" style="background: url('<%= env.CDN_URL %>/img/backgrounds/wooden-board.jpg') center center / cover no-repeat;">
+  <!-- Tridecco Background Container -->
+  <div id="board-container" class="absolute top-0 left-0 w-full h-full"></div>
+
+  <!-- Background Overlay with Blur -->
+  <div class="absolute inset-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"></div>
+
+  <!-- Centered Content Container -->
+  <div class="fixed inset-0 flex items-center justify-center">
+    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-xl w-96 max-w-sm backdrop-filter backdrop-blur-md text-center">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">Logout</h2>
+      <p class="text-gray-700 mb-6">Are you sure you want to log out?</p>
+
+      <div class="space-y-4">
+        <button id="confirm-logout" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline w-full transition duration-200">
+          Confirm Logout
+        </button>
+        <a href="/multi" class="inline-block w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-200">
+          Cancel
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const confirmButton = document.getElementById("confirm-logout");
+
+      // Add click event listener to the confirm button
+      confirmButton.addEventListener("click", async () => {
+        confirmButton.disabled = true;
+        confirmButton.textContent = "Logging out...";
+
+        app.auth.destroy();
+
+        // Redirect to the home page after logout
+        app.location.redirect("/");
+      });
+    });
+  </script>
+
+  <%- include("../../../partials/tridecco-board-animator.ejs") %>
+</body>
+
+</html>
