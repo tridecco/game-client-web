@@ -153,16 +153,19 @@
 
             <hr class="border-amber-200">
 
-            <!-- Hotkey Settings Section -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2">Hotkeys</h3>
+            <!-- Hotkey Settings Section (Disabled) -->
+            <div class="space-y-4 opacity-60 pointer-events-none select-none">
+              <h3 class="text-lg font-semibold text-amber-800 border-b border-amber-300 pb-2 flex items-center gap-2">
+                Hotkeys
+                <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-xs font-medium border border-amber-200 ml-2">Coming Soon</span>
+              </h3>
               <p class="text-sm text-gray-600">Click on an input field and press the desired key to set a new hotkey.</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <% const hotkeys = { next: "Next", previous: "Previous", nextPiece: "Next Piece", previousPiece: "Previous Piece", confirm: "Confirm", cancel: "Cancel", trade: "Trade", accept: "Accept", refuse: "Refuse" }; %>
                 <% Object.entries(hotkeys).forEach(([key, label]) => { %>
                 <div>
                   <label for="setting-hotkey-<%= key %>" class="block text-amber-800 text-sm font-bold mb-1"><%= label %></label>
-                  <input type="text" id="setting-hotkey-<%= key %>" name="game.hotkey.<%= key %>" readonly class="hotkey-input shadow-sm appearance-none border border-amber-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white cursor-pointer" placeholder="Press a key">
+                  <input type="text" id="setting-hotkey-<%= key %>" name="game.hotkey.<%= key %>" readonly disabled class="hotkey-input shadow-sm appearance-none border border-amber-200 bg-gray-100 rounded w-full py-2 px-3 text-gray-400 leading-tight cursor-not-allowed" placeholder="Disabled">
                 </div>
                 <% }) %>
               </div>
@@ -378,7 +381,7 @@
       miniBoardLoading.textContent = "Updating Preview...";
 
       try {
-        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas); // TODO: Fix the issue that cannot update textures
+        await miniBoardRenderer.updateTextures(textureUrls.index, textureUrls.atlas);
         await miniBoardRenderer.updateBackground(backgroundUrl);
         await miniBoardRenderer.updateGrid(gridUrl);
         miniBoardLoading.style.display = "none";
