@@ -103,6 +103,7 @@ class VibrationManager {
     }
   }
 
+  /* eslint-disable no-magic-numbers */
   dragStart() {
     this.vibrate(20);
   }
@@ -115,6 +116,7 @@ class VibrationManager {
   lose() {
     this.vibrate([75, 50, 75, 50, 75]);
   }
+  /* eslint-disable no-magic-numbers */
 }
 
 /**
@@ -1582,7 +1584,7 @@ class Game {
         }
       }
 
-      return;
+      return undefined;
     }
 
     if (hexCount === 1) {
@@ -1594,6 +1596,8 @@ class Game {
       this._nextTurn();
       return this._gameLoop();
     }
+
+    return undefined;
   }
 
   _performTrade({ givePiece, takePiece }) {
