@@ -698,7 +698,7 @@ class PlayerAgent extends Agent {
     const NOT_FOUND = -1;
 
     const canvas = this._getCanvasForBoard();
-    if (!canvas || typeof this.renderer?.getBoardIndexAt !== 'function') {
+    if (!canvas) {
       return NOT_FOUND;
     }
 
@@ -718,7 +718,7 @@ class PlayerAgent extends Agent {
     const y = (clientY - rect.top) * scaleY;
 
     try {
-      const idx = this.renderer.getBoardIndexAt(x, y);
+      const idx = this.renderer.getPieceIndexAt(x, y);
       console.log(
         'Computed board index:',
         idx,
@@ -735,7 +735,6 @@ class PlayerAgent extends Agent {
   _fallbackComputeIndexFromClient(clientX, clientY) {
     const NOT_FOUND = -1;
 
-    if (typeof this.renderer?.getBoardIndexAt !== 'function') return NOT_FOUND;
     const canvas = this._getPickingCanvas();
     if (!canvas) return NOT_FOUND;
     const rect = canvas.getBoundingClientRect();
@@ -743,7 +742,7 @@ class PlayerAgent extends Agent {
     const y = clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return NOT_FOUND;
     try {
-      const idx = this.renderer.getBoardIndexAt(x, y);
+      const idx = this.renderer.getPieceIndexAt(x, y);
       return typeof idx === 'number' ? idx : NOT_FOUND;
     } catch {
       return NOT_FOUND;
@@ -754,7 +753,7 @@ class PlayerAgent extends Agent {
     const NOT_FOUND = -1;
 
     const canvas = this._getCanvasForBoard();
-    if (!canvas || typeof this.renderer?.getBoardIndexAt !== 'function') {
+    if (!canvas) {
       return NOT_FOUND;
     }
 
@@ -765,7 +764,7 @@ class PlayerAgent extends Agent {
           canvas,
         );
         if (dev && typeof dev.x === 'number' && typeof dev.y === 'number') {
-          const idx = this.renderer.getBoardIndexAt(dev.x, dev.y);
+          const idx = this.renderer.getPieceIndexAt(dev.x, dev.y);
           if (typeof idx === 'number') return idx;
         }
       } catch {}
@@ -785,7 +784,7 @@ class PlayerAgent extends Agent {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
     try {
-      const idxFallback = this.renderer.getBoardIndexAt(x, y);
+      const idxFallback = this.renderer.getPieceIndexAt(x, y);
       return typeof idxFallback === 'number' ? idxFallback : NOT_FOUND;
     } catch {
       return NOT_FOUND;
