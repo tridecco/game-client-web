@@ -34,9 +34,9 @@ const PRECACHE_ASSETS = [
   '/audio/sfx/tridecco.wav',
   '/audio/sfx/victory.wav',
 
-  '/css/styles.css',
+  '/styles/styles.css',
 
-  '/font/tridecco.ttf',
+  '/fonts/tridecco.ttf',
 
   '/img/default-avatar.svg',
   '/img/backgrounds/broken-glass.jpg',
@@ -93,10 +93,18 @@ const PRECACHE_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting()),
+    (async () => {
+      const cache = await caches.open(STATIC_CACHE);
+
+      for (const asset of PRECACHE_ASSETS) {
+        try {
+          const response = await fetch(asset);
+          await cache.put(asset, response);
+        } catch (err) {
+          console.warn(`Failed to cache ${asset}:`, err);
+        }
+      }
+    })().then(() => self.skipWaiting()),
   );
 });
 
