@@ -1101,31 +1101,31 @@ class AIPlayerAgent extends Agent {
         offense: 0,
         defense: false,
         cautious: 0,
-        dominantColorThreshold: 3,
+        dominantColorThreshold: 10,
       },
       easy: {
         offense: 50,
         defense: false,
         cautious: 0,
-        dominantColorThreshold: 3,
+        dominantColorThreshold: 10,
       },
       normal: {
+        offense: 100,
+        defense: false,
+        cautious: 0,
+        dominantColorThreshold: 10,
+      },
+      hard: {
         offense: 100,
         defense: true,
         cautious: 0,
         dominantColorThreshold: 3,
       },
-      hard: {
+      insane: {
         offense: 100,
         defense: true,
         cautious: 1,
         dominantColorThreshold: 2,
-      },
-      insane: {
-        offense: 100,
-        defense: true,
-        cautious: 2,
-        dominantColorThreshold: 1,
       },
     };
   }
@@ -1288,48 +1288,484 @@ class AIPlayerAgent extends Agent {
     return scoringMoves[0];
   }
 
+  _getPiecesForDefense(settings) {
+    const aiHandStats = this._getHandStats(this.player);
+    if (aiHandStats.length === 0) {
+      return [];
+    }
+
+    if (aiHandStats.length === 1) {
+      return [aiHandStats[0]];
+    }
+
+    const [primary, secondary] = aiHandStats;
+    const threshold = settings?.dominantColorThreshold ?? 0;
+    if (secondary && primary.count - secondary.count > threshold) {
+      return [primary];
+    }
+
+    return aiHandStats;
+  }
+
+  _evaluateOpponentResponses(board, opponent) {
+    const availablePositions = board.getAvailablePositions();
+    const opponentStats = this._getHandStats(opponent);
+
+    if (availablePositions.length === 0 || opponentStats.length === 0) {
+      return {
+        opponentMaxHex: 0,
+        opponentMinHex: 0,
+        opponentMinScoringHex: 0,
+        opponentResponseCount: 0,
+        opponentScoringResponseCount: 0,
+      };
+    }
+
+    let maxHex = 0;
+    let minHex = Number.POSITIVE_INFINITY;
+    let minScoringHex = Number.POSITIVE_INFINITY;
+    let responseCount = 0;
+    let scoringResponseCount = 0;
+
+    for (const position of availablePositions) {
+      for (const { piece } of opponentStats) {
+        const hexCount = board.countHexagonsFormed(position, piece);
+        if (hexCount > maxHex) {
+          maxHex = hexCount;
+        }
+        if (hexCount < minHex) {
+          minHex = hexCount;
+        }
+        if (hexCount > 0) {
+          scoringResponseCount++;
+          if (hexCount < minScoringHex) {
+            minScoringHex = hexCount;
+          }
+        }
+        responseCount++;
+      }
+    }
+
+    if (minHex === Number.POSITIVE_INFINITY) {
+      minHex = 0;
+    }
+    if (minScoringHex === Number.POSITIVE_INFINITY) {
+      minScoringHex = 0;
+    }
+
+    return {
+      opponentMaxHex: maxHex,
+      opponentMinHex: minHex,
+      opponentMinScoringHex: minScoringHex,
+      opponentResponseCount: responseCount,
+      opponentScoringResponseCount: scoringResponseCount,
+    };
+  }
+
+  _evaluateDefensiveMove(position, pieceStat, board, opponent) {
+    const placedHexes = board.place(position, pieceStat.piece) || [];
+    const opponentEval = this._evaluateOpponentResponses(board, opponent);
+    board.back();
+
+    return {
+      position,
+      piece: pieceStat.piece,
+      pieceKey: pieceStat.key,
+      aiHexagons: Array.isArray(placedHexes) ? placedHexes.length : 0,
+      ...opponentEval,
+    };
+  }
+
+  _compareDefensiveMoves(a, b, settings) {
+    if (a.opponentMaxHex !== b.opponentMaxHex) {
+      return a.opponentMaxHex - b.opponentMaxHex;
+    }
+
+    if ((settings?.cautious ?? 0) > 0) {
+      if (a.opponentScoringResponseCount !== b.opponentScoringResponseCount) {
+        return a.opponentScoringResponseCount - b.opponentScoringResponseCount;
+      }
+    }
+
+    if (a.opponentMinScoringHex !== b.opponentMinScoringHex) {
+      return b.opponentMinScoringHex - a.opponentMinScoringHex;
+    }
+
+    if (a.opponentMinHex !== b.opponentMinHex) {
+      return b.opponentMinHex - a.opponentMinHex;
+    }
+
+    const aCreatesCombo = a.aiHexagons >= 2;
+    const bCreatesCombo = b.aiHexagons >= 2;
+    if (aCreatesCombo !== bCreatesCombo) {
+      return aCreatesCombo ? -1 : 1;
+    }
+
+    if (a.aiHexagons !== b.aiHexagons) {
+      return b.aiHexagons - a.aiHexagons;
+    }
+
+    if (a.opponentResponseCount !== b.opponentResponseCount) {
+      return a.opponentResponseCount - b.opponentResponseCount;
+    }
+
+    if (a.position !== b.position) {
+      return a.position - b.position;
+    }
+
+    return 0;
+  }
+
   _findBestDefensiveMove(settings, board, opponent) {
     const availablePositions = board.getAvailablePositions();
-    const aiHandStats = this._getHandStats(this.player);
+    const piecesToConsider = this._getPiecesForDefense(settings);
+    const AI_FILTER_HAND_SIZE_DIFFERENCE_ENABLED = 1;
+    const AI_FILTER_SCORING_OPP_ENABLED = 1;
+    const AI_FILTER_CHECK_DOUBLE_TRIPLE_ENABLED = 1;
+    const AI_FILTER_CHECK_FOR_TWO_THIRD_OPPORTUNITIES_ENABLED = 1;
+    console.log("Test 3");
 
-    if (availablePositions.length === 0 || aiHandStats.length === 0) {
+    if (availablePositions.length === 0 || piecesToConsider.length === 0) {
       return null;
     }
 
-    let piecesToConsider = [];
-    if (aiHandStats.length > 1) {
-      const mainColorCount = aiHandStats[0].count;
-      const secondColorCount = aiHandStats[1].count;
-      if (mainColorCount - secondColorCount > settings.dominantColorThreshold) {
-        piecesToConsider.push(aiHandStats[0].piece);
-      } else {
-        piecesToConsider = aiHandStats.map((s) => s.piece);
-      }
-    } else {
-      piecesToConsider.push(aiHandStats[0].piece);
-    }
-
-    let bestMove = null;
-    let minOpponentHexagons = Infinity;
-
+    // Create a list of all possible (position, pieceKey) combinations
+    let allPossibleMoves = [];
     for (const position of availablePositions) {
-      for (const piece of piecesToConsider) {
-        board.place(position, piece);
-        const opponentReplies = this._getScoringMoves(opponent, board);
-
-        const maxHexagonsForOpponent =
-          opponentReplies.length > 0 ? opponentReplies[0].hexagonsFormed : 0;
-
-        board.back();
-
-        if (maxHexagonsForOpponent < minOpponentHexagons) {
-          minOpponentHexagons = maxHexagonsForOpponent;
-          bestMove = { position, piece };
-        }
+      for (const pieceStat of piecesToConsider) {
+        allPossibleMoves.push({
+          position: position,
+          pieceKey: pieceStat.key,
+        });
       }
     }
 
-    return bestMove;
+    // If no possible moves, return null
+    if (allPossibleMoves.length === 0) {
+      return null;
+    }
+
+    // --- Apply Filters ---
+    // (These functions will be defined below and will modify allPossibleMoves)
+
+
+    if (AI_FILTER_HAND_SIZE_DIFFERENCE_ENABLED) {
+      allPossibleMoves = this._filterHandSizeDifference(allPossibleMoves, board, opponent, settings);
+    }
+
+    if (AI_FILTER_SCORING_OPP_ENABLED) {
+      allPossibleMoves = this._filterScoringOpp(allPossibleMoves, board, opponent, settings);
+    }
+
+    if (AI_FILTER_CHECK_DOUBLE_TRIPLE_ENABLED) {
+      allPossibleMoves = this._filterCheckDoubleTriple(allPossibleMoves, board, opponent, settings);
+    }
+
+
+    if (AI_FILTER_CHECK_FOR_TWO_THIRD_OPPORTUNITIES_ENABLED) {
+      allPossibleMoves = this._filterCheckForTwoThirdOpportunities(allPossibleMoves, board, opponent, settings);
+    }
+
+    // After applying filters, if no moves remain, fall back or return null
+    if (allPossibleMoves.length === 0) {
+      // Fallback: For now, let's just return null if all filtered out.
+      // In a real game, you might want to consider a less optimal random move here.
+      return null;
+    }
+
+    // --- For now, randomly select a position+key combination from the filtered list ---
+    const randomIndex = Math.floor(Math.random() * allPossibleMoves.length);
+    const selectedMove = allPossibleMoves[randomIndex];
+
+    // Find the actual piece object using the selected pieceKey
+    // Note: This relies on `this.player.pieces` still holding the original piece objects.
+    const piece = this.player.pieces.get(selectedMove.pieceKey)?.[0];
+
+    // Return the position and piece object
+    if (piece) {
+      return {
+        position: selectedMove.position,
+        piece: piece,
+      };
+    }
+    return null; // Should not happen if piecesToConsider is not empty and a move was selected
+  }
+
+
+  /**
+   * Helper function to count the number of unique board positions where a given player
+   * can form at least one hexagon with their currently held pieces.
+   * Treats singles, doubles, and triples the same; only cares about the position having *any* scoring potential.
+   * @param {Player} player - The player object (either AI or opponent).
+   * @param {Tridecco.Board} board - The game board.
+   * @returns {number} The count of unique positions where the player can score.
+   * @private
+   */
+  _countPlayerScoringPositions(player, board) {
+    const scoringPositions = new Set();
+    // Iterate through all pieces the given player has
+    for (const [key, pieces] of player.pieces.entries()) {
+      if (pieces.length > 0) {
+        const piece = pieces[0]; // Get one instance of the piece type
+        // Get all potential scoring moves for this piece
+        const potentialMoves = board.getHexagonPositions(piece); // Returns array of [position, hexagonsFormed]
+
+        potentialMoves.forEach(([position, hexagonsFormed]) => {
+          // If placing this piece at this position forms at least one hexagon, add the position
+          if (hexagonsFormed > 0) {
+            scoringPositions.add(position);
+          }
+        });
+      }
+    }
+    return scoringPositions.size;
+  }
+
+
+  /**
+   * Helper function to count the number of unique board positions where the opponent can form at least one hexagon.
+   * Treats singles, doubles, and triples the same; only cares about the position having *any* scoring potential.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Tridecco.Board} board - The game board.
+   * @returns {number} The count of unique positions where the opponent can score.
+   * @private
+   */
+  // REMOVED - Replaced by _countPlayerScoringPositions
+  // _countOpponentScoringPositions(opponent, board) { ... }
+
+
+  /**
+   * Filters moves to minimize opponent's scoring opportunities.
+   * It simulates each move, calculates how many *unique positions* the opponent would have
+   * to form at least one hexagon, and keeps only the moves that result in the fewest
+   * opponent scoring opportunities.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterScoringOpp(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Scoring Opponent - by unique positions)...");
+    const evaluatedMoves = [];
+
+    const aiPlayerPiecesMap = this.player.pieces;
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand.`);
+        continue;
+      }
+
+      try {
+        // Simulate placing the piece
+        board.place(move.position, pieceToPlace);
+
+        // Calculate opponent's unique scoring positions after AI's simulated move
+        // *** USING THE NEW COMBINED FUNCTION HERE ***
+        const opponentScoringPositionsCount = this._countPlayerScoringPositions(opponent, board);
+
+        evaluatedMoves.push({
+          ...move,
+          opportunitiesCreated: opponentScoringPositionsCount,
+        });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return [];
+    }
+
+    const minOpportunities = Math.min(
+      ...evaluatedMoves.map((m) => m.opportunitiesCreated),
+    );
+
+    const filtered = evaluatedMoves.filter(
+      (m) => m.opportunitiesCreated === minOpportunities,
+    );
+
+    console.log(`AI: Filter (Scoring Opponent) reduced from ${possibleMoves.length} to ${filtered.length} moves.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey }));
+  }
+
+
+  /**
+   * Filters moves by checking for opportunities to create 'two-thirds' of a hexagon
+   * (i.e., positions where the AI itself gains new scoring opportunities).
+   * It prioritizes moves that maximize the AI's *own* new scoring opportunities.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object (not directly used by this filter, but part of signature).
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterCheckForTwoThirdOpportunities(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Check For Two Third Opportunities)...");
+    const evaluatedMoves = [];
+
+    // Get the initial number of AI scoring positions before any moves are simulated
+    // *** USING THE NEW COMBINED FUNCTION HERE ***
+    const initialAIScoringPositions = this._countPlayerScoringPositions(this.player, board);
+
+    const aiPlayerPiecesMap = this.player.pieces;
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand.`);
+        continue;
+      }
+
+      try {
+        // Simulate placing the piece
+        board.place(move.position, pieceToPlace);
+
+        // Temporarily remove the piece from the AI's hand for accurate count of remaining pieces
+        this.player.pieces.get(move.pieceKey).pop();
+
+        // Calculate AI's scoring positions *after* the simulated move
+        // *** USING THE NEW COMBINED FUNCTION HERE ***
+        const currentAIScoringPositions = this._countPlayerScoringPositions(this.player, board);
+
+        // Add the piece back to AI's hand
+        this.player.pieces.get(move.pieceKey).push(pieceToPlace);
+
+        const aiOpportunitiesGained = currentAIScoringPositions - initialAIScoringPositions;
+
+        evaluatedMoves.push({
+          ...move,
+          aiOpportunitiesGained: aiOpportunitiesGained,
+        });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return [];
+    }
+
+    const maxAIOpportunitiesGained = Math.max(
+      ...evaluatedMoves.map((m) => m.aiOpportunitiesGained),
+    );
+
+    if (maxAIOpportunitiesGained <= 0) {
+        console.log("AI: Filter (Two Third Opportunities) - No move increases AI's scoring opportunities. Returning all moves.");
+        return possibleMoves;
+    }
+
+    const filtered = evaluatedMoves.filter(
+      (m) => m.aiOpportunitiesGained === maxAIOpportunitiesGained,
+    );
+
+    console.log(`AI: Filter (Two Third Opportunities) reduced from ${possibleMoves.length} to ${filtered.length} moves, maximizing AI gains.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey }));
+  }
+
+  _filterHandSizeDifference(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Hand Size Difference)...");
+
+    const aiHandStats = this._getHandStats(this.player); // Already sorted by count descending
+
+    if (aiHandStats.length < 2) {
+      // Not enough distinct piece types to compare for a difference
+      console.log("AI: Filter (Hand Size Difference) skipped - less than 2 piece types.");
+      return possibleMoves;
+    }
+
+    const mostDominantPiece = aiHandStats[0];
+    const secondMostDominantPiece = aiHandStats[1];
+
+    const threshold = settings.dominantColorThreshold ?? 10; // Default to 10 if not specified
+
+    if (mostDominantPiece.count - secondMostDominantPiece.count > threshold) {
+      // If the most dominant piece significantly outweighs the second,
+      // filter moves to only use pieces of the most dominant type.
+      const filteredMoves = possibleMoves.filter(
+        (move) => move.pieceKey === mostDominantPiece.key,
+      );
+      console.log(`AI: Filter (Hand Size Difference) reduced from ${possibleMoves.length} to ${filteredMoves.length} moves, favoring dominant piece.`);
+      return filteredMoves;
+    }
+
+    console.log("AI: Filter (Hand Size Difference) did not apply. Returning all moves.");
+    return possibleMoves;
+  }
+
+
+/**
+   * Filters moves to avoid creating immediate double or triple scoring opportunities for the opponent.
+   * It simulates each AI move, then checks the maximum hexagon count the opponent could form.
+   * Moves are filtered to keep those that result in the lowest maximum opponent scoring potential.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterCheckDoubleTriple(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Check Double/Triple)...");
+    const evaluatedMoves = [];
+    const aiPlayerPiecesMap = this.player.pieces;
+    const TRIDECCO = 3; // Constant for a triple (3 hexagons formed)
+    const DOUBLE = 2; // Constant for a double (2 hexagons formed)
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand for _filterCheckDoubleTriple.`);
+        continue;
+      }
+
+      let maxOpponentHexagons = 0; // The maximum hexagons the opponent could form after this AI move
+
+      try {
+        // Simulate AI's move
+        board.place(move.position, pieceToPlace);
+
+        // Get all potential scoring moves for the opponent after AI's move
+        const opponentPotentialScoringMoves = this._getScoringMoves(opponent, board);
+
+        // Find the maximum number of hexagons the opponent could form
+        for (const oppMove of opponentPotentialScoringMoves) {
+          if (oppMove.hexagonsFormed > maxOpponentHexagons) {
+            maxOpponentHexagons = oppMove.hexagonsFormed;
+          }
+        }
+        evaluatedMoves.push({ ...move, maxOpponentHexagons });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return []; // If no moves could be evaluated, return empty
+    }
+
+    // Determine the minimum maximum opponent hexagons that any AI move can lead to
+    const minMaxOpponentHexagons = Math.min(
+      ...evaluatedMoves.map(m => m.maxOpponentHexagons)
+    );
+
+    // Filter to keep only moves that result in this minimum maximum for the opponent
+    const filtered = evaluatedMoves.filter(
+      m => m.maxOpponentHexagons === minMaxOpponentHexagons
+    );
+
+    console.log(`AI: Filter (Check Double/Triple) reduced from ${possibleMoves.length} to ${filtered.length} moves.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey })); // Return original move structure
   }
 
   async animatePlacement(move) {
