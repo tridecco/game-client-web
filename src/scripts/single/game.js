@@ -129,6 +129,7 @@ class UIManager {
     this.modalOverlay = document.getElementById('modal-overlay');
     this.tradePerformModal = document.getElementById('trade-modal-perform');
     this.tradeForcedModal = document.getElementById('trade-modal-being-forced');
+    this.challengeSelectModal = document.getElementById('challenge-select-modal');
     this.scoreMobile = document.querySelector('[data-score-mobile]');
     this.highscoreMobile = document.querySelector('[data-highscore-mobile]');
     this.scoreDesktop = document.querySelector('[data-score-desktop]');
@@ -145,8 +146,12 @@ class UIManager {
     this.finalHighscore = document.querySelector('[data-final-highscore]');
     this.resultTitle = document.querySelector('[data-result-title]');
     this.scoreDetails = document.querySelector('[data-score-details]');
+    // Restore previous behavior: use app.location.refresh() to reload.
+    // (Reverted recent change because it caused issues.)
     document.getElementById('play-again-btn').onclick = () =>
       app.location.refresh();
+
+    
   }
 
   setScore(value) {
@@ -225,7 +230,8 @@ class UIManager {
 
         const canvas = pieceElement.querySelector('canvas');
         const valueSpan = pieceElement.querySelector('.piece-value');
-        valueSpan.textContent = pieces.length;
+        // Hide the default/template value span; we'll render a styled badge for HUD pieces.
+        if (valueSpan) valueSpan.style.display = 'none';
 
         const rect = pieceElement.getBoundingClientRect();
         const dpi = window.devicePixelRatio || 1;
@@ -234,6 +240,54 @@ class UIManager {
         canvas.height = rect.height * dpi;
 
         pieceRenderer(canvas, pieceData);
+
+        // Create a small red circular badge in the upper-left showing remaining count.
+        const badge = document.createElement('div');
+        badge.className = 'piece-count-badge';
+        badge.textContent = String(pieces.length);
+        // Ensure the container can position the badge absolutely.
+        pieceElement.style.position = pieceElement.style.position || 'relative';
+
+        const badgeSize = Math.max(8, Math.round(rect.height * 0.25));
+        Object.assign(badge.style, {
+          position: 'absolute',
+          top: `${Math.round(rect.height * 0.06)}px`,
+          left: `${Math.round(rect.width * 0.06)}px`,
+          width: `${badgeSize}px`,
+          height: `${badgeSize}px`,
+          lineHeight: `${badgeSize}px`,
+          borderRadius: '50%',
+          background: '#ef4444',
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: '600',
+          fontSize: `${Math.max(10, Math.round(badgeSize * 0.55))}px`,
+          boxSizing: 'border-box',
+          pointerEvents: 'none',
+          zIndex: 10,
+        });
+
+        pieceElement.appendChild(badge);
+
+        // Badge visibility: only show when the piece is not being clicked or dragged.
+        const updateBadgeVisibility = () => {
+          const isSelected = pieceElement.classList.contains('selected');
+          const opacity = parseFloat(getComputedStyle(pieceElement).opacity || '1');
+          if (isSelected || opacity < 1) badge.style.display = 'none';
+          else badge.style.display = 'flex';
+        };
+
+        // Hide on pointerdown, restore on pointerup (with small delay to allow drag end cleanup).
+        pieceElement.addEventListener('pointerdown', () => {
+          badge.style.display = 'none';
+        });
+        pieceElement.addEventListener('pointerup', () => setTimeout(updateBadgeVisibility, 50));
+        pieceElement.addEventListener('pointercancel', () => setTimeout(updateBadgeVisibility, 50));
+
+        // Ensure initial visibility state.
+        requestAnimationFrame(updateBadgeVisibility);
       }
     }
   }
@@ -326,14 +380,44 @@ class UIManager {
     });
   }
 
+  showChallengeSelection() {
+    return new Promise((resolve) => {
+        const container = document.getElementById('challenge-buttons-container');
+        container.innerHTML = ''; // Clear previous buttons
+
+        const onSelect = (challengeNumber) => {
+            this._hideModals();
+            resolve(challengeNumber);
+        };
+
+        for (let i = 1; i <= 6; i++) {
+            const button = document.createElement('button');
+        button.textContent = `Challenge ${i}`;
+            button.className = 'p-4 bg-gray-700 rounded-lg text-white font-semibold hover:bg-cyan-600 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500';
+            button.onclick = () => onSelect(i);
+            container.appendChild(button);
+        }
+
+        this._showModal(this.challengeSelectModal);
+    });
+  }
+
   _showModal(modalElement) {
+    // First, hide all known modals to ensure a clean slate.
     this.tradePerformModal.classList.add('hidden');
     this.tradeForcedModal.classList.add('hidden');
     this.gameOverModal.classList.add('hidden');
-
+    this.challengeSelectModal.classList.add('hidden');
+    this.tradePerformModal.classList.remove('flex');
+    this.tradeForcedModal.classList.remove('flex');
+    this.challengeSelectModal.classList.remove('flex');
+    
+    // Then, show the overlay and the specifically requested modal.
     this.modalOverlay.classList.remove('hidden');
     modalElement.classList.remove('hidden');
     modalElement.classList.add('flex');
+
+    
   }
 
   _hideModals() {
@@ -341,9 +425,11 @@ class UIManager {
     this.tradePerformModal.classList.add('hidden');
     this.tradeForcedModal.classList.add('hidden');
     this.gameOverModal.classList.add('hidden');
+    this.challengeSelectModal.classList.add('hidden');
 
     this.tradePerformModal.classList.remove('flex');
     this.tradeForcedModal.classList.remove('flex');
+    this.challengeSelectModal.classList.remove('flex');
   }
 
   _renderTradePiece(container, pieceData, renderer, isSelectable) {
@@ -356,11 +442,8 @@ class UIManager {
     }
 
     const valueSpan = pieceElement.querySelector('.piece-value');
-    if (pieceData.count) {
-      valueSpan.textContent = pieceData.count;
-    } else {
-      valueSpan.remove();
-    }
+    // Hide template numeric label; we'll render a consistent red badge after layout.
+    if (valueSpan) valueSpan.style.display = 'none';
     container.appendChild(pieceElement);
 
     requestAnimationFrame(() => {
@@ -423,6 +506,54 @@ class UIManager {
         const HALF = 0.5;
         ctx.fillText('ERR', canvas.width * HALF, canvas.height * HALF);
       }
+
+      // Create and attach the red circular badge (consistent with HUD pieces)
+      const count = pieceData.count || 0;
+      const badge = document.createElement('div');
+      badge.className = 'piece-count-badge';
+      badge.textContent = String(count);
+      pieceElement.style.position = pieceElement.style.position || 'relative';
+
+      const badgeSize = Math.max(8, Math.round(rect.height * 0.25));
+      Object.assign(badge.style, {
+        position: 'absolute',
+        top: `${Math.round(rect.height * 0.06)}px`,
+        left: `${Math.round(rect.width * 0.06)}px`,
+        width: `${badgeSize}px`,
+        height: `${badgeSize}px`,
+        lineHeight: `${badgeSize}px`,
+        borderRadius: '50%',
+        background: '#ef4444',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '600',
+        fontSize: `${Math.max(10, Math.round(badgeSize * 0.55))}px`,
+        boxSizing: 'border-box',
+        pointerEvents: 'none',
+        zIndex: 10,
+      });
+
+      pieceElement.appendChild(badge);
+
+      const updateBadgeVisibility = () => {
+        const isSelected = pieceElement.classList.contains('selected');
+        if (isSelected) badge.style.display = 'none';
+        else badge.style.display = 'flex';
+      };
+
+      // Hide while interacting and update on pointerup
+      pieceElement.addEventListener('pointerdown', () => { badge.style.display = 'none'; });
+      pieceElement.addEventListener('pointerup', () => setTimeout(updateBadgeVisibility, 20));
+      pieceElement.addEventListener('pointercancel', () => setTimeout(updateBadgeVisibility, 20));
+
+      // Observe class changes (selection toggles done externally) to keep badge in sync
+      const mo = new MutationObserver(() => updateBadgeVisibility());
+      mo.observe(pieceElement, { attributes: true, attributeFilter: ['class'] });
+
+      // Initial visibility
+      updateBadgeVisibility();
     });
 
     return pieceElement;
@@ -494,6 +625,76 @@ class UIManager {
     declineBtn.onclick = () => {
       cleanup();
       onDecline();
+    };
+
+    // Add a Minimize button alongside the existing Confirm/Decline controls.
+    // When pressed, the trade modal is hidden and replaced by a single
+    // `Expand` button visible on the page which restores the modal.
+    const self = this;
+    let minimizeBtn = document.getElementById('perform-trade-minimize-btn');
+    const buttonsContainer = confirmBtn && confirmBtn.parentElement;
+    if (!minimizeBtn && buttonsContainer) {
+      minimizeBtn = document.createElement('button');
+      minimizeBtn.id = 'perform-trade-minimize-btn';
+      minimizeBtn.textContent = 'Minimize';
+      minimizeBtn.className = 'ml-2 px-3 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-500';
+      // Insert the minimize button so it appears next to the confirm/decline buttons
+      buttonsContainer.insertBefore(minimizeBtn, confirmBtn);
+    }
+
+    const ensureExpandBtn = () => {
+      let expandBtn = document.getElementById('perform-trade-expand-btn');
+      if (!expandBtn) {
+        expandBtn = document.createElement('button');
+        expandBtn.id = 'perform-trade-expand-btn';
+        expandBtn.textContent = 'Expand';
+        Object.assign(expandBtn.style, {
+          position: 'fixed',
+          right: '12px',
+          bottom: '12px',
+          padding: '8px 10px',
+          background: '#0b84ff',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          zIndex: 9999,
+        });
+        expandBtn.addEventListener('click', () => {
+          // Restore the perform-trade modal
+          self._showModal(self.tradePerformModal);
+          expandBtn.style.display = 'none';
+        });
+        document.body.appendChild(expandBtn);
+      }
+      expandBtn.style.display = 'block';
+      return expandBtn;
+    };
+
+    const minimizeHandler = () => {
+      // Hide current trade modal and show a single Expand button
+      this._hideModals();
+      this._lastHiddenTradeModal = this.tradePerformModal;
+      const expandBtn = ensureExpandBtn();
+      expandBtn.style.display = 'block';
+    };
+
+    if (minimizeBtn) minimizeBtn.onclick = minimizeHandler;
+
+    // When confirming or declining, ensure the expand button is hidden
+    const hideExpandSafely = () => {
+      const expandBtn = document.getElementById('perform-trade-expand-btn');
+      if (expandBtn) expandBtn.style.display = 'none';
+    };
+    const originalConfirm = confirmBtn.onclick;
+    confirmBtn.onclick = (e) => {
+      hideExpandSafely();
+      originalConfirm && originalConfirm(e);
+    };
+    const originalDecline = declineBtn.onclick;
+    declineBtn.onclick = (e) => {
+      hideExpandSafely();
+      originalDecline && originalDecline(e);
     };
 
     this._showModal(this.tradePerformModal);
@@ -1097,35 +1298,41 @@ class AIPlayerAgent extends Agent {
     this.renderer = renderer;
 
     this.DIFFICULTY_SETTINGS = {
+      tutorial: {
+        offense: 100,
+        defense: true,
+        cautious: true,
+        dominantColorThreshold: 2,
+      },
       beginner: {
         offense: 0,
         defense: false,
-        cautious: 0,
-        dominantColorThreshold: 3,
+        cautious: false,
+        dominantColorThreshold: 10,
       },
       easy: {
         offense: 50,
         defense: false,
-        cautious: 0,
-        dominantColorThreshold: 3,
+        cautious: false,
+        dominantColorThreshold: 10,
       },
       normal: {
         offense: 100,
-        defense: true,
-        cautious: 0,
-        dominantColorThreshold: 3,
+        defense: false,
+        cautious: false,
+        dominantColorThreshold: 5,
       },
       hard: {
         offense: 100,
         defense: true,
-        cautious: 1,
-        dominantColorThreshold: 2,
+        cautious: false,
+        dominantColorThreshold: 3,
       },
       insane: {
         offense: 100,
         defense: true,
-        cautious: 2,
-        dominantColorThreshold: 1,
+        cautious: true,
+        dominantColorThreshold: 2,
       },
     };
   }
@@ -1214,7 +1421,7 @@ class AIPlayerAgent extends Agent {
       const isOffensive = Math.random() * PERCENT_MAX < settings.offense;
 
       if (isOffensive) {
-        if (settings.cautious > 0) {
+        if (settings.cautious === true) {
           const bestMove = this._findBestCautiousMove(
             scoringMoves,
             settings,
@@ -1242,94 +1449,580 @@ class AIPlayerAgent extends Agent {
     }
   }
 
-  _findBestCautiousMove(scoringMoves, settings, board, opponent) {
-    const CAUTION_LEVELS_MAX = 2;
-    if (settings.cautious === CAUTION_LEVELS_MAX) {
-      const safeMoves = [];
-      for (const move of scoringMoves) {
-        board.place(move.position, move.piece);
-        const opponentReplies = this._getScoringMoves(opponent, board);
-        const TRIDECCO_HEXAGON_COUNT = 3;
-        const isOpponentWinning = opponentReplies.some(
-          (r) => r.hexagonsFormed >= TRIDECCO_HEXAGON_COUNT,
-        );
-        board.back();
+_findBestCautiousMove(scoringMoves, settings, board, opponent) {
+    const aiPlayer = this.player;
+    const humanPlayer = opponent;
 
-        if (!isOpponentWinning) {
-          safeMoves.push(move);
-        }
+    // Run countPlayerScoringPositions for both the player and the AI.
+    const aiScoringPositionsCount = this._countPlayerScoringPositions(aiPlayer, board);
+    const playerScoringPositionsCount = this._countPlayerScoringPositions(humanPlayer, board);
+
+    // --- DEBUGGING LOGS START (Optional, can be removed after verification) ---
+    console.log("--- _findBestCautiousMove Debug ---");
+    console.log(`AI Player Total Pieces: ${aiPlayer.totalPieces}`);
+    console.log(`AI Scoring Positions Count: ${aiScoringPositionsCount}`);
+    console.log(`Player Total Pieces: ${humanPlayer.totalPieces}`);
+    console.log(`Player Scoring Positions Count: ${playerScoringPositionsCount}`);
+    console.log(`Number of AI Scoring Moves (passed to function): ${scoringMoves.length}`);
+    console.log("---------------------------------");
+    // --- DEBUGGING LOGS END ---
+
+
+    // 1) If AI is close to finishing its hand, return its best scoring move.
+    if ((aiScoringPositionsCount + 1) >= aiPlayer.totalPieces) {
+      console.log(`AI: Cautious move: AI is close to finishing its hand. (Condition: (${aiScoringPositionsCount} + 1) >= ${aiPlayer.totalPieces} -> ${aiScoringPositionsCount + 1 >= aiPlayer.totalPieces}). Returning first available scoring move.`);
+      if (scoringMoves.length > 0) {
+        return scoringMoves[0];
       }
-      if (safeMoves.length === 0) {
-        return this._findBestDefensiveMove(settings, board, opponent);
-      }
-      return safeMoves[0];
+      return null;
     }
 
-    if (settings.cautious === 1) {
-      let bestMove = null;
-      let minOpponentOpportunities = Infinity;
 
-      for (const move of scoringMoves) {
-        board.place(move.position, move.piece);
-        const opponentOpportunities = this._getScoringMoves(
-          opponent,
-          board,
-        ).length;
-        board.back();
+    // 2) Evaluate AI's scoring moves, calculating their impact on player opportunities, and prioritizing abundant pieces.
+    console.log("AI: Cautious move: AI not immediately finishing. Evaluating scoring differences for player opportunities.");
+    const evaluatedMoves = [];
+    const aiPlayerPiecesMap = aiPlayer.pieces;
 
-        if (opponentOpportunities < minOpponentOpportunities) {
-          minOpponentOpportunities = opponentOpportunities;
-          bestMove = move;
-        }
+    // Get AI's hand stats for tie-breaking later
+    const aiHandStats = this._getHandStats(aiPlayer); // This returns [{ piece, count, key }, ...] sorted by count descending
+    // Create a map for quick lookup of piece count by key
+    const pieceCountMap = new Map(aiHandStats.map(s => [s.key, s.count]));
+
+
+    for (const move of scoringMoves) {
+      const pieceKey = move.piece.colors.join('-');
+      const pieceToPlace = aiPlayerPiecesMap.get(pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${pieceKey} not found in AI hand for cautious move evaluation.`);
+        continue;
       }
-      return bestMove;
+
+      // Player scoring positions BEFORE AI's simulated move
+      const playerScoringPositionsBefore = this._countPlayerScoringPositions(humanPlayer, board);
+
+      try {
+        // Simulate AI's move
+        board.place(move.position, pieceToPlace);
+
+        // Player scoring positions AFTER AI's simulated move
+        const playerScoringPositionsAfter = this._countPlayerScoringPositions(humanPlayer, board);
+
+        const scoring_difference = playerScoringPositionsAfter - playerScoringPositionsBefore;
+        const aiPieceCount = pieceCountMap.get(pieceKey) || 0; // Get the count of this piece type for tie-breaking
+
+        evaluatedMoves.push({
+          ...move, // Keep original move details (piece, position, hexagonsFormed)
+          scoring_difference: scoring_difference,
+          aiPieceCount: aiPieceCount, // Add piece count for tie-breaking
+        });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
     }
 
-    return scoringMoves[0];
+    // Sort evaluated moves:
+    // 1. Ascending by scoring_difference (minimize player opportunities)
+    // 2. Descending by aiPieceCount (prioritize most abundant AI piece for ties)
+    evaluatedMoves.sort((a, b) => {
+      if (a.scoring_difference !== b.scoring_difference) {
+        return a.scoring_difference - b.scoring_difference;
+      }
+      // If scoring_difference is a tie, sort by AI piece count descending
+      return b.aiPieceCount - a.aiPieceCount;
+    });
+
+    if (evaluatedMoves.length === 0) {
+      console.log("AI: Cautious move: No evaluated moves remain after filtering. Falling back to defensive.");
+      return this._findBestDefensiveMove(settings, board, opponent);
+    }
+
+    const bestEvaluatedMove = evaluatedMoves[0];
+
+
+    // 3) If the best move results in zero or less player scoring difference, return it.
+    if (bestEvaluatedMove.scoring_difference <= 0) {
+      console.log(`AI: Cautious move: Best evaluated move has a scoring difference of ${bestEvaluatedMove.scoring_difference} (<= 0). Returning this move.`);
+      return bestEvaluatedMove;
+    }
+
+
+    // 4) If player is close to finishing their hand, switch to defensive mode.
+    // This condition is now checked AFTER evaluating the AI's best scoring difference move.
+    if ((playerScoringPositionsCount + 2) >= humanPlayer.totalPieces) {
+      console.log(`AI: Cautious move: Player is close to finishing their hand. (Condition: (${playerScoringPositionsCount} + 2) >= ${humanPlayer.totalPieces} -> ${playerScoringPositionsCount + 2 >= humanPlayer.totalPieces}). Switching to defensive mode.`);
+      return this._findBestDefensiveMove(settings, board, opponent);
+    }
+
+
+    // 5) If the best move still creates a player scoring difference of 2, switch to defensive mode.
+    if (bestEvaluatedMove.scoring_difference === 2) {
+      console.log("AI: Cautious move: Best move creates a player scoring difference of 2. Switching to defensive mode.");
+      return this._findBestDefensiveMove(settings, board, opponent);
+    }
+
+    console.log(`AI: Cautious move: Returning move with lowest scoring difference (${bestEvaluatedMove.scoring_difference}) and most abundant piece (count: ${bestEvaluatedMove.aiPieceCount}).`);
+    return bestEvaluatedMove;
+  }
+
+
+  
+  _getPiecesForDefense(settings) {
+    const aiHandStats = this._getHandStats(this.player);
+    if (aiHandStats.length === 0) {
+      return [];
+    }
+
+    if (aiHandStats.length === 1) {
+      return [aiHandStats[0]];
+    }
+
+    const [primary, secondary] = aiHandStats;
+    const threshold = settings?.dominantColorThreshold ?? 0;
+    if (secondary && primary.count - secondary.count > threshold) {
+      return [primary];
+    }
+
+    return aiHandStats;
   }
 
   _findBestDefensiveMove(settings, board, opponent) {
     const availablePositions = board.getAvailablePositions();
-    const aiHandStats = this._getHandStats(this.player);
+    const piecesToConsider = this._getPiecesForDefense(settings);
+    const AI_FILTER_HAND_SIZE_DIFFERENCE_ENABLED = 1;
+    const AI_FILTER_SCORING_OPP_ENABLED = 1;
+    const AI_FILTER_PRIORITIZE_OWN_HEXAGONS_ENABLED = 1;
+    const AI_FILTER_CHECK_DOUBLE_TRIPLE_ENABLED = 1;
+    const AI_FILTER_CHECK_FOR_TWO_THIRD_OPPORTUNITIES_ENABLED = 1;
+    console.log("Test 68")
 
-    if (availablePositions.length === 0 || aiHandStats.length === 0) {
+    if (availablePositions.length === 0 || piecesToConsider.length === 0) {
       return null;
     }
 
-    let piecesToConsider = [];
-    if (aiHandStats.length > 1) {
-      const mainColorCount = aiHandStats[0].count;
-      const secondColorCount = aiHandStats[1].count;
-      if (mainColorCount - secondColorCount > settings.dominantColorThreshold) {
-        piecesToConsider.push(aiHandStats[0].piece);
-      } else {
-        piecesToConsider = aiHandStats.map((s) => s.piece);
-      }
-    } else {
-      piecesToConsider.push(aiHandStats[0].piece);
-    }
-
-    let bestMove = null;
-    let minOpponentHexagons = Infinity;
-
+    // Create a list of all possible (position, pieceKey) combinations
+    let allPossibleMoves = [];
     for (const position of availablePositions) {
-      for (const piece of piecesToConsider) {
-        board.place(position, piece);
-        const opponentReplies = this._getScoringMoves(opponent, board);
-
-        const maxHexagonsForOpponent =
-          opponentReplies.length > 0 ? opponentReplies[0].hexagonsFormed : 0;
-
-        board.back();
-
-        if (maxHexagonsForOpponent < minOpponentHexagons) {
-          minOpponentHexagons = maxHexagonsForOpponent;
-          bestMove = { position, piece };
-        }
+      for (const pieceStat of piecesToConsider) {
+        allPossibleMoves.push({
+          position: position,
+          pieceKey: pieceStat.key,
+        });
       }
     }
 
-    return bestMove;
+    // If no possible moves, return null
+    if (allPossibleMoves.length === 0) {
+      return null;
+    }
+
+    // --- Apply Filters ---
+    // (These functions will be defined below and will modify allPossibleMoves)
+
+
+    if (AI_FILTER_HAND_SIZE_DIFFERENCE_ENABLED) {
+      allPossibleMoves = this._filterHandSizeDifference(allPossibleMoves, board, opponent, settings);
+    }
+
+    if (AI_FILTER_SCORING_OPP_ENABLED) {
+      allPossibleMoves = this._filterScoringOpp(allPossibleMoves, board, opponent, settings);
+    }
+
+    if (settings.cautious && AI_FILTER_PRIORITIZE_OWN_HEXAGONS_ENABLED) {
+        allPossibleMoves = this._filterPrioritizeScoringOwnHexagons(allPossibleMoves, board, opponent, settings);
+    }
+
+    if (AI_FILTER_CHECK_DOUBLE_TRIPLE_ENABLED) {
+      allPossibleMoves = this._filterCheckDoubleTriple(allPossibleMoves, board, opponent, settings);
+    }
+
+
+    if (AI_FILTER_CHECK_FOR_TWO_THIRD_OPPORTUNITIES_ENABLED) {
+      allPossibleMoves = this._filterCheckForTwoThirdOpportunities(allPossibleMoves, board, opponent, settings);
+    }
+
+        // New filter: If multiple moves remain, prioritize the piece key with the most pieces in hand.
+    if (allPossibleMoves.length > 1) {
+        const aiHandStats = this._getHandStats(this.player); // Get current AI hand stats (sorted by count)
+        const pieceKeyOrder = aiHandStats.map(stat => stat.key); // Get an ordered list of keys by quantity
+
+        // Find the first piece key in the ordered list that is present in any of the remaining possible moves
+        let bestPieceKey = null;
+        for (const key of pieceKeyOrder) {
+            if (allPossibleMoves.some(move => move.pieceKey === key)) {
+                bestPieceKey = key;
+                break;
+            }
+        }
+
+        if (bestPieceKey) {
+            allPossibleMoves = allPossibleMoves.filter(move => move.pieceKey === bestPieceKey);
+            console.log(`AI: Filter (Prioritize Most Pieces) reduced to moves using key: ${bestPieceKey}`);
+        } else {
+            console.log("AI: Filter (Prioritize Most Pieces) found no matching keys, returning unfiltered list.");
+        }
+    }
+
+
+    // After applying filters, if no moves remain, fall back or return null
+    if (allPossibleMoves.length === 0) {
+      // Fallback: For now, let's just return null if all filtered out.
+      // In a real game, you might want to consider a less optimal random move here.
+      return null;
+    }
+
+    // --- For now, randomly select a position+key combination from the filtered list ---
+    const randomIndex = Math.floor(Math.random() * allPossibleMoves.length);
+    const selectedMove = allPossibleMoves[randomIndex];
+
+    // Find the actual piece object using the selected pieceKey
+    // Note: This relies on `this.player.pieces` still holding the original piece objects.
+    const piece = this.player.pieces.get(selectedMove.pieceKey)?.[0];
+
+    // Return the position and piece object
+    if (piece) {
+      return {
+        position: selectedMove.position,
+        piece: piece,
+      };
+    }
+    return null; // Should not happen if piecesToConsider is not empty and a move was selected
+  }
+
+
+  /**
+   * Helper function to count the number of unique board positions where a given player
+   * can form at least one hexagon with their currently held pieces.
+   * Treats singles, doubles, and triples the same; only cares about the position having *any* scoring potential.
+   * @param {Player} player - The player object (either AI or opponent).
+   * @param {Tridecco.Board} board - The game board.
+   * @returns {number} The count of unique positions where the player can score.
+   * @private
+   */
+  _countPlayerScoringPositions(player, board) {
+    const scoringPositions = new Set();
+    // Iterate through all pieces the given player has
+    for (const [key, pieces] of player.pieces.entries()) {
+      if (pieces.length > 0) {
+        const piece = pieces[0]; // Get one instance of the piece type
+        // Get all potential scoring moves for this piece
+        const potentialMoves = board.getHexagonPositions(piece); // Returns array of [position, hexagonsFormed]
+
+        potentialMoves.forEach(([position, hexagonsFormed]) => {
+          // If placing this piece at this position forms at least one hexagon, add the position
+          if (hexagonsFormed > 0) {
+            scoringPositions.add(position);
+          }
+        });
+      }
+    }
+    return scoringPositions.size;
+  }
+
+
+  /**
+   * Helper function to count the number of unique board positions where the opponent can form at least one hexagon.
+   * Treats singles, doubles, and triples the same; only cares about the position having *any* scoring potential.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Tridecco.Board} board - The game board.
+   * @returns {number} The count of unique positions where the opponent can score.
+   * @private
+   */
+  // REMOVED - Replaced by _countPlayerScoringPositions
+  // _countOpponentScoringPositions(opponent, board) { ... }
+
+
+  /**
+   * Filters moves to minimize opponent's scoring opportunities.
+   * It simulates each move, calculates how many *unique positions* the opponent would have
+   * to form at least one hexagon, and keeps only the moves that result in the fewest
+   * opponent scoring opportunities.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterScoringOpp(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Scoring Opponent - by unique positions)...");
+    const evaluatedMoves = [];
+
+    const aiPlayerPiecesMap = this.player.pieces;
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand.`);
+        continue;
+      }
+
+      try {
+        // Simulate placing the piece
+        board.place(move.position, pieceToPlace);
+
+        // Calculate opponent's unique scoring positions after AI's simulated move
+        // *** USING THE NEW COMBINED FUNCTION HERE ***
+        const opponentScoringPositionsCount = this._countPlayerScoringPositions(opponent, board);
+
+        evaluatedMoves.push({
+          ...move,
+          opportunitiesCreated: opponentScoringPositionsCount,
+        });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return [];
+    }
+
+    const minOpportunities = Math.min(
+      ...evaluatedMoves.map((m) => m.opportunitiesCreated),
+    );
+
+    const filtered = evaluatedMoves.filter(
+      (m) => m.opportunitiesCreated === minOpportunities,
+    );
+
+    console.log(`AI: Filter (Scoring Opponent) reduced from ${possibleMoves.length} to ${filtered.length} moves.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey }));
+  }
+
+
+  /**
+   * Filters moves by checking for opportunities to create 'two-thirds' of a hexagon
+   * (i.e., positions where the AI itself gains new scoring opportunities).
+   * It prioritizes moves that maximize the AI's *own* new scoring opportunities.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object (not directly used by this filter, but part of signature).
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterCheckForTwoThirdOpportunities(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Check For Two Third Opportunities)...");
+    const evaluatedMoves = [];
+
+    // Get the initial number of AI scoring positions before any moves are simulated
+    // *** USING THE NEW COMBINED FUNCTION HERE ***
+    const initialAIScoringPositions = this._countPlayerScoringPositions(this.player, board);
+
+    const aiPlayerPiecesMap = this.player.pieces;
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand.`);
+        continue;
+      }
+
+      try {
+        // Simulate placing the piece
+        board.place(move.position, pieceToPlace);
+
+        // Temporarily remove the piece from the AI's hand for accurate count of remaining pieces
+        this.player.pieces.get(move.pieceKey).pop();
+
+        // Calculate AI's scoring positions *after* the simulated move
+        // *** USING THE NEW COMBINED FUNCTION HERE ***
+        const currentAIScoringPositions = this._countPlayerScoringPositions(this.player, board);
+
+        // Add the piece back to AI's hand
+        this.player.pieces.get(move.pieceKey).push(pieceToPlace);
+
+        const aiOpportunitiesGained = currentAIScoringPositions - initialAIScoringPositions;
+
+        evaluatedMoves.push({
+          ...move,
+          aiOpportunitiesGained: aiOpportunitiesGained,
+        });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return [];
+    }
+
+    const maxAIOpportunitiesGained = Math.max(
+      ...evaluatedMoves.map((m) => m.aiOpportunitiesGained),
+    );
+
+    if (maxAIOpportunitiesGained <= 0) {
+        console.log("AI: Filter (Two Third Opportunities) - No move increases AI's scoring opportunities. Returning all moves.");
+        return possibleMoves;
+    }
+
+    const filtered = evaluatedMoves.filter(
+      (m) => m.aiOpportunitiesGained === maxAIOpportunitiesGained,
+    );
+
+    console.log(`AI: Filter (Two Third Opportunities) reduced from ${possibleMoves.length} to ${filtered.length} moves, maximizing AI gains.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey }));
+  }
+
+  _filterHandSizeDifference(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Hand Size Difference)...");
+
+    const aiHandStats = this._getHandStats(this.player); // Already sorted by count descending
+
+    if (aiHandStats.length < 2) {
+      // Not enough distinct piece types to compare for a difference
+      console.log("AI: Filter (Hand Size Difference) skipped - less than 2 piece types.");
+      return possibleMoves;
+    }
+
+    const mostDominantPiece = aiHandStats[0];
+    const secondMostDominantPiece = aiHandStats[1];
+
+    const threshold = settings.dominantColorThreshold ?? 10; // Default to 10 if not specified
+
+    if (mostDominantPiece.count - secondMostDominantPiece.count > threshold) {
+      // If the most dominant piece significantly outweighs the second,
+      // filter moves to only use pieces of the most dominant type.
+      const filteredMoves = possibleMoves.filter(
+        (move) => move.pieceKey === mostDominantPiece.key,
+      );
+      console.log(`AI: Filter (Hand Size Difference) reduced from ${possibleMoves.length} to ${filteredMoves.length} moves, favoring dominant piece.`);
+      return filteredMoves;
+    }
+
+    console.log("AI: Filter (Hand Size Difference) did not apply. Returning all moves.");
+    return possibleMoves;
+  }
+  /**
+   * Filter that, when cautious mode is active, prioritizes moves that allow the AI
+   * to form its own hexagons. It identifies all potential scoring moves for the AI
+   * and keeps only those from the `possibleMoves` list that yield the maximum
+   * number of hexagons (e.g., if a triple is possible, only triple moves are kept).
+   *
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterPrioritizeScoringOwnHexagons(possibleMoves, board, settings) {
+    console.log("AI: Running Filter (Prioritize Scoring Own Hexagons - Cautious Mode)...");
+
+    // Get all actual scoring moves the AI *could* make with its current hand.
+    // This returns [{ piece, position, hexagonsFormed }, ...].
+    // If no moves form hexagons, this array will be empty.
+    const aiScoringMoves = this._getScoringMoves(this.player, board);
+
+    // If there are no scoring moves, or if none of them form any hexagons,
+    // Math.max will correctly result in -Infinity, which will be handled.
+    // If aiScoringMoves is empty, maxHexagonsFormed will be -Infinity.
+    const maxHexagonsFormed = aiScoringMoves.length > 0
+        ? Math.max(...aiScoringMoves.map(m => m.hexagonsFormed))
+        : 0; // If no scoring moves, assume max is 0 hexagons formed.
+
+    // If maxHexagonsFormed is 0, it means no scoring move is possible.
+    // In this case, we don't want to filter `possibleMoves` at all based on scoring.
+    if (maxHexagonsFormed === 0) {
+        console.log("AI: Filter (Prioritize Scoring Own Hexagons) - No AI scoring moves or max hexagons formed is 0. Returning all input moves.");
+        return possibleMoves;
+    }
+
+    // Keep only the AI's scoring moves that achieve this maximum
+    const bestScoringMoves = aiScoringMoves.filter(
+      m => m.hexagonsFormed === maxHexagonsFormed
+    );
+
+    // Filter `possibleMoves` to only include those that match one of the `bestScoringMoves`.
+    // If `bestScoringMoves` is empty or no match is found, `filtered` will be empty.
+    const filtered = possibleMoves.filter(pMove =>
+      bestScoringMoves.some(bMove =>
+        bMove.position === pMove.position && bMove.piece.colors.join('-') === pMove.pieceKey
+      )
+    );
+
+    // If no moves remain after this specific filter, it implies that none of the
+    // `possibleMoves` (which passed previous filters) are among the AI's *best*
+    // scoring moves. In a cautious/defensive context, it's safer to *not* discard
+    // all options if a strong offensive move isn't available.
+    if (filtered.length === 0) {
+        console.log(`AI: Filter (Prioritize Scoring Own Hexagons) - No matching moves found that achieve max hexagons. Returning all input moves.`);
+        return possibleMoves;
+    }
+
+    console.log(`AI: Filter (Prioritize Scoring Own Hexagons) reduced from ${possibleMoves.length} to ${filtered.length} moves, prioritizing moves that form ${maxHexagonsFormed} hexagons.`);
+    return filtered;
+  }
+
+/**
+   * Filters moves to avoid creating immediate double or triple scoring opportunities for the opponent.
+   * It simulates each AI move, then checks the maximum hexagon count the opponent could form.
+   * Moves are filtered to keep those that result in the lowest maximum opponent scoring potential.
+   * @param {Array<Object>} possibleMoves - Array of possible move objects ({ position, pieceKey }).
+   * @param {Tridecco.Board} board - The game board.
+   * @param {Player} opponent - The opponent player object.
+   * @param {Object} settings - AI difficulty settings.
+   * @returns {Array<Object>} Filtered array of possible moves.
+   * @private
+   */
+  _filterCheckDoubleTriple(possibleMoves, board, opponent, settings) {
+    console.log("AI: Running Filter (Check Double/Triple)...");
+    const evaluatedMoves = [];
+    const aiPlayerPiecesMap = this.player.pieces;
+    const TRIDECCO = 3; // Constant for a triple (3 hexagons formed)
+    const DOUBLE = 2; // Constant for a double (2 hexagons formed)
+
+    for (const move of possibleMoves) {
+      const pieceToPlace = aiPlayerPiecesMap.get(move.pieceKey)?.[0];
+
+      if (!pieceToPlace) {
+        console.warn(`AI: Piece with key ${move.pieceKey} not found in AI hand for _filterCheckDoubleTriple.`);
+        continue;
+      }
+
+      let maxOpponentHexagons = 0; // The maximum hexagons the opponent could form after this AI move
+
+      try {
+        // Simulate AI's move
+        board.place(move.position, pieceToPlace);
+
+        // Get all potential scoring moves for the opponent after AI's move
+        const opponentPotentialScoringMoves = this._getScoringMoves(opponent, board);
+
+        // Find the maximum number of hexagons the opponent could form
+        for (const oppMove of opponentPotentialScoringMoves) {
+          if (oppMove.hexagonsFormed > maxOpponentHexagons) {
+            maxOpponentHexagons = oppMove.hexagonsFormed;
+          }
+        }
+        evaluatedMoves.push({ ...move, maxOpponentHexagons });
+      } finally {
+        // Always backtrack the board state
+        board.back();
+      }
+    }
+
+    if (evaluatedMoves.length === 0) {
+      return []; // If no moves could be evaluated, return empty
+    }
+
+    // Determine the minimum maximum opponent hexagons that any AI move can lead to
+    const minMaxOpponentHexagons = Math.min(
+      ...evaluatedMoves.map(m => m.maxOpponentHexagons)
+    );
+
+    // Filter to keep only moves that result in this minimum maximum for the opponent
+    const filtered = evaluatedMoves.filter(
+      m => m.maxOpponentHexagons === minMaxOpponentHexagons
+    );
+
+    console.log(`AI: Filter (Check Double/Triple) reduced from ${possibleMoves.length} to ${filtered.length} moves.`);
+    return filtered.map(({ position, pieceKey }) => ({ position, pieceKey })); // Return original move structure
   }
 
   async animatePlacement(move) {
@@ -1416,6 +2109,83 @@ class Game {
     );
   }
 
+  async tutorial() {
+    const selectedChallenge = await this.uiManager.showChallengeSelection();
+
+    if (selectedChallenge === 1) {
+        this.challenge([1, 1, 0, 0], [0, 0, 0, 1], [[31], [3]], "Form a Hexagon to Win!");
+    } else if (selectedChallenge === 2) {
+        this.challenge([2, 3, 0, 0], [0, 0, 0, 1], [[4,14], [4,3]], "Can You Form Four Hexagons in One Move?");
+    } else if (selectedChallenge === 3) {
+      this.challenge([2, 1, 0, 0], [0, 0, 1, 1], [[10, 12, 19, 13], [3, 3, 1, 1]], "Force Trade with a Double!");
+    } else if (selectedChallenge === 4) {
+      this.challenge([6, 6, 0, 0], [0, 0, 1, 0], [[10, 12, 19, 1, 2], [3, 3,1,1,4]], "Win Instantly with a Tridecco!");
+    } else if (selectedChallenge === 5) {
+      this.challenge([1, 1, 0, 0], [0, 0, 2, 2], [[20,12,3,13],[1,2,3,4]], "Find the Best Defensive Move!");
+    } else if (selectedChallenge === 6) {
+      this.challenge([6, 6, 0, 0], [0, 0, 1, 1], [[9, 12, 19, 36, 28, 17, 26, 27], [2,2,3,3,4, 4, 1, 4]], "Ultimate Challenge!");
+    }
+  }
+
+  async challenge(p, a, b, s) {
+    const PIECE_DEFS = [
+      ['yellow', 'blue'], // maps to piece type 1
+      ['white', 'red'],   // maps to piece type 2
+      ['blue', 'white'],  // maps to piece type 3
+      ['red', 'yellow']   // maps to piece type 4
+    ];
+
+
+    this._updateAllHUDs();
+
+    // Player always starts the turn in a challenge
+    this.currentAgent = this.aiAgent;
+
+    // Display the challenge message from the 's' parameter
+    this.uiManager.showInfoMessage(s, 2000);
+    await delay(2000);
+
+    // Set up the board state from the 'b' array
+    if (b && b[0] && b[1]) {
+        for(let i = 0; i < b[0].length; i++) {
+            const position = b[0][i];
+            const pieceTypeIndex = b[1][i] - 1; // Adjust from 1-based to 0-based index
+            if (pieceTypeIndex >= 0 && pieceTypeIndex < PIECE_DEFS.length) {
+              const piece = new Tridecco.Piece(PIECE_DEFS[pieceTypeIndex]);
+              this.board.place(position, piece);
+            }
+        }
+    }
+
+        // Clear any existing pieces from a previous game
+    this.playerAgent.player.pieces.clear();
+    this.aiAgent.player.pieces.clear();
+    
+    // Deal player pieces based on the 'p' array
+    for (let i = 0; i < p.length; i++) {
+      for (let j = 0; j < p[i]; j++) {
+        this.playerAgent.player.addPiece(new Tridecco.Piece(PIECE_DEFS[i]));
+      }
+    }
+
+    // Deal AI pieces based on the 'a' array
+    for (let i = 0; i < a.length; i++) {
+      for (let j = 0; j < a[i]; j++) {
+        this.aiAgent.player.addPiece(new Tridecco.Piece(PIECE_DEFS[i]));
+      }
+    }
+
+
+
+    this._updateAllHUDs();
+
+    // Start the game loop
+    this._nextTurn();
+    this._gameLoop();
+  }
+
+  
+
   async start() {
     this.uiManager.setHighScore(this.highScore);
     await this._dealPieces();
@@ -1426,9 +2196,31 @@ class Game {
     await this.currentAgent.tossPiece({ board: this.board });
 
     const firstPieceKey = Array.from(this.currentAgent.player.pieces.keys())[0];
+    const peekPiece = this.currentAgent.player.pieces.get(firstPieceKey)?.[0];
+
+    // Preview: place+update then undo, repeat six times for a toss animation.
+    if (peekPiece) {
+      for (let i = 0; i < 30; i++) {
+        try {
+          this.board.place(this.board.getRandomPosition(false), peekPiece);
+          this._updateAllHUDs();
+        } catch (e) {}
+        await delay(100);
+        try {
+          this.board.back();
+          this._updateAllHUDs();
+        } catch (e) {}
+        // tiny pause before next preview
+        await delay(10);
+      }
+    }
+
+    // Now perform the real first placement (pop the piece then place)
     const firstPiece = this.currentAgent.player.popPiece(firstPieceKey);
-    this.board.place(this.board.getRandomPosition(false), firstPiece);
-    this._updateAllHUDs();
+    if (firstPiece) {
+      this.board.place(this.board.getRandomPosition(false), firstPiece);
+      this._updateAllHUDs();
+    }
 
     this._nextTurn();
     this._gameLoop();
@@ -1625,6 +2417,7 @@ class Game {
 
     if (playerWon) {
       const difficultyBonusMap = {
+        tutorial: 0,
         beginner: 1000,
         easy: 2000,
         normal: 3000,
@@ -1776,7 +2569,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     () => {
       game.playerAgent.renderer = game.renderer;
       game.aiAgent.renderer = game.renderer;
-      game.start();
+      // If the URL contains a `tutorial` flag (e.g. `?tutorial=1`) start tutorial mode,
+      // otherwise fall back to the explicit `difficulty` param or normal start.
+      if (app.location.params.tutorial || difficulty === 'tutorial') {
+        // Ensure options reflect tutorial so difficulty bonus is zero at game end
+        game.options.difficulty = 'tutorial';
+        game.tutorial();
+      } else {
+        game.start();
+      }
     },
   );
 });
