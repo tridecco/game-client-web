@@ -57,6 +57,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </a>
+        <button id="select-six-challenges-header-btn" class="hidden ml-3 px-3 py-2 rounded bg-amber-500 hover:bg-amber-600 text-sm font-semibold">Select Challenges</button>
         <div class="flex-grow text-center md:hidden">
           <span class="text-xs uppercase text-white/70 tracking-wider">Score</span>
           <p class="text-2xl font-bold text-amber-300" data-score-mobile>0</p>
@@ -103,6 +104,10 @@
       <!-- Player Pieces will be rendered here -->
     </footer>
 
+
+    <!-- Thin decorative spacer line (1px) below player pieces to nudge them up slightly -->
+    <div id="bottom-spacer" aria-hidden="true" class="w-full h-1 bg-white/6 pointer-events-none"></div>
+    
   </div>
 
   <!-- Large Game Info Message -->
@@ -110,8 +115,22 @@
     <p class="font-tridecco text-6xl md:text-7xl text-white/90 drop-shadow-lg tracking-wide select-none"></p>
   </div>
 
+  <!-- Challenge Select Modal (used by UIManager.showChallengeSelection) -->
+
   <!-- Modal Overlay (Shared by all modals) -->
   <div id="modal-overlay" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 hidden">
+
+    <!-- Challenge Selection Modal -->
+    <div id="challenge-select-modal" class="w-full max-w-md md:max-w-2xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex-col p-6 sm:p-8 hidden">
+      <h3 class="text-2xl font-bold text-center text-amber-400 mb-2 tracking-wide">Beginner Challenges</h3>
+      <p class="text-center text-white/70 mb-4">Pick one of the six challenges to play.</p>
+      <div id="challenge-buttons-container" class="grid grid-cols-2 gap-3 mb-4">
+        <!-- Buttons inserted by UIManager.showChallengeSelection -->
+      </div>
+      <div class="flex justify-end">
+        <button id="challenge-select-cancel" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded font-semibold">Close</button>
+      </div>
+    </div>
 
     <!-- Player Initiates Trade Modal -->
     <div id="trade-modal-perform" class="w-full max-w-md md:max-w-2xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-white/10 flex-col p-6 sm:p-8 hidden">
